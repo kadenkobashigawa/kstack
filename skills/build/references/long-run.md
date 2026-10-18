@@ -50,8 +50,8 @@ their order (built well, works, written true), then takes the worst broken rule 
    a slice.)* An act-on finding is a broken rule.
 4. **One task.** The worst proven broken rule is the run's only task: run build's checks 1 to 5 on
    that slice, then the gate (`references/gate.md`), then the merge. Then the run ends. The other
-   findings are not recorded *(ours, Kaden, 2026-10-17: "the next rollback call, it's gonna go and
-   review everything. Again")*: the next run reviews the slice afresh and finds what still stands.
+   findings are not recorded *(ours: the next run reviews everything again anyway, so a record of
+   them would only go stale)*: the next run reviews the slice afresh and finds what still stands.
    The predicate is that the rule is no longer broken at the commit that merged, or at merge-ready
    without the grant.
 5. **If the task fails twice, the run stops.** Two failed corrections on the same issue is build's

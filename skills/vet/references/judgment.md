@@ -52,5 +52,5 @@ lead-judgment: "If your 'Act On' list has more than 5 items, you're probably not
 enough." Here that is a reason to re-check each act-on finding against the proof test above, never
 to demote a proven one. Rank security, data loss and migration first. "The 'Dismissed' section is
 not busywork. It's a trust mechanism." A dismissal's reason lives in the tick's working notes only,
-and no agent audits them, by Kaden's choice (SKILL.md, Not carried), so the lead has no one to
+and no agent audits them, by the maintainer's choice (SKILL.md, Not carried), so the lead has no one to
 check its filter and holds it to the proof test above.

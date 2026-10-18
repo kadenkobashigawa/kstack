@@ -48,17 +48,15 @@ $S status            # one line; `--hook` is the SessionStart form
 canary, one line) and, while a range is blocked, `blocked_until` (one number, removed by the next
 `advance`). Nothing else is written, anywhere: no ledger, no findings file, no trail file. A tick's
 trail, its judgments and the reason for each dismissal, lives in its own working notes and ends with
-the tick. *(ours, after Kaden, 2026-10-17, on robovac's reports: "I don't want any markdown ledgers
-to just grow until infinity".)*
+the tick. *(ours, as with robovac's reports: no ledger is kept, because one would only grow.)*
 
 **Not carried:** show-me-your-work's two hand-back steps, the audit of the log against the
 transcript ("At the end of the run, before handing back, check the log told the truth") and the
 cross-model review of the trail ("spawn a subagent on a different model family from the one that did
 the work"), whose flags end every reply in an Attention section. *(ours: a tick replies with its
 findings or nothing, as Speak only when it matters says, so it has no hand-back to end with an
-Attention list. And by Kaden's choice, 2026-10-17, vet's trail is never audited by another agent:
-"since that is supposed to be the final reviewer, I think it's okay for it to not be reviewed by
-another agent".)*
+Attention list. And vet's trail is never audited by another agent, by the maintainer's choice:
+vet is the final reviewer.)*
 
 ## Modes
 
