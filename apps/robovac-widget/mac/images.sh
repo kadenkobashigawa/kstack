@@ -70,13 +70,12 @@ fetch)
       "images.sh build, then images.sh publish" >&2
     exit 1
   fi
-  command -v gh >/dev/null || { echo "images: needs the GitHub CLI, gh (brew install gh)" >&2; exit 1; }
-
   # the download unpacks beside app/build, on its volume, so the swap below is a rename...
   mkdir -p "$here/build"
   tmp=$(mktemp -d "$here/build/fetch.XXXXXX")
   trap 'rm -rf "$tmp"' EXIT
-  gh release download "$name" --repo kadenkobashigawa/kstack --pattern "$name.tar.gz" --dir "$tmp"
+  curl -fsSL -o "$tmp/$name.tar.gz" "https://github.com/kadenkobashigawa/kstack/releases/download/$name/$name.tar.gz" ||
+    { echo "images: could not download $name.tar.gz" >&2; exit 1; }
   echo "$sum  $tmp/$name.tar.gz" | shasum -a 256 -c - >/dev/null ||
     { echo "images: $name.tar.gz does not match images.lock's checksum" >&2; exit 1; }
 

@@ -1,12 +1,12 @@
 #!/bin/zsh
 # test_pack — when build.sh fetches the image pack, and what images.sh fetch and publish leave
-# behind. K1 to K4 and K12 decide when build.sh fetches. K5 and K6 download the pack, so they need gh
-# signed in; the rest stub what they call. K7 to K10: publish refuses a fetched pack, fetch a pack
+# behind. K1 to K4 and K12 decide when build.sh fetches. K5 and K6 download the pack, so they need the
+# network; the rest stub what they call. K7 to K10: publish refuses a fetched pack, fetch a pack
 # that fails its checksum, and publish images older than their generators or from a build that
 # stopped partway. K11 runs build.sh through its install with the compiler stubbed, into a temp
 # HOME, and unregisters what it installed. K13 holds that a failed release leaves nothing behind.
 # K14 to K19 hold the key images.sh build and fetch record beside the images, and that current and
-# publish compare it, so an edit with a backdated file time does not pass; they stub Python and gh.
+# publish compare it, so an edit with a backdated file time does not pass; they stub Python, curl and gh.
 # K20 holds that every ROBOVAC_ variable the app reads has a runner in mac/demo.sh, K21 the usage text,
 # K22 that images.sh lists every module widget.py build imports.
 # usage: test_pack.sh [widget dir]; exits 1 on any FAIL...
@@ -56,7 +56,7 @@ copy; mkdir -p $tmp/w/app/build $tmp/bad/build; echo keep > $tmp/w/app/build/dat
 key=$(cd $tmp/w && cat $gens | shasum -a 256 | cut -c1-12)
 echo tampered > $tmp/bad/build/data.js; tar -czf $tmp/bad.tar.gz -C $tmp/bad build
 echo "robovac-images-$key $(printf '0%.0s' {1..64})" > $tmp/w/mac/images.lock
-printf '#!/bin/sh\nwhile [ "$1" != --dir ]; do shift; done\ncp %s "$2/robovac-images-%s.tar.gz"\n' $tmp/bad.tar.gz $key > $tmp/bin/gh; chmod +x $tmp/bin/gh
+printf '#!/bin/sh\nwhile [ "$1" != -o ]; do shift; done\ncp %s "$2"\n' $tmp/bad.tar.gz > $tmp/bin/curl; chmod +x $tmp/bin/curl
 PATH=$tmp/bin:$PATH sh $tmp/w/mac/images.sh fetch >/dev/null 2>&1; code=$?
 check 'K8 a pack that fails its checksum is refused, the images there stay, and its download goes' "$code $(cat $tmp/w/app/build/data.js) $(find $tmp/w/mac/build -maxdepth 1 -name "fetch.*" 2>/dev/null | wc -l | tr -d ' ')" "1 keep 0"
 
@@ -107,7 +107,7 @@ check 'K18 a key older than the images it sits beside is ignored, and the files 
 copy; mkdir -p $tmp/good/build; echo pack > $tmp/good/build/data.js; tar -czf $tmp/good.tar.gz -C $tmp/good build
 key=$(cd $tmp/w && cat $gens | shasum -a 256 | cut -c1-12)
 echo "robovac-images-$key $(shasum -a 256 $tmp/good.tar.gz | cut -d' ' -f1)" > $tmp/w/mac/images.lock
-printf '#!/bin/sh\nwhile [ "$1" != --dir ]; do shift; done\ncp %s "$2/robovac-images-%s.tar.gz"\n' $tmp/good.tar.gz $key > $tmp/bin/gh
+printf '#!/bin/sh\nwhile [ "$1" != -o ]; do shift; done\ncp %s "$2"\n' $tmp/good.tar.gz > $tmp/bin/curl; chmod +x $tmp/bin/curl
 PATH=$tmp/bin:$PATH sh $tmp/w/mac/images.sh fetch >/dev/null 2>&1; code=$?
 check 'K19 fetch records the key beside the pack it unpacks' "$code $(cat $tmp/w/app/build/.key 2>/dev/null)" "0 $key"
 # every ROBOVAC_ variable the app reads has a runner in mac/demo.sh, so none sits unused...
