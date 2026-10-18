@@ -1,0 +1,19 @@
+{
+  "name": "esc-and-denied",
+  "about": "Esc at a prompt, Esc mid-tool, and a prompt denied without Esc",
+  "steps": [
+    {"prompt": "/robovac Reply with only the word ready.",
+     "shots": [["result", 32, "ready"]]},
+    {"prompt": "Use the Bash tool to run exactly: touch esc-at-prompt.txt . If it is refused, do not retry.",
+     "answers": [{"hold": 24, "behavior": "deny", "interrupt": true}],
+     "shots": [["ask", 20, "prompt-waiting"], ["answer", 6, "esc-at-prompt"]]},
+    {"pause": 2},
+    {"prompt": "Use the Bash tool to run exactly: python3 -c \"import time; time.sleep(30)\" . Then reply with only the word slept.",
+     "interrupt": ["prompt", 8],
+     "shots": [["prompt", 6, "sleeping"], ["prompt", 42, "esc-mid-tool"]]},
+    {"pause": 2},
+    {"prompt": "Use the Bash tool to run exactly: touch denied.txt . If it is refused, do not retry; reply with only the word refused.",
+     "answers": [{"hold": 24, "behavior": "deny"}],
+     "shots": [["ask", 20, "deny-waiting"], ["result", 32, "denied-then-done"]]}
+  ]
+}

@@ -1,0 +1,5 @@
+# the Python packages that draw and test the house (widget.py, icon.py, tests/test_page.py,
+# tests/test_icon.sh), pinned to the versions they were last run with.
+# after installing, `playwright install webkit` fetches the browser the page tests load.
+playwright==1.60.0
+pillow==12.2.0

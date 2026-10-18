@@ -1,0 +1,70 @@
+[
+ [
+  1792316231.087,
+  "film started: window 47335 at 476,143 560x420"
+ ],
+ [
+  1792316231.0871,
+  "session e5be6bbe-2c0d-4f0b-86f2-70b63bac0219 started in the desktop host mode"
+ ],
+ [
+  1792316231.0872,
+  "prompt: /robovac Use the Bash tool with run_in_background set to true to run exactly: sleep 20 . D"
+ ],
+ [
+  1792316236.5894,
+  "result: success 'launched'"
+ ],
+ [
+  1792316250.687,
+  "still shell-running"
+ ],
+ [
+  1792316257.6184,
+  "result: success 'The background `sleep 20` finished with exit code 0.'"
+ ],
+ [
+  1792316281.187,
+  "still shell-done"
+ ],
+ [
+  1792316281.1871,
+  "pause 2 s"
+ ],
+ [
+  1792316283.187,
+  "prompt: Call the Agent tool once with subagent_type \"general-purpose\", run_in_background true, and"
+ ],
+ [
+  1792316288.225,
+  "result: success 'launched'"
+ ],
+ [
+  1792316302.487,
+  "still agent-running"
+ ],
+ [
+  1792316305.3156,
+  "result: success 'The background agent finished. It ran `sleep 15` and replied'"
+ ],
+ [
+  1792316363.487,
+  "still agent-done"
+ ],
+ [
+  1792316363.987,
+  "session closed by the host"
+ ],
+ [
+  1792316367.187,
+  "film stopped"
+ ],
+ [
+  1792316367.387,
+  "app pid 86313 quit, window gone"
+ ],
+ [
+  1792316367.3871,
+  "session folder holds: nothing"
+ ]
+]

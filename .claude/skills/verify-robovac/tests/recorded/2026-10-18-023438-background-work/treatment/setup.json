@@ -1,0 +1,16 @@
+{
+ "side": "treatment",
+ "rev": "5c4a1a52800dafad9a895038d759620c0561c2f0",
+ "sha": "5c4a1a52800dafad9a895038d759620c0561c2f0",
+ "tree": "<path>",
+ "app": "<path>",
+ "id": "com.kstack.robovac.verify-5c4a1a52800d",
+ "log": "<path>",
+ "house": 1,
+ "later": false,
+ "claude": "<path>",
+ "claude_version": "2.1.299 (Claude Code)",
+ "pid": null,
+ "window": null,
+ "closed": true
+}

@@ -1,0 +1,10 @@
+{
+  "name": "on-its-way-home",
+  "about": "a turn starts while the robot drives home from the last one: it docks first, then goes back out",
+  "steps": [
+    {"prompt": "/robovac Reply with only the word first."},
+    {"pause": 3},
+    {"prompt": "Use the Bash tool to run exactly: python3 -c \"import time; time.sleep(20)\" . Then reply with only the word again.",
+     "shots": [["prompt", 2, "on-its-way"], ["prompt", 20, "out-again"], ["result", 32, "docked"]]}
+  ]
+}

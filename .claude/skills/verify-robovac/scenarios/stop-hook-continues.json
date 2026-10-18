@@ -1,0 +1,10 @@
+{
+  "name": "stop-hook-continues",
+  "about": "another Stop hook keeps the turn going once, and the robot goes out again for the continuation",
+  "hooks": {"Stop": [{"hooks": [{"type": "command", "command": "{verify} continue-once {scratch}/stop-once 'Use the Bash tool to run exactly: sleep 10 . Then reply with only the word continued.'", "timeout": 5}]}]},
+  "steps": [
+    {"prompt": "/robovac Reply with only the word first.",
+     "timeout": 120,
+     "shots": [["prompt", 9, "continued"], ["result", 32, "docked"]]}
+  ]
+}

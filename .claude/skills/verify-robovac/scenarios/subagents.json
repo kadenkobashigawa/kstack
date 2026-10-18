@@ -1,0 +1,16 @@
+{
+  "name": "subagents",
+  "about": "a foreground subagent's prompt, then a background agent's prompt while the main agent works",
+  "steps": [
+    {"prompt": "/robovac Call the Agent tool once with subagent_type \"general-purpose\", run_in_background false, and this prompt: \"Use the Bash tool to run exactly: touch fg.txt. Then use the Bash tool to run exactly: sleep 6. Then reply done.\" Wait for it, then reply with only the word finished.",
+     "answers": [{"hold": 26, "behavior": "allow"}],
+     "timeout": 180,
+     "shots": [["ask", 22, "fg-waiting"], ["answer", 4, "fg-approved"], ["result", 32, "fg-done"]]},
+    {"pause": 2},
+    {"prompt": "Call the Agent tool once with subagent_type \"general-purpose\", run_in_background true, and this prompt: \"Use the Bash tool to run exactly: touch bg.txt. Then reply done.\" Right after launching it, use the Bash tool five times, one call after another, each running exactly: sleep 3 . Then reply with only the word launched.",
+     "answers": [{"hold": 20, "behavior": "allow"}],
+     "results": 2,
+     "timeout": 180,
+     "shots": [["ask", 10, "bg-waiting"], ["answer", 4, "bg-approved"], ["result", 34, "bg-done"]]}
+  ]
+}

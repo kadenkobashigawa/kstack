@@ -1,0 +1,6 @@
+upstream/*/assets/
+.DS_Store
+.ruff_cache/
+__pycache__/
+apps/*/app/build/
+apps/*/mac/build/

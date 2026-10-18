@@ -1,0 +1,11 @@
+{"t": 1792316231.742769, "session": "<session>", "project": "w", "event": "start", "cwd": "<path>", "transcript": "<path>", "mark": 0, "tasks": {}, "via": "prompt"}
+{"t": 1792316235.273046, "session": "<session>", "project": "w", "event": "work", "turn": true, "tasks": {"bk7tcpz32": "shell"}}
+{"t": 1792316236.580249, "session": "<session>", "project": "w", "event": "work", "turn": false, "tasks": {"bk7tcpz32": "shell"}}
+{"t": 1792316255.3568242, "session": "<session>", "project": "w", "event": "start", "cwd": "<path>", "transcript": "<path>", "mark": 110308, "tasks": {}, "via": "again"}
+{"t": 1792316257.608747, "session": "<session>", "project": "w", "event": "end", "why": "finished"}
+{"t": 1792316283.274204, "session": "<session>", "project": "w", "event": "start", "cwd": "<path>", "transcript": "<path>", "mark": 117411, "tasks": {}, "via": "again"}
+{"t": 1792316285.859751, "session": "<session>", "project": "w", "event": "work", "turn": true, "tasks": {"a76d2fcf650ef63c4": "subagent"}}
+{"t": 1792316288.217213, "session": "<session>", "project": "w", "event": "work", "turn": false, "tasks": {"a76d2fcf650ef63c4": "subagent"}}
+{"t": 1792316303.565789, "session": "<session>", "project": "w", "event": "start", "cwd": "<path>", "transcript": "<path>", "mark": 128308, "tasks": {}, "via": "again"}
+{"t": 1792316305.3041039, "session": "<session>", "project": "w", "event": "end", "why": "finished"}
+{"t": 1792316363.761927, "session": "<session>", "project": "w", "event": "end", "why": "session closed"}

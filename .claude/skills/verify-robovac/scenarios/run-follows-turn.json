@@ -1,0 +1,13 @@
+{
+  "name": "run-follows-turn",
+  "about": "a prompt that only mentions /robovac starts nothing; one that starts with it sweeps until the turn ends",
+  "steps": [
+    {"prompt": "In one word, is /robovac a command? Reply with only yes or no.",
+     "shots": [["result", 4, "mention-only"]]},
+    {"prompt": "/robovac Use the Bash tool to run exactly: {runs} say \"verifying a run follows its turn\" . Then use the Bash tool to run exactly: sleep 6 . Then use the Bash tool to run exactly: sleep 6 . Then reply with only the word swept.",
+     "shots": [["prompt", 6, "sweeping"], ["prompt", 12, "still-sweeping"], ["result", 32, "docked"]]},
+    {"pause": 2},
+    {"prompt": "Use the Bash tool to run exactly: sleep 6 . Then reply with only the word again.",
+     "shots": [["prompt", 5, "next-prompt-sweeps"], ["result", 32, "docked-again"]]}
+  ]
+}

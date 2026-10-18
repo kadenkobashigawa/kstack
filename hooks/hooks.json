@@ -1,0 +1,148 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"${CLAUDE_PROJECT_DIR:-.}\" 2>/dev/null && [ -x \"$HOME/.claude/skills/vet/scripts/vet.sh\" ] && \"$HOME/.claude/skills/vet/scripts/vet.sh\" status --hook 2>/dev/null || true",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -x \"$HOME/.claude/skills/robovac/scripts/runs.py\" ] && \"$HOME/.claude/skills/robovac/scripts/runs.py\" hook 2>/dev/null || true",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -x \"$HOME/.claude/skills/robovac/scripts/runs.py\" ] && \"$HOME/.claude/skills/robovac/scripts/runs.py\" hook 2>/dev/null || true",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -x \"$HOME/.claude/skills/robovac/scripts/runs.py\" ] && \"$HOME/.claude/skills/robovac/scripts/runs.py\" hook 2>/dev/null || true",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PostToolUseFailure": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -x \"$HOME/.claude/skills/robovac/scripts/runs.py\" ] && \"$HOME/.claude/skills/robovac/scripts/runs.py\" hook 2>/dev/null || true",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PostToolBatch": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -x \"$HOME/.claude/skills/robovac/scripts/runs.py\" ] && \"$HOME/.claude/skills/robovac/scripts/runs.py\" hook 2>/dev/null || true",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PermissionRequest": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -x \"$HOME/.claude/skills/robovac/scripts/runs.py\" ] && \"$HOME/.claude/skills/robovac/scripts/runs.py\" hook 2>/dev/null || true",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Elicitation": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -x \"$HOME/.claude/skills/robovac/scripts/runs.py\" ] && \"$HOME/.claude/skills/robovac/scripts/runs.py\" hook 2>/dev/null || true",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "ElicitationResult": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -x \"$HOME/.claude/skills/robovac/scripts/runs.py\" ] && \"$HOME/.claude/skills/robovac/scripts/runs.py\" hook 2>/dev/null || true",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "matcher": "permission_prompt|elicitation_dialog|elicitation_url_dialog",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -x \"$HOME/.claude/skills/robovac/scripts/runs.py\" ] && \"$HOME/.claude/skills/robovac/scripts/runs.py\" hook 2>/dev/null || true",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -x \"$HOME/.claude/skills/robovac/scripts/runs.py\" ] && \"$HOME/.claude/skills/robovac/scripts/runs.py\" hook 2>/dev/null || true",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "StopFailure": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -x \"$HOME/.claude/skills/robovac/scripts/runs.py\" ] && \"$HOME/.claude/skills/robovac/scripts/runs.py\" hook 2>/dev/null || true",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "[ -x \"$HOME/.claude/skills/robovac/scripts/runs.py\" ] && \"$HOME/.claude/skills/robovac/scripts/runs.py\" hook 2>/dev/null || true",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}

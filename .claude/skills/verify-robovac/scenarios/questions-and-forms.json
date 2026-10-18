@@ -1,0 +1,14 @@
+{
+  "name": "questions-and-forms",
+  "about": "a question and an MCP form each dock the robot as they open, and each answer sends it out again",
+  "form": true,
+  "steps": [
+    {"prompt": "/robovac Use the AskUserQuestion tool once to ask me the question \"Proceed?\" with the two options yes and no. Then use the Bash tool to run exactly: sleep 8 . Then reply with only the word asked.",
+     "answers": [{"hold": 26, "behavior": "allow"}],
+     "shots": [["ask", 14, "question-waiting"], ["answer", 5, "question-answered"], ["result", 32, "question-done"]]},
+    {"pause": 2},
+    {"prompt": "Call the mcp__form__ask tool once. Then use the Bash tool to run exactly: sleep 8 . Then reply with only the word formed.",
+     "answers": [{"hold": 0, "behavior": "allow"}, {"hold": 26, "behavior": "allow"}],
+     "shots": [["ask", 14, "form-waiting"], ["ask", 31, "form-answered"], ["result", 32, "form-done"]]}
+  ]
+}

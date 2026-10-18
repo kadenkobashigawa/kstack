@@ -1,0 +1,9 @@
+{"t": 1792316086.933368, "session": "<session>", "project": "w", "event": "start", "cwd": "<path>", "transcript": "<path>", "mark": 0, "via": "prompt"}
+{"t": 1792316092.188977, "session": "<session>", "project": "w", "event": "end", "why": "finished"}
+{"t": 1792316110.867029, "session": "<session>", "project": "w", "event": "start", "cwd": "<path>", "transcript": "<path>", "mark": 109511, "via": "again"}
+{"t": 1792316113.010178, "session": "<session>", "project": "w", "event": "end", "why": "finished"}
+{"t": 1792316138.089851, "session": "<session>", "project": "w", "event": "start", "cwd": "<path>", "transcript": "<path>", "mark": 117456, "via": "again"}
+{"t": 1792316142.302797, "session": "<session>", "project": "w", "event": "end", "why": "finished"}
+{"t": 1792316160.061554, "session": "<session>", "project": "w", "event": "start", "cwd": "<path>", "transcript": "<path>", "mark": 128343, "via": "again"}
+{"t": 1792316163.191618, "session": "<session>", "project": "w", "event": "end", "why": "finished"}
+{"t": 1792316218.233048, "session": "<session>", "project": "w", "event": "end", "why": "session closed"}

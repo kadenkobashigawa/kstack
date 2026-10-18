@@ -1,0 +1,13 @@
+{
+  "name": "wait-on-prompt",
+  "about": "a robovac session's second turn asks to run a command, and the person answers after 30 s",
+  "steps": [
+    {"prompt": "/robovac Use the Bash tool to run exactly: {runs} say \"verifying the wait on a prompt\" . Then reply with only the word ready.",
+     "shots": [["result", 32, "first-turn-done"]]},
+    {"pause": 2},
+    {"prompt": "Use the Bash tool to run exactly: touch waited.txt . Then use the Bash tool to run exactly: sleep 8 . Then reply with only the word done.",
+     "answers": [{"hold": 30, "behavior": "allow"}],
+     "shots": [["ask", 3, "asked"], ["ask", 26, "in-the-wait"], ["answer", 5, "after-approval"],
+               ["result", 32, "turn-done"]]}
+  ]
+}

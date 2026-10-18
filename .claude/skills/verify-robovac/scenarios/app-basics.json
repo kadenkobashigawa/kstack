@@ -1,0 +1,9 @@
+{
+  "name": "app-basics",
+  "about": "the app opened while a run is going shows its robot already out; launch this side with --later",
+  "steps": [
+    {"prompt": "/robovac Use the Bash tool to run exactly: {runs} say \"verifying the app opens on a run going\" . Then use the Bash tool to run exactly: sleep 20 . Then reply with only the word swept.",
+     "open": ["prompt", 6],
+     "shots": [["prompt", 12, "opened-mid-run"], ["result", 32, "docked"]]}
+  ]
+}

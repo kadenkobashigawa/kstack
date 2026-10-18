@@ -1,0 +1,231 @@
+{
+ "about": "Transcript lines and the time each reader must give for a turn that ended past the mark with no hook to say so: runs.py ended (test_runs E11) and Runs.swift turnEnded (test_runs.sh R18). A case is written as its lines, each ending in a newline, then, when pad is set, a line of that many x characters; mark counts the lines written before the run began; at is the end's time, null for none, or \"mtime\" for the transcript's modification time, which each suite sets to 1700000000 once the file is written. An Esc line ends the turn at its stamp; the main agent's last assistant line, a subagent's (isSidechain) skipped, if its message ended its turn, ends it at its stamp once now, when a case names it, is six seconds past, whatever user lines follow it; a case with no now is read at the time it runs.",
+ "cases": [
+  {
+   "name": "an Esc line past the mark, stamped with milliseconds",
+   "lines": [
+    "{\"type\": \"user\", \"timestamp\": \"1970-01-02T03:45:00.000Z\", \"message\": {\"role\": \"user\", \"content\": [{\"type\": \"text\", \"text\": \"/robovac\"}]}}",
+    "{\"type\": \"user\", \"timestamp\": \"1970-01-02T03:46:00.000Z\", \"message\": {\"role\": \"user\", \"content\": [{\"type\": \"text\", \"text\": \"[Request interrupted by user]\"}]}}"
+   ],
+   "mark": 1,
+   "pad": 0,
+   "at": 99960.0
+  },
+  {
+   "name": "an Esc line stamped in whole seconds",
+   "lines": [
+    "{\"type\": \"user\", \"timestamp\": \"1970-01-02T03:45:00.000Z\", \"message\": {\"role\": \"user\", \"content\": [{\"type\": \"text\", \"text\": \"/robovac\"}]}}",
+    "{\"type\": \"user\", \"timestamp\": \"1970-01-02T03:46:00Z\", \"message\": {\"role\": \"user\", \"content\": [{\"type\": \"text\", \"text\": \"[Request interrupted by user]\"}]}}"
+   ],
+   "mark": 1,
+   "pad": 0,
+   "at": 99960.0
+  },
+  {
+   "name": "an Esc line stamped with an offset",
+   "lines": [
+    "{\"type\": \"user\", \"timestamp\": \"1970-01-02T03:45:00.000Z\", \"message\": {\"role\": \"user\", \"content\": [{\"type\": \"text\", \"text\": \"/robovac\"}]}}",
+    "{\"type\": \"user\", \"timestamp\": \"1970-01-02T04:46:00+01:00\", \"message\": {\"role\": \"user\", \"content\": [{\"type\": \"text\", \"text\": \"[Request interrupted by user]\"}]}}"
+   ],
+   "mark": 1,
+   "pad": 0,
+   "at": 99960.0
+  },
+  {
+   "name": "a prompt denied with Esc, \"... for tool use]\"",
+   "lines": [
+    "{\"type\": \"user\", \"timestamp\": \"1970-01-02T03:45:00.000Z\", \"message\": {\"role\": \"user\", \"content\": [{\"type\": \"text\", \"text\": \"/robovac\"}]}}",
+    "{\"type\": \"user\", \"timestamp\": \"1970-01-02T03:46:00.000Z\", \"message\": {\"role\": \"user\", \"content\": [{\"type\": \"text\", \"text\": \"[Request interrupted by user for tool use]\"}]}}"
+   ],
+   "mark": 1,
+   "pad": 0,
+   "at": 99960.0
+  },
+  {
+   "name": "an Esc line whose content is a plain string",
+   "lines": [
+    "{\"type\": \"user\", \"timestamp\": \"1970-01-02T03:45:00.000Z\", \"message\": {\"role\": \"user\", \"content\": [{\"type\": \"text\", \"text\": \"/robovac\"}]}}",
+    "{\"type\": \"user\", \"timestamp\": \"1970-01-02T03:46:00.000Z\", \"message\": {\"role\": \"user\", \"content\": \"[Request interrupted by user]\"}}"
+   ],
+   "mark": 1,
+   "pad": 0,
+   "at": 99960.0
+  },
+  {
+   "name": "an Esc line before the mark",
+   "lines": [
+    "{\"type\": \"user\", \"timestamp\": \"1970-01-02T03:46:00.000Z\", \"message\": {\"role\": \"user\", \"content\": [{\"type\": \"text\", \"text\": \"[Request interrupted by user]\"}]}}",
+    "{\"type\": \"user\", \"timestamp\": \"1970-01-02T03:45:00.000Z\", \"message\": {\"role\": \"user\", \"content\": [{\"type\": \"text\", \"text\": \"/robovac\"}]}}"
+   ],
+   "mark": 2,
+   "pad": 0,
+   "at": null
+  },
+  {
+   "name": "the words quoted in a tool result, mid-message and by the agent",
+   "lines": [
+    "{\"type\": \"user\", \"timestamp\": \"1970-01-02T03:45:00.000Z\", \"message\": {\"role\": \"user\", \"content\": [{\"type\": \"text\", \"text\": \"/robovac\"}]}}",
+    "{\"type\": \"user\", \"message\": {\"role\": \"user\", \"content\": [{\"type\": \"tool_result\", \"content\": \"ESC = '[Request interrupted by user]'\"}]}}",
+    "{\"type\": \"user\", \"timestamp\": \"1970-01-02T03:46:00.000Z\", \"message\": {\"role\": \"user\", \"content\": [{\"type\": \"text\", \"text\": \"why does it say [Request interrupted by user]?\"}]}}",
+    "{\"type\": \"assistant\", \"timestamp\": \"1970-01-02T03:46:00.000Z\", \"message\": {\"role\": \"assistant\", \"content\": [{\"type\": \"text\", \"text\": \"[Request interrupted by user]\"}]}}"
+   ],
+   "mark": 1,
+   "pad": 0,
+   "at": null
+  },
+  {
+   "name": "two Esc lines: the first counts",
+   "lines": [
+    "{\"type\": \"user\", \"timestamp\": \"1970-01-02T03:45:00.000Z\", \"message\": {\"role\": \"user\", \"content\": [{\"type\": \"text\", \"text\": \"/robovac\"}]}}",
+    "{\"type\": \"user\", \"timestamp\": \"1970-01-02T03:45:00.000Z\", \"message\": {\"role\": \"user\", \"content\": [{\"type\": \"text\", \"text\": \"[Request interrupted by user]\"}]}}",
+    "{\"type\": \"user\", \"timestamp\": \"1970-01-02T03:46:00.000Z\", \"message\": {\"role\": \"user\", \"content\": [{\"type\": \"text\", \"text\": \"[Request interrupted by user]\"}]}}"
+   ],
+   "mark": 1,
+   "pad": 0,
+   "at": 99900.0
+  },
+  {
+   "name": "an Esc line with no stamp: the transcript's modification time",
+   "lines": [
+    "{\"type\": \"user\", \"timestamp\": \"1970-01-02T03:45:00.000Z\", \"message\": {\"role\": \"user\", \"content\": [{\"type\": \"text\", \"text\": \"/robovac\"}]}}",
+    "{\"type\": \"user\", \"message\": {\"role\": \"user\", \"content\": [{\"type\": \"text\", \"text\": \"[Request interrupted by user]\"}]}}"
+   ],
+   "mark": 1,
+   "pad": 0,
+   "at": "mtime"
+  },
+  {
+   "name": "an Esc line whose stamp will not parse: the transcript's modification time",
+   "lines": [
+    "{\"type\": \"user\", \"timestamp\": \"1970-01-02T03:45:00.000Z\", \"message\": {\"role\": \"user\", \"content\": [{\"type\": \"text\", \"text\": \"/robovac\"}]}}",
+    "{\"type\": \"user\", \"timestamp\": \"yesterday\", \"message\": {\"role\": \"user\", \"content\": [{\"type\": \"text\", \"text\": \"[Request interrupted by user]\"}]}}"
+   ],
+   "mark": 1,
+   "pad": 0,
+   "at": "mtime"
+  },
+  {
+   "name": "an Esc line with 200 KB written after it, inside the last 256 KB",
+   "lines": [
+    "{\"type\": \"user\", \"timestamp\": \"1970-01-02T03:45:00.000Z\", \"message\": {\"role\": \"user\", \"content\": [{\"type\": \"text\", \"text\": \"/robovac\"}]}}",
+    "{\"type\": \"user\", \"timestamp\": \"1970-01-02T03:46:00.000Z\", \"message\": {\"role\": \"user\", \"content\": [{\"type\": \"text\", \"text\": \"[Request interrupted by user]\"}]}}"
+   ],
+   "mark": 1,
+   "pad": 200000,
+   "at": 99960.0
+  },
+  {
+   "name": "an Esc line with 300 KB written after it, past the last 256 KB",
+   "lines": [
+    "{\"type\": \"user\", \"timestamp\": \"1970-01-02T03:45:00.000Z\", \"message\": {\"role\": \"user\", \"content\": [{\"type\": \"text\", \"text\": \"/robovac\"}]}}",
+    "{\"type\": \"user\", \"timestamp\": \"1970-01-02T03:46:00.000Z\", \"message\": {\"role\": \"user\", \"content\": [{\"type\": \"text\", \"text\": \"[Request interrupted by user]\"}]}}"
+   ],
+   "mark": 1,
+   "pad": 300000,
+   "at": null
+  },
+  {
+   "name": "a reply that ended its turn, six seconds on: its stamp",
+   "mark": 1,
+   "pad": 0,
+   "now": 99966.1,
+   "at": 99960.0,
+   "lines": [
+    "{\"type\": \"user\", \"message\": {\"role\": \"user\", \"content\": [{\"type\": \"text\", \"text\": \"/robovac\"}]}}",
+    "{\"type\": \"assistant\", \"message\": {\"role\": \"assistant\", \"stop_reason\": \"end_turn\", \"content\": [{\"type\": \"text\", \"text\": \"done\"}]}, \"timestamp\": \"1970-01-02T03:46:00.000Z\"}"
+   ]
+  },
+  {
+   "name": "a reply that ended its turn, under six seconds on: none",
+   "mark": 1,
+   "pad": 0,
+   "now": 99965.9,
+   "at": null,
+   "lines": [
+    "{\"type\": \"user\", \"message\": {\"role\": \"user\", \"content\": [{\"type\": \"text\", \"text\": \"/robovac\"}]}}",
+    "{\"type\": \"assistant\", \"message\": {\"role\": \"assistant\", \"stop_reason\": \"end_turn\", \"content\": [{\"type\": \"text\", \"text\": \"done\"}]}, \"timestamp\": \"1970-01-02T03:46:00.000Z\"}"
+   ]
+  },
+  {
+   "name": "a reply that calls a tool, however old: none",
+   "mark": 1,
+   "pad": 0,
+   "now": 199999.0,
+   "at": null,
+   "lines": [
+    "{\"type\": \"user\", \"message\": {\"role\": \"user\", \"content\": [{\"type\": \"text\", \"text\": \"/robovac\"}]}}",
+    "{\"type\": \"assistant\", \"message\": {\"role\": \"assistant\", \"stop_reason\": \"tool_use\", \"content\": [{\"type\": \"text\", \"text\": \"a look round first\"}]}, \"timestamp\": \"1970-01-02T03:46:00.000Z\"}"
+   ]
+  },
+  {
+   "name": "a reply that ended its turn, then the next prompt's line: its stamp",
+   "mark": 1,
+   "pad": 0,
+   "now": 199999.0,
+   "at": 99960.0,
+   "lines": [
+    "{\"type\": \"user\", \"message\": {\"role\": \"user\", \"content\": [{\"type\": \"text\", \"text\": \"/robovac\"}]}}",
+    "{\"type\": \"assistant\", \"message\": {\"role\": \"assistant\", \"stop_reason\": \"end_turn\", \"content\": [{\"type\": \"text\", \"text\": \"done\"}]}, \"timestamp\": \"1970-01-02T03:46:00.000Z\"}",
+    "{\"type\": \"user\", \"message\": {\"role\": \"user\", \"content\": [{\"type\": \"text\", \"text\": \"and the README?\"}]}}"
+   ]
+  },
+  {
+   "name": "a reply that ended its turn, before the mark: none",
+   "mark": 2,
+   "pad": 0,
+   "now": 199999.0,
+   "at": null,
+   "lines": [
+    "{\"type\": \"user\", \"message\": {\"role\": \"user\", \"content\": [{\"type\": \"text\", \"text\": \"/robovac\"}]}}",
+    "{\"type\": \"assistant\", \"message\": {\"role\": \"assistant\", \"stop_reason\": \"end_turn\", \"content\": [{\"type\": \"text\", \"text\": \"done\"}]}, \"timestamp\": \"1970-01-02T03:46:00.000Z\"}"
+   ]
+  },
+  {
+   "name": "a reply, then an Esc line: the Esc, at once",
+   "mark": 1,
+   "pad": 0,
+   "now": 99961.0,
+   "at": 99960.0,
+   "lines": [
+    "{\"type\": \"user\", \"message\": {\"role\": \"user\", \"content\": [{\"type\": \"text\", \"text\": \"/robovac\"}]}}",
+    "{\"type\": \"assistant\", \"message\": {\"role\": \"assistant\", \"stop_reason\": \"end_turn\", \"content\": [{\"type\": \"text\", \"text\": \"done\"}]}, \"timestamp\": \"1970-01-02T03:45:50.000Z\"}",
+    "{\"type\": \"user\", \"message\": {\"role\": \"user\", \"content\": [{\"type\": \"text\", \"text\": \"[Request interrupted by user]\"}]}, \"timestamp\": \"1970-01-02T03:46:00.000Z\"}"
+   ]
+  },
+  {
+   "name": "a reply that ended its turn, then a tool call of the turn a Stop hook kept going: none",
+   "mark": 1,
+   "pad": 0,
+   "now": 199999.0,
+   "at": null,
+   "lines": [
+    "{\"type\": \"user\", \"message\": {\"role\": \"user\", \"content\": [{\"type\": \"text\", \"text\": \"/robovac\"}]}}",
+    "{\"type\": \"assistant\", \"message\": {\"role\": \"assistant\", \"stop_reason\": \"end_turn\", \"content\": [{\"type\": \"text\", \"text\": \"done\"}]}, \"timestamp\": \"1970-01-02T03:45:00.000Z\"}",
+    "{\"type\": \"assistant\", \"message\": {\"role\": \"assistant\", \"stop_reason\": \"tool_use\", \"content\": [{\"type\": \"tool_use\", \"id\": \"t1\", \"name\": \"Bash\", \"input\": {}}]}, \"timestamp\": \"1970-01-02T03:46:00.000Z\"}"
+   ]
+  },
+  {
+   "name": "a subagent's aside that ended its turn after the main agent's tool call: none",
+   "mark": 1,
+   "pad": 0,
+   "now": 199999.0,
+   "at": null,
+   "lines": [
+    "{\"type\": \"user\", \"message\": {\"role\": \"user\", \"content\": [{\"type\": \"text\", \"text\": \"/robovac\"}]}}",
+    "{\"type\": \"assistant\", \"message\": {\"role\": \"assistant\", \"stop_reason\": \"tool_use\", \"content\": [{\"type\": \"text\", \"text\": \"a look round first\"}]}, \"timestamp\": \"1970-01-02T03:45:00.000Z\"}",
+    "{\"type\": \"assistant\", \"isSidechain\": true, \"message\": {\"role\": \"assistant\", \"stop_reason\": \"end_turn\", \"content\": [{\"type\": \"text\", \"text\": \"done\"}]}, \"timestamp\": \"1970-01-02T03:46:00.000Z\"}"
+   ]
+  },
+  {
+   "name": "a reply with no stamp: the transcript's modification time",
+   "mark": 1,
+   "pad": 0,
+   "now": 1700000010.0,
+   "at": "mtime",
+   "lines": [
+    "{\"type\": \"user\", \"message\": {\"role\": \"user\", \"content\": [{\"type\": \"text\", \"text\": \"/robovac\"}]}}",
+    "{\"type\": \"assistant\", \"message\": {\"role\": \"assistant\", \"stop_reason\": \"end_turn\", \"content\": [{\"type\": \"text\", \"text\": \"done\"}]}}"
+   ]
+  }
+ ]
+}

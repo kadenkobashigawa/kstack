@@ -1,0 +1,15 @@
+{
+  "name": "background-work",
+  "about": "a background shell, then a background agent, each keep the robot out past their turn's end until their report's turn ends",
+  "steps": [
+    {"prompt": "/robovac Use the Bash tool with run_in_background set to true to run exactly: sleep 20 . Do not wait for it or check on it. Then reply with only the word launched.",
+     "results": 2,
+     "timeout": 120,
+     "shots": [["result", 14, "shell-running"], ["prompt", 60, "shell-done"]]},
+    {"pause": 2},
+    {"prompt": "Call the Agent tool once with subagent_type \"general-purpose\", run_in_background true, and this prompt: \"Use the Bash tool to run exactly: sleep 15. Then reply done.\" Do not wait for it. Reply with only the word launched.",
+     "results": 2,
+     "timeout": 150,
+     "shots": [["result", 14, "agent-running"], ["prompt", 80, "agent-done"]]}
+  ]
+}
