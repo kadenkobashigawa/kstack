@@ -134,7 +134,7 @@ def hook_settings(tree: Path, extra: dict, values: dict) -> dict:
     hooks.pop('SessionStart', None)
     for entries in hooks.values():
         for h in (h for entry in entries for h in entry['hooks']):
-            h['command'] = h['command'].replace('$HOME/.claude/skills/robovac/scripts/runs.py',
+            h['command'] = h['command'].replace('${CLAUDE_PLUGIN_ROOT}/skills/robovac/scripts/runs.py',
                                                 str(runs))
             if '.claude/' in h['command'].replace(str(tree), ''):
                 raise SystemExit(f"verify: a hook would run the person's own setup: {h['command']}")

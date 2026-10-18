@@ -15,7 +15,24 @@ by Lauren Tan, and most of its skills still build on pstack's. See [Credits](#cr
 
 ## Install
 
-You need Claude Code, `git` and `python3`.
+You need Claude Code and `python3`. Pick one of the two methods below; with both, kstack's hooks
+would run twice.
+
+### From the plugin marketplace
+
+In Claude Code, run:
+
+```
+/plugin marketplace add kadenkobashigawa/kstack
+/plugin install kstack@kstack
+```
+
+Plugin skills are namespaced, so you type `/kstack:robovac`, `/kstack:vet` and so on. Update with
+`/plugin marketplace update kstack`, and uninstall with `/plugin uninstall kstack@kstack`.
+
+### From a clone
+
+Use this if you want to edit the skills. It also needs `git`.
 
 ```bash
 git clone https://github.com/kadenkobashigawa/kstack.git ~/kstack
@@ -23,10 +40,10 @@ git clone https://github.com/kadenkobashigawa/kstack.git ~/kstack
 ```
 
 `install.sh` links each skill into `~/.claude/skills` and each agent into `~/.claude/agents`, so
-every project and every Claude Code surface picks them up. It also adds kstack's hooks to
-`~/.claude/settings.json`, after saving a backup beside it. It never overwrites an existing folder,
-and it's safe to run again. Keep the clone outside `~/.claude`, because Claude Code asks before
-every edit inside a `.claude` folder.
+every project and every Claude Code surface picks them up, without the `kstack:` prefix. It also adds
+kstack's hooks to `~/.claude/settings.json`, after saving a backup beside it. It never overwrites an
+existing folder, and it's safe to run again. Keep the clone outside `~/.claude`, because Claude Code
+asks before every edit inside a `.claude` folder.
 
 **Update** by pulling and running the installer again, then rebuilding Robovac if you use it:
 
@@ -70,6 +87,7 @@ Three agents come with them:
 ## Running the loops
 
 `vet` and `robovac` are meant to run on a schedule with Claude Code's `/loop`, each in its own tab.
+The commands below are a clone install's; with the plugin, type `/kstack:vet` and `/kstack:robovac`.
 
 **Commit review.** `/loop /vet watch` reviews new commits on `main` after the branch has been quiet
 for five minutes, or hourly. Two fresh reviewers read each batch, one for structure and one for
@@ -95,8 +113,8 @@ Robovac shows each running robovac session as a robot in its own suite of rooms,
 A robot sweeps while its session works and docks when the session is done or waiting on you, so you
 can see at a glance which tab needs you.
 
-It needs macOS 13 or later and Apple's Command Line Tools (`xcode-select --install`). To build it and
-install it in `~/Applications`:
+It needs macOS 13 or later and Apple's Command Line Tools (`xcode-select --install`), and it builds
+from a clone of this repository. To build it and install it in `~/Applications`:
 
 ```bash
 ~/kstack/apps/robovac-widget/mac/build.sh
@@ -112,13 +130,14 @@ the app reads. Tool inputs are stored only as digests, and nothing leaves your M
 ## Repository layout
 
 ```
-skills/      the skills, linked into ~/.claude/skills
-agents/      the agents, linked into ~/.claude/agents
-hooks/       kstack's hooks and the script that merges them into settings.json
-apps/        the Robovac app
-docs/        how the loops and reviews work
-upstream/    pstack and Cursor's plugins, unmodified, for reference
-tests/       tests for install.sh
+.claude-plugin/  the plugin and marketplace manifests
+skills/          the skills, linked into ~/.claude/skills
+agents/          the agents, linked into ~/.claude/agents
+hooks/           kstack's hooks and the script that merges them into settings.json
+apps/            the Robovac app
+docs/            how the loops and reviews work
+upstream/        pstack and Cursor's plugins, unmodified, for reference
+tests/           tests for install.sh
 ```
 
 ## Contributing

@@ -4,7 +4,8 @@ The reviewers are aggressive on purpose, and aggression without context produces
 filters, checks and decides; it does not aggregate. From pstack's interrogate lead-judgment framework
 (MIT). Practice, not measurement.
 
-**The buckets are build's.** `~/.claude/skills/build/references/gate.md`, The verdict, holds the
+**The buckets are build's.** The build skill's `references/gate.md` (`../../build/references/gate.md`
+from this file), The verdict, holds the
 five buckets (act on, consider, queue, nit, dismissed) and what proves a finding, ported from the same
 lead-judgment framework. This file keeps only what vet adds: the filters, the proof-ladder rung, and
 how each bucket is recorded, because vet reports and never repairs.

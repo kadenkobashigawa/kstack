@@ -29,7 +29,7 @@ a typed-only skill.
 shape under Reviewing a range.
 
 ```
-S=~/.claude/skills/vet/scripts/vet.sh
+S=${CLAUDE_SKILL_DIR}/scripts/vet.sh
 $S dir               # state directory: state/report/vet/ when that is gitignored, else .git/vet/
 $S init              # first run: the cursor starts at main's tip
 $S pending           # unreviewed commits on main, oldest first
@@ -75,8 +75,9 @@ vet is the final reviewer.)*
    `git show <sha>:<path>`; the working tree is not what was committed.
 2. **Two review lanes, in parallel, fresh context.** Spawn two `vet-reviewer` agents in one message,
    each with the range as two exact SHAs (`git rev-parse` both ends first, since a range such as
-   `a1b2c3..main` moves while they read), the intent, the CI result and its lens from
-   `references/lenses.md`. swarm: "When workers verify or measure commits, each brief names the
+   `a1b2c3..main` moves while they read), the intent, the CI result, its lens from
+   `references/lenses.md`, and the paths of `${CLAUDE_SKILL_DIR}/references/lenses.md` and
+   `${CLAUDE_SKILL_DIR}/../build/references/rules.md`, which it reads first. swarm: "When workers verify or measure commits, each brief names the
    exact SHAs." Both hold the range to build's `references/rules.md`, all 18 rules, and name a rule
    per finding; each lens is one main focus:
    - **structure** (`model: sonnet`), rules 1 to 8 and 18: does this already exist, is it in the
@@ -89,8 +90,8 @@ vet is the final reviewer.)*
 
    Skip a lane only when it can't apply (no code in the range skips correctness) and log the skip.
    Never more than two agents at once. If the `vet-reviewer` agent type isn't available in this
-   session, spawn `general-purpose` and tell it to read `~/.claude/agents/vet-reviewer.md` first and
-   follow it as its instructions.
+   session, spawn `general-purpose` and tell it to read `${CLAUDE_SKILL_DIR}/../../agents/vet-reviewer.md`
+   first and follow it as its instructions.
 3. **Judge.** Apply `references/judgment.md`: drop the noise, check each surviving finding against
    the code yourself, push its evidence down the proof ladder, and sort it into build's gate buckets
    (act on, consider, queue, nit, dismissed).

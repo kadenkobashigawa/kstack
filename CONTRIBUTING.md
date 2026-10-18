@@ -18,7 +18,8 @@ When a skill adapts something from `upstream/`, name the source in the skill's o
 
 ## Tests
 
-Each test is a script you run directly:
+Check the plugin and marketplace manifests with `claude plugin validate .` after changing
+`.claude-plugin/`, `skills/`, `agents/` or `hooks/`. Each other test is a script you run directly:
 
 ```bash
 python3 tests/test_install_sh.py

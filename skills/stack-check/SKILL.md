@@ -5,7 +5,7 @@ description: Reviews the Claude Code setup as one system (skills, agents, hooks,
 
 # stack-check
 
-`S=~/.claude/skills/stack-check/scripts/stack.py` · `R=~/kstack/upstream/pstack/skills/reflect`
+`S=${CLAUDE_SKILL_DIR}/scripts/stack.py` · `R=$(cd "${CLAUDE_SKILL_DIR}" && pwd -P)/../../upstream/pstack/skills/reflect`
 · `<run>` is the folder robovac names.
 
 ## Steps

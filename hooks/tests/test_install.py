@@ -7,7 +7,9 @@ an install.py and repo named first. The exit code is 1 if any check fails.
 
 H1 fills a missing file. H2 takes out a stale kstack hook and leaves the person's own hooks, other
 skills' hooks and other settings alone, backing the file up first. H3 and H5 hold that a second run
-changes nothing and that only stale hooks go. H6 keeps one command wanted under two matchers.
+changes nothing and that only stale hooks go. H6 keeps one command wanted under two matchers. H7
+holds that hooks.json runs every script from the plugin root, and that the settings file gets the
+same commands with install.sh's link folder in its place.
 """
 
 from __future__ import annotations
@@ -28,7 +30,8 @@ def check(name, ok, got=''):
 def run(target, *extra):
     return subprocess.run([sys.executable, inst, str(repo / 'hooks/hooks.json'), str(target),
                            str(repo / 'skills'), *extra], capture_output=True, text=True)
-want = json.loads((repo / 'hooks/hooks.json').read_text())['hooks']
+raw = (repo / 'hooks/hooks.json').read_text()
+want = json.loads(raw.replace('${CLAUDE_PLUGIN_ROOT}/skills/', '$HOME/.claude/skills/'))['hooks']
 
 
 def cmds(s):
@@ -90,4 +93,15 @@ with tempfile.TemporaryDirectory() as tmp:
     subprocess.run([sys.executable, inst, str(two), str(t2), str(repo / 'skills')], capture_output=True)
     got = sorted(e['matcher'] for e in json.loads(t2.read_text())['hooks']['PreToolUse'])
     check('H6 a command wanted under two matchers gets both', got == ['Bash', 'Skill'], got)
+
+    # H7: hooks.json is the plugin's, and the settings file gets install.sh's paths...
+    plugin = [h['command'] for es in json.loads(raw)['hooks'].values() for e in es for h in e['hooks']]
+    check('H7 every hooks.json command runs its script from ${CLAUDE_PLUGIN_ROOT}/skills/',
+          plugin and all('${CLAUDE_PLUGIN_ROOT}/skills/' in c and '.claude/' not in c for c in plugin), plugin)
+    seven = Path(tmp) / 'seven.json'
+    run(seven)
+    merged = [c[2] for c in cmds(json.loads(seven.read_text()))]
+    check('H7b the settings file gets each command with $HOME/.claude/skills/ and no plugin root',
+          len(merged) == len(plugin) and all('$HOME/.claude/skills/' in c and 'CLAUDE_PLUGIN_ROOT' not in c
+                                             for c in merged), merged)
 sys.exit(1 if fails else 0)

@@ -5,7 +5,7 @@ description: One deterministic cleaning pass over a git project's leftovers, or 
 
 # clorox
 
-`C=~/.claude/skills/clorox/scripts/clorox.py`
+`C=${CLAUDE_SKILL_DIR}/scripts/clorox.py`
 
 ## Steps
 

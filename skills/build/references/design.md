@@ -22,7 +22,8 @@ sync with the first.
 For a one-way door, sketch two structurally different candidates and compare them on what each makes
 easy and hard to change. One attempt locks in the first shape that came to mind. For a mechanical
 change whose shape is already obvious, skip this and say so. Check each candidate against prior art
-(`references/prior-art.md`) before choosing; the `researcher` agent runs that with a fresh context.
+(`references/prior-art.md`) before choosing; the `researcher` agent runs that with a fresh context, given
+this folder's `prior-art.md` path in its brief.
 
 ## Screen for red flags
 

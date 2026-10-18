@@ -8,7 +8,7 @@ while this step also runs on a design already chosen. It came here from crawl, a
 crawled the standing codebase, which pstack has no crawler for, so the query hygiene, the verdicts
 and the confidence line have no pstack source.)* It's used by `references/design.md` and
 `references/refactor.md`. The rules for which sources count are the project owner's, and they apply
-to every claim this step makes. The `researcher` agent runs it with a fresh context.
+to every claim this step makes. The `researcher` agent runs it with a fresh context, given this file's path in its brief.
 
 ## What counts as a source
 

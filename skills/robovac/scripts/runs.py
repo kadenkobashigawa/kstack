@@ -16,8 +16,8 @@ Commands
     live [--json]           the runs going now, oldest first.
     path                    where the log is.
 
-a session becomes a robovac session when a prompt starts with /robovac (or /loop, an optional
-interval and then /robovac), or the Skill tool runs robovac, and stays one until it closes or goes a
+a session becomes a robovac session when a prompt starts with /robovac or the plugin's
+/kstack:robovac (or /loop, an optional interval and then either), or the Skill tool runs robovac, and stays one until it closes or goes a
 week unheard from. its robot has two states, out sweeping or docked with its !, tied to whether its
 agent works: a run is a stretch it sweeps. it goes out when a turn of the main agent starts, loop or
 not, and stays out while the turn goes on, and after it while the session's background work runs: a
@@ -139,7 +139,7 @@ ESC           = '[Request interrupted by user'
 KEEP          = 2000
 WAITS         = ('permission_prompt', 'elicitation_dialog', 'elicitation_url_dialog')
 FORGET        = 7 * 86400
-ASKED         = re.compile(r'^\s*(/loop(\s+\d+[smhd])?\s+)?/robovac(?=\s|$)')
+ASKED         = re.compile(r'^\s*(/loop(\s+\d+[smhd])?\s+)?/(kstack:)?robovac(?=\s|$)')
 BOUNDS        = ('UserPromptSubmit', 'Notification', 'Stop', 'StopFailure', 'SessionEnd')
 REPLIED       = 6
 NOTIFIED      = re.compile(r'<task-id>([^<\s]+)</task-id>')

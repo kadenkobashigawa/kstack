@@ -41,8 +41,11 @@ def s1_prompt_starting_with_robovac(tmp: Path) -> None:
     log = Log(tmp, 's1')
     log.hook('UserPromptSubmit', prompt='/robovac skills/clorox')
     log.hook('UserPromptSubmit', sid='b', prompt='  /loop 1h /robovac')
-    check('S1 a prompt that starts with /robovac, or /loop then /robovac, starts a run',
-          log.events() == ['start'] and log.events('b') == ['start'], f'{log.events()} {log.events("b")}')
+    log.hook('UserPromptSubmit', sid='c', prompt='/kstack:robovac skills/clorox')
+    log.hook('UserPromptSubmit', sid='d', prompt='/loop 12h /kstack:robovac')
+    got = [log.events(), log.events('b'), log.events('c'), log.events('d')]
+    check('S1 a prompt that starts with /robovac or /kstack:robovac, or /loop then either, starts a run',
+          got == [['start']] * 4, str(got))
 
 
 def s2_mention_is_not_a_run(tmp: Path) -> None:

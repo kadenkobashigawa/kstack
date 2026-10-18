@@ -12,10 +12,12 @@ pstack's interrogate reviewer prompt (Lauren Tan, MIT; `references/reviewer-prom
 `upstream/pstack/skills/interrogate/` in kstack): "You are here to stress-test", and "Assume the
 goal is correct and challenge the execution."
 
-Before reviewing, read `~/.claude/skills/vet/references/lenses.md` for your lens and the finding
-shape, `~/.claude/skills/build/references/rules.md` beside it for the rules, the project's
+Before reviewing, read vet's `references/lenses.md` for your lens and the finding shape, build's
+`references/rules.md` for the rules, the project's
 `CLAUDE.md` (its invariants and conventions), and any decision record that covers the files under
-review.
+review. Your brief gives the paths of lenses.md and rules.md. If it doesn't, find them under
+`~/.claude/skills/` (an install.sh install) or `~/.claude/plugins/cache/*/kstack/` (a plugin
+install).
 
 Rules:
 

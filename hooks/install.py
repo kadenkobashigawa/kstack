@@ -4,6 +4,10 @@ install — merges kstack's hooks into a Claude Code settings file: the ones in 
 where missing, a hook that names a kstack skill but is no longer in hooks.json is taken out, and
 every other hook is left as it is. The file is backed up beside itself before it changes.
 
+hooks.json is written for the plugin install, where Claude Code fills in ${CLAUDE_PLUGIN_ROOT}. A
+settings file has no plugin root, so each command's ${CLAUDE_PLUGIN_ROOT}/skills/ becomes
+$HOME/.claude/skills/, where install.sh links the same skills.
+
 Usage
 -----
     install.py <hooks.json> <settings.json> <skills-dir>
@@ -26,6 +30,9 @@ import shutil
 import sys
 from pathlib import Path
 
+#a hook command's plugin path, and where install.sh links the same skills...
+PLUGIN = '${CLAUDE_PLUGIN_ROOT}/skills/'
+LINKED = '$HOME/.claude/skills/'
 
 
 def owned(command: str, skills: set[str]) -> bool:
@@ -99,7 +106,7 @@ def main(argv: list[str]) -> int:
     if len(argv) != 3:
         print(__doc__)
         return 2
-    want = json.loads(Path(argv[0]).read_text())['hooks']
+    want = json.loads(Path(argv[0]).read_text().replace(PLUGIN, LINKED))['hooks']
     target = Path(argv[1]).expanduser()
     skills = {p.name for p in Path(argv[2]).iterdir() if (p / 'SKILL.md').exists()}
     settings = json.loads(target.read_text()) if target.exists() else {}

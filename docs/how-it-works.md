@@ -2,6 +2,8 @@
 
 The README covers installing and using kstack. This page covers what happens underneath: the two
 loops, the review every change goes through, and how the repository is wired into Claude Code.
+Commands are shown as a clone install names them; with the plugin, prefix each with `kstack:`, as in
+`/kstack:vet`.
 
 ## vet: the commit reviewer
 
@@ -88,8 +90,12 @@ lint rule or test.
 
 ## How the repository is wired
 
-- **`skills/<name>`** is linked from `~/.claude/skills/<name>`, and **`agents/<name>.md`** from
-  `~/.claude/agents/<name>.md`. You edit and commit in the repository, and the links make every edit
+- **`.claude-plugin/`** makes the repository both a plugin marketplace and the one plugin in it.
+  Claude Code copies the plugin into `~/.claude/plugins/cache/` and reads its skills, agents and
+  `hooks/hooks.json` from there. With no version in `plugin.json`, every commit is a new version.
+- **`skills/<name>`** is linked from `~/.claude/skills/<name>` by a clone install, and
+  **`agents/<name>.md`** from `~/.claude/agents/<name>.md`. A skill finds its own scripts and its
+  sibling skills through `${CLAUDE_SKILL_DIR}`, so the same files work under either install. You edit and commit in the repository, and the links make every edit
   live at once. User-level skills reach every project and every Claude Code surface: the terminal,
   VS Code and the desktop app. No skill here is tied to one project; a project's own `verify-<app>`
   skill is made inside that project by `/create-verification-skill`.
@@ -97,8 +103,10 @@ lint rule or test.
   app or its hooks with a real Claude Code session and a filmed test copy of the app, against a
   baseline. Claude Code loads it in sessions opened in this repository; `install.sh` doesn't link
   it.
-- **`hooks/hooks.json`** holds vet's session-start line and robovac's run hooks for the app.
-  `hooks/install.py` merges them into `~/.claude/settings.json`: it adds missing ones, removes kstack
+- **`hooks/hooks.json`** holds vet's session-start line and robovac's run hooks for the app. Each
+  command runs its script from `${CLAUDE_PLUGIN_ROOT}/skills/`, which Claude Code fills in for the
+  plugin. For a clone install, `hooks/install.py` merges them into `~/.claude/settings.json` with
+  `$HOME/.claude/skills/` in that place: it adds missing ones, removes kstack
   hooks that `hooks.json` no longer has, and leaves every other hook alone.
 - **`apps/<name>`** holds programs that are not skills, as pstack keeps benny under
   `automations/`. `apps/robovac-widget` is the Robovac app.

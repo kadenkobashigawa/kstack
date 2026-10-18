@@ -1,0 +1,15 @@
+{
+  "name": "kstack",
+  "description": "kstack: Claude Code skills that build, review and clean up a codebase.",
+  "owner": {
+    "name": "Kaden Kobashigawa",
+    "url": "https://github.com/kadenkobashigawa"
+  },
+  "plugins": [
+    {
+      "name": "kstack",
+      "source": ".",
+      "description": "Skills for Claude Code that build, review and clean up a codebase, plus the hooks behind the Robovac macOS app."
+    }
+  ]
+}

@@ -3,7 +3,8 @@
 Each reviewer is one review lane, as pstack's autopilot-full runs them and build's gate ports: "Run
 the audit as two or more review lanes with the full brief. Give each lane one main focus, such as
 consumer parity with trunk, lifetimes and races, or data and config safety." Both lanes hold the
-range to the same rubric, build's code rules in `~/.claude/skills/build/references/rules.md`, all 18
+range to the same rubric, build's code rules in the build skill's `references/rules.md` (`../../build/references/rules.md`
+from this file), all 18
 of them, and report each finding by its rule number. A lane's lens is its main focus: it says where
 the lane looks hardest, never which rules it may skip. Each gets the range as two exact SHAs, the
 stated intent and the CI result, and reports findings in the shape at the bottom, or "no findings".
