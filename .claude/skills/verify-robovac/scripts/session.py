@@ -127,17 +127,23 @@ def hook_settings(tree: Path, extra: dict, values: dict) -> dict:
     Raises
     ------
     SystemExit
-        when a hook of the tree's would still run anything under ~/.claude, the person's own setup.
+        when a hook of the tree's would still run anything under ~/.claude, the person's own setup,
+        or still names a plugin root no drive fills in.
     '''
     runs  = tree / 'skills' / 'robovac' / 'scripts' / 'runs.py'
     hooks = json.loads((tree / 'hooks' / 'hooks.json').read_text())['hooks']
     hooks.pop('SessionStart', None)
     for entries in hooks.values():
         for h in (h for entry in entries for h in entry['hooks']):
-            h['command'] = h['command'].replace('${CLAUDE_PLUGIN_ROOT}/skills/robovac/scripts/runs.py',
-                                                str(runs))
+            #the plugin form hooks.json has used since kstack became a plugin, and the linked form
+            #before it, so a baseline from an older revision drives too...
+            for form in ('${CLAUDE_PLUGIN_ROOT}/skills/robovac/scripts/runs.py',
+                         '$HOME/.claude/skills/robovac/scripts/runs.py'):
+                h['command'] = h['command'].replace(form, str(runs))
             if '.claude/' in h['command'].replace(str(tree), ''):
                 raise SystemExit(f"verify: a hook would run the person's own setup: {h['command']}")
+            if 'CLAUDE_PLUGIN_ROOT' in h['command']:
+                raise SystemExit(f"verify: a hook names a plugin path the drive can't fill in: {h['command']}")
     observer = f'{sys.executable} {common.VERIFY} observe'
     for event in OBSERVED:
         hooks.setdefault(event, []).append(

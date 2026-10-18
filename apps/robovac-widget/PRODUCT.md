@@ -110,7 +110,8 @@ say`), while its robot is hovered. No task lists, no progress (the user, 2026-10
   `images.lock` names, fetched by `mac/images.sh`, so a build needs no Python; `images.sh build`
   remakes them and `images.sh publish` releases them. `icon.py build sweeping` remakes
   `mac/AppIcon.icns`.
-- **The hooks:** `skills/robovac/scripts/runs.py hook`, installed in `~/.claude/settings.json` for
+- **The hooks:** `skills/robovac/scripts/runs.py hook`, run from the plugin's `hooks/hooks.json`, or from
+  `~/.claude/settings.json` after install.sh, for
   UserPromptSubmit, every PreToolUse, PostToolUse, PostToolUseFailure, PostToolBatch,
   PermissionRequest, Elicitation and ElicitationResult, the Notifications that wait on you, Stop,
   StopFailure and SessionEnd, appends to `~/.claude/robovac/runs.jsonl`, logging each prompt and

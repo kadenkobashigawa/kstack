@@ -127,6 +127,36 @@ def memory_dir(main: Path | None) -> Path | None:
     return HOME / 'projects' / slug(str(main or top)) / 'memory'
 
 
+def plugin_roots(top: str) -> list[Path]:
+    '''
+    the install folders of the plugins that the user's settings, or this checkout's, enable.
+
+    Parameters
+    ----------
+    top : str
+        this checkout's top folder, or empty outside one.
+
+    Returns
+    -------
+    list of Path
+        each enabled plugin's folder that `~/.claude/plugins/installed_plugins.json` records and
+        that exists, in plugin-id order.
+    '''
+    on = set()
+    for s in [HOME / 'settings.json'] + ([Path(top) / '.claude' / f for f in
+                                         ('settings.json', 'settings.local.json')] if top else []):
+        try:
+            on |= {k for k, v in json.loads(s.read_text()).get('enabledPlugins', {}).items() if v}
+        except (OSError, ValueError, AttributeError):
+            continue
+    try:
+        installed = json.loads((HOME / 'plugins' / 'installed_plugins.json').read_text())['plugins']
+    except (OSError, ValueError, KeyError, TypeError):
+        return []
+    return [Path(e['installPath']) for k, es in sorted(installed.items()) if k in on
+            for e in es if e.get('installPath') and Path(e['installPath']).is_dir()]
+
+
 def parts() -> tuple[dict[str, list[Path]], list[Path]]:
     '''
     every part of the setup, and the skill links that point at nothing.
@@ -139,7 +169,8 @@ def parts() -> tuple[dict[str, list[Path]], list[Path]]:
 
     Notes
     -----
-    the parts are the user's and this checkout's skills and agents, the user's CLAUDE.md,
+    the parts are the user's and this checkout's skills and agents, the skills, agents and
+    hooks.json of every plugin the user's or this checkout's settings enable, the user's CLAUDE.md,
     settings and rules, this checkout's tracked CLAUDE.md and AGENTS.md files, CLAUDE.local.md,
     settings and rules, and the memory folder `memory_dir` names.
     '''
@@ -157,6 +188,14 @@ def parts() -> tuple[dict[str, list[Path]], list[Path]]:
     for root in [HOME / 'agents'] + ([Path(top) / '.claude' / 'agents'] if top else []):
         for a in sorted(root.glob('*.md')) if root.is_dir() else []:
             found[f'agent {a}'] = [a]
+    for root in plugin_roots(top):
+        for d in sorted((root / 'skills').iterdir()) if (root / 'skills').is_dir() else []:
+            if (d / 'SKILL.md').exists():
+                found[f'skill {d}'] = files_in(d)
+        for a in sorted((root / 'agents').glob('*.md')):
+            found[f'agent {a}'] = [a]
+        if (root / 'hooks' / 'hooks.json').is_file():
+            found[f"settings {root / 'hooks' / 'hooks.json'}"] = [root / 'hooks' / 'hooks.json']
     singles = [HOME / 'CLAUDE.md', HOME / 'settings.json', *sorted((HOME / 'rules').rglob('*.md'))]
     if top:
         t = Path(top)

@@ -142,7 +142,8 @@ canary checks vet still catches a defect it should:
 5. **Re-arm as `/loop` instructs.** The event to wait on is `$S watch`, started as a background Bash
    command (`run_in_background`, timeout 7200000) unless one from an earlier tick is still running; it
    ends when main has moved and gone quiet, which re-invokes this session. The fallback heartbeat is
-   3600 seconds, and the re-arm prompt is the original `/loop /vet watch`. `noop: true` when nothing
+   3600 seconds, and the re-arm prompt is the one the loop started with
+   (`/loop /vet watch`, or `/loop /kstack:vet watch` with the plugin). `noop: true` when nothing
    was reviewed.
 6. **Speak only when it matters.** A tick with new `open` or `consider` findings replies with them
    in the shape above, and sends a PushNotification with the count; silence otherwise.

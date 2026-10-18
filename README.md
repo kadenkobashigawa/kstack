@@ -15,7 +15,7 @@ by Lauren Tan, and most of its skills still build on pstack's. See [Credits](#cr
 
 ## Install
 
-You need Claude Code and `python3`. Pick one of the two methods below; with both, kstack's hooks
+You need Claude Code, `git` and `python3`. Pick one of the two methods below; with both, kstack's hooks
 would run twice.
 
 ### From the plugin marketplace
@@ -32,7 +32,7 @@ Plugin skills are namespaced, so you type `/kstack:robovac`, `/kstack:vet` and s
 
 ### From a clone
 
-Use this if you want to edit the skills. It also needs `git`.
+Use this if you want to edit the skills.
 
 ```bash
 git clone https://github.com/kadenkobashigawa/kstack.git ~/kstack

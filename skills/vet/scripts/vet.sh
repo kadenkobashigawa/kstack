@@ -129,7 +129,7 @@ case "${1:-status}" in
     msg="vet: $n unreviewed commit(s) on main, $(canary_note)"
     if [ "${2:-}" = "--hook" ]; then
       if [ "$n" -gt 0 ]; then
-        hint=" Unreviewed commits mean the vet loop is down or behind: start it in its own tab with /loop /vet watch."
+        hint=" Unreviewed commits mean the vet loop is down or behind: start it in its own tab with /loop /vet watch, or /loop /kstack:vet watch with the plugin."
         python3 -c 'import json, sys; print(json.dumps({"systemMessage": sys.argv[1], "hookSpecificOutput": {"hookEventName": "SessionStart", "additionalContext": sys.argv[2]}}, separators=(",", ":")))' "$msg" "$msg.$hint"
       fi
     else

@@ -115,6 +115,21 @@ def i1_settings_run_the_revisions_hooks(tmp: Path) -> None:
     except SystemExit:
         refused = True
     check('I1 a hook that would still run the person\'s own ~/.claude setup is refused', refused)
+    old   = json.loads(json.dumps(hooks).replace('${CLAUDE_PLUGIN_ROOT}/skills/', '$HOME/.claude/skills/'))
+    otree = tree_with_hooks(tmp / 'i1c', old)
+    ogot  = session.hook_settings(otree, {}, {})['hooks']
+    orobo = [h['command'] for es in ogot.values() for e in es for h in e['hooks'] if 'runs.py' in h['command']]
+    check('I1 a revision from before the plugin, its hooks on $HOME/.claude/skills/, runs its own runs.py',
+          orobo and all(str(otree / 'skills' / 'robovac' / 'scripts' / 'runs.py') in c and '$HOME' not in c
+                        for c in orobo), f'{len(orobo)} robovac hooks')
+    left  = tree_with_hooks(tmp / 'i1d', {'Stop': [{'hooks': [
+        {'type': 'command', 'command': '"${CLAUDE_PLUGIN_ROOT}/skills/vet/scripts/vet.sh" status'}]}]})
+    try:
+        session.hook_settings(left, {}, {})
+        refused = False
+    except SystemExit:
+        refused = True
+    check('I1 a hook still naming the plugin root after the rewrite is refused', refused)
 
 
 def i2_the_session_carries_none_of_ours(tmp: Path) -> None:

@@ -167,6 +167,27 @@ def main() -> int:
         check('U1 an unknown command, none, or freeze with no folder exits 2 with the usage',
               all(r.returncode == 2 for r in got) and all('Commands' in r.stdout for r in got[:2])
               and 'usage: stack.py freeze' in got[2].stdout, str([(r.returncode, r.stdout[:30]) for r in got]))
+        plug, off = tmp / 'plug', tmp / 'off'
+        for root in (plug, off):
+            (root / 'skills' / 'pk').mkdir(parents=True)
+            (root / 'skills' / 'pk' / 'SKILL.md').write_text('---\nname: pk\ndescription: x\n---\n')
+            (root / 'agents').mkdir()
+            (root / 'agents' / 'pa.md').write_text('---\nname: pa\n---\n')
+            (root / 'hooks').mkdir()
+            (root / 'hooks' / 'hooks.json').write_text('{"hooks": {}}')
+        (tmp / '.claude' / 'plugins').mkdir(parents=True, exist_ok=True)
+        (tmp / '.claude' / 'plugins' / 'installed_plugins.json').write_text(json.dumps({'version': 2, 'plugins': {
+            'p@m': [{'scope': 'user', 'installPath': str(plug)}],
+            'off@m': [{'scope': 'user', 'installPath': str(off)}]}}))
+        (tmp / '.claude' / 'settings.json').write_text(json.dumps({'enabledPlugins': {'p@m': True, 'off@m': False}}))
+        frozen2 = tmp / 'frozen2'
+        subprocess.run([sys.executable, str(SCRIPT), 'freeze', str(frozen2)], cwd=repo, env=env,
+                       capture_output=True, text=True)
+        copied = lambda p: (frozen2 / str(p).lstrip('/')).exists()
+        check('P1 freeze takes an enabled plugin\'s skills, agents and hooks.json, and none of a disabled one\'s',
+              copied(plug / 'skills' / 'pk' / 'SKILL.md') and copied(plug / 'agents' / 'pa.md')
+              and copied(plug / 'hooks' / 'hooks.json') and not copied(off / 'skills' / 'pk' / 'SKILL.md'),
+              str(sorted(p.name for p in frozen2.rglob('*') if p.is_file())))
     failed = RESULTS.count(False)
     print(f'{len(RESULTS) - failed}/{len(RESULTS)} passed')
     return failed
