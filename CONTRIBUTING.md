@@ -28,7 +28,8 @@ python3 skills/clorox/tests/test_clorox.py
 
 The other skills follow the same pattern under `skills/<name>/tests/`. The Robovac app's tests are
 in `apps/robovac-widget/tests/`; the page and icon tests need a Python with Playwright and Pillow
-(see `apps/robovac-widget/requirements-dev.txt`), which they find through `$ROBOVAC_PY`:
+(see `apps/robovac-widget/requirements-dev.txt`), which they find through `$ROBOVAC_PY`. The page
+test loads the house images, so run `apps/robovac-widget/mac/images.sh fetch` once first:
 
 ```bash
 export ROBOVAC_PY=/path/to/venv/bin/python

@@ -18,8 +18,9 @@ range:
 vet wakes when `main` moves, once it has been quiet for five minutes, or hourly. It stays silent
 unless it finds something. Once a month it replays a known past bug to check it still catches one.
 
-It keeps very little state: the last commit it reviewed and the date of its last replay, in the
-repository's git directory. It keeps no findings file. It never edits code, commits, pushes or
+It keeps very little state: the last commit it reviewed, the date of its last replay and, while a
+range is blocked, when to retry. They sit in `.git/vet/`, or in `state/report/vet/` when the project
+ignores that folder. It keeps no findings file. It never edits code, commits, pushes or
 deploys. If its tab closes, the next session you open tells you how many commits are unreviewed, and
 `/vet status` shows where it stands.
 
@@ -39,7 +40,9 @@ everything you need is in its final reply.
   task per pass: the worst rule break it can prove. It builds the fix in a fresh worktree, sends it
   through the review below, and on a clean verdict merges it into the project's local `main`
   without asking. Running `/robovac` is your permission for that merge. It never pushes. The
-  worktree and branch are removed when the pass ends, merged or not. If the task fails twice, the
+  worktree is removed when the pass ends. The branch is deleted once merged; a branch left at
+  ready-to-merge, or a failed one that holds work worth keeping, stays. The pass's other findings
+  aren't recorded, since the next pass finds whatever still stands. If the task fails twice, the
   pass stops and says why.
 
 In the Claude Code desktop app, a slash command can't go inside another command's arguments, so type

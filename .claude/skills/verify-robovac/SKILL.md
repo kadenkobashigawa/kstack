@@ -57,8 +57,8 @@ python3 $V launch "$E" baseline 80cf3ea
 
 `launch` exports the revision with `git archive` (or `WORKTREE` for the checkout as it stands,
 untracked files git doesn't ignore included), copies the checkout's house images when `images.lock`
-names the same pack (else `images.sh fetch`, which needs `gh`), builds `Robovac Verify.app`, and
-opens it. **A commit builds once per round**: the copy lives in `<tmp>/verify-robovac/builds/<sha>`
+names the same pack (else `images.sh fetch`, which downloads the pack from the public release),
+builds `Robovac Verify.app`, and opens it. **A commit builds once per round**: the copy lives in `<tmp>/verify-robovac/builds/<sha>`
 under `com.kstack.robovac.verify-<sha12>`, and every claim of the round that names that commit
 reuses it (launch prints `(reused)`), so the gate's live lane builds one copy per version, not one
 per claim. A `WORKTREE` changes under one name, so it builds again for each claim, in the claim's

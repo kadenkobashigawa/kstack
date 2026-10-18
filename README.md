@@ -28,7 +28,7 @@ every project and every Claude Code surface picks them up. It also adds kstack's
 and it's safe to run again. Keep the clone outside `~/.claude`, because Claude Code asks before
 every edit inside a `.claude` folder.
 
-**Update** by pulling and running the installer again:
+**Update** by pulling and running the installer again, then rebuilding Robovac if you use it:
 
 ```bash
 git -C ~/kstack pull && ~/kstack/install.sh
@@ -36,12 +36,14 @@ git -C ~/kstack pull && ~/kstack/install.sh
 
 **Uninstall** by deleting the links in `~/.claude/skills` and `~/.claude/agents` that point into
 `~/kstack`, and removing the hooks that call `~/.claude/skills/vet` or `~/.claude/skills/robovac`
-from `~/.claude/settings.json`.
+from `~/.claude/settings.json`. If you built Robovac, delete `~/Applications/Robovac.app` too.
 
 ## Skills
 
-Automatic skills load a one-line description into every session, so Claude uses them when they fit.
-The rest cost nothing until you run them.
+Every skill except the four you type yourself loads a one-line description into every session, so
+Claude can use it when it fits. `vet`, `robovac`, `clorox` and `stack-check` stay visible this way so
+that a loop or a robovac pass can call them. `correct`, `polish` and the two verification skills
+cost nothing until you run them.
 
 | Skill | What it does | Runs |
 |---|---|---|
@@ -78,7 +80,8 @@ pushes.
 once after finishing a piece of work. Each pass bins leftovers, reviews your setup, and fixes the
 worst code-rule problem it can prove. The fix is built in a temporary worktree, reviewed by agents
 that didn't write it, and merged into your local `main` only if the review is clean. robovac never
-pushes, and it reports everything in its final reply.
+pushes. Its final reply lists what it moved, suggested and merged; other findings are left for the
+next pass.
 
 In the Claude Code desktop app, type `/loop 12h run the robovac skill` instead, since a slash command
 can't go inside another command's arguments.
