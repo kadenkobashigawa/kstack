@@ -110,8 +110,9 @@ lint rule or test.
   hooks that `hooks.json` no longer has, and leaves every other hook alone.
 - **`apps/<name>`** holds programs that are not skills, as pstack keeps benny under
   `automations/`. `apps/robovac-widget` is the Robovac app.
-- **`upstream/`** holds pstack and four of Cursor's plugins exactly as imported (MIT, see `NOTICE`),
-  so every adapted part can be compared with its source. See [upstream/README.md](../upstream/README.md).
+- **`upstream/`** holds pstack, four of Cursor's plugins and part of Matt Pocock's skills exactly as
+  imported (MIT, see `NOTICE`), so every adapted part can be compared with its source. See
+  [upstream/README.md](../upstream/README.md).
 - A project opts into the loops and `/correct` by naming them in its own `CLAUDE.md`.
 
 ## Where each skill comes from

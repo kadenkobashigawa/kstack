@@ -17,7 +17,7 @@ Upstream formats a round as numbered chat text, each question followed by a `➡
 - **The other options are the real alternatives**, two to four options in all, each description saying what choosing it commits the design to. Don't pad to four, and don't add a strawman to make the recommendation look good.
 - **An open question stays open.** Upstream turns the question tool down partly because pickers push the model toward multiple choice with pre-baked answers (`upstream/mattpocock-skills/.out-of-scope/native-question-tool.md`). So when a question has no short list of answers, ask it as the open question it is, offer your recommendation and the closest real alternative, and say in the question that "Other" takes an answer in the user's own words. An "Other" answer outranks your options: take it as written.
 - **`preview` shows shapes side by side.** When the options are alternative interfaces or before/after code, put a short sketch of each in its option's preview.
-- **`multiSelect` only when the options aren't exclusive**, such as which callers must keep working.
+- **`multiSelect` only when the options aren't exclusive**, such as which callers must keep working. The tool shows no previews on a multiSelect question, so put any sketch in chat before the call, and name your recommended set in the question text.
 - **One question at a time, if the user's instructions ask for it.** Then each call carries one question. Upstream's docs name a `CLAUDE.md` line, "When grilling, ask one question at a time.", as the supported way back.
 
 Each round the user answers reshapes the tree: settled decisions push the frontier outward and unblock questions that depended on them. Recompute the frontier and ask the next round. A question whose answer depends on another question still open in this round belongs to a _later_ round, not this one.
@@ -26,4 +26,4 @@ Finding _facts_ is your job, never the user's. When a frontier question needs a 
 
 The session is done when the frontier is empty: every branch of the design tree visited, nothing left silently assumed. Do not act on it until the user confirms you have reached a shared understanding.
 
-*(ours)* Ask for that confirmation through AskUserQuestion too, after a short list of the settled decisions in chat: the first option confirms, and any other answer reopens the branch it names.
+*(ours)* Ask for that confirmation through AskUserQuestion too, after a short list of the settled decisions in chat. It has two options: "Shared" confirms, and "Not yet" reopens the tree, its description asking the user to name the branch through "Other". Neither is marked "(Recommended)", because whether the understanding is shared is the user's to say.

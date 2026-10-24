@@ -64,7 +64,7 @@ See [references/html-report.md](references/html-report.md) for the full HTML sca
 
 Do NOT propose interfaces yet. After the file is written, ask the user: "Which of these would you like to explore?"
 
-*(ours)* Ask it through AskUserQuestion: one question with header `Explore`, the strongest candidates as options (at most four, the top recommendation first with "(Recommended)" after its label), each option's description the card's one-sentence problem. Any other card, or none, is named through "Other". If the user asked for the report only, stop here instead of asking. Upstream's docs page names "don't grill me, just show the report" as the way to ask for that, and grilling the user unasked as the skill's most common complaint.
+*(ours)* Ask it through AskUserQuestion: one question with header `Explore`, the strongest candidates as options (at most four, the top recommendation first with "(Recommended)" after its label), each option's description the card's one-sentence problem. Any other card, or none, is named through "Other". The tool needs two options at least, so a report with one card offers it and "Stop at the report", and a report with no cards ends the run without asking. If the user asked for the report only, stop here instead of asking. Upstream's docs page names "don't grill me, just show the report" as the way to ask for that, and grilling the user unasked as the skill's most common complaint.
 
 ### 3. Grilling loop
 

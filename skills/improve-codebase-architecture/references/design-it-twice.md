@@ -47,4 +47,4 @@ Present designs sequentially so the user can absorb each one, then compare them 
 
 After comparing, give your own recommendation: which design you think is strongest and why. If elements from different designs would combine well, propose a hybrid. Be opinionated: the user wants a strong read, not a menu.
 
-*(ours)* Then put the choice to the user as a grilling question ([grilling.md](grilling.md)): your recommended design first, the others and any hybrid after it, each option's preview holding that design's interface sketch.
+*(ours)* Then put the choice to the user as a grilling question ([grilling.md](grilling.md)): your recommended design first, then the strongest of the others and any hybrid, four options at most, each option's preview holding that design's interface sketch. A design left out is still named through "Other", since every design was already presented above.
