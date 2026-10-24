@@ -26,4 +26,4 @@ Finding _facts_ is your job, never the user's. When a frontier question needs a 
 
 The session is done when the frontier is empty: every branch of the design tree visited, nothing left silently assumed. Do not act on it until the user confirms you have reached a shared understanding.
 
-*(ours)* Ask for that confirmation through AskUserQuestion too, after a short list of the settled decisions in chat. It has two options: "Shared" confirms, and "Not yet" reopens the tree, its description asking the user to name the branch through "Other". Neither is marked "(Recommended)", because whether the understanding is shared is the user's to say.
+*(ours)* Ask for that confirmation through AskUserQuestion too, after a short list of the settled decisions in chat. It has two options: "Shared" confirms, and "Not yet" reopens the tree. A picked option comes back as its bare label, so after "Not yet" the next question asks which branch to reopen, the settled branches most likely to need it as options and any other named through "Other". Neither is marked "(Recommended)", because whether the understanding is shared is the user's to say.
