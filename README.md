@@ -57,10 +57,10 @@ from `~/.claude/settings.json`. If you built Robovac, delete `~/Applications/Rob
 
 ## Skills
 
-Every skill except the four you type yourself loads a one-line description into every session, so
+Every skill except the five you type yourself loads a one-line description into every session, so
 Claude can use it when it fits. `vet`, `robovac`, `clorox` and `stack-check` stay visible this way so
-that a loop or a robovac pass can call them. `correct`, `polish` and the two verification skills
-cost nothing until you run them.
+that a loop or a robovac pass can call them. `correct`, `polish`, `improve-codebase-architecture` and
+the two verification skills cost nothing until you run them.
 
 | Skill | What it does | Runs |
 |---|---|---|
@@ -73,6 +73,7 @@ cost nothing until you run them.
 | `stack-check` | Reviews your skills, agents, hooks and memory against the last week of sessions, and suggests edits without applying them. | Inside `robovac` |
 | `correct` | Turns a mistake made twice into a hook, lint rule or test. | `/correct` |
 | `polish` | Tidies comments and docstrings, and proves Python behavior didn't change. | `/polish` |
+| `improve-codebase-architecture` | Finds shallow modules worth deepening, draws them as a before-and-after HTML report, then interviews you about the one you pick. Never changes code. | `/improve-codebase-architecture` |
 | `create-verification-skill` | Generates a `verify-<app>` skill that launches, drives and checks your real app. | `/create-verification-skill` |
 | `maintain-verification-skill` | Keeps a `verify-<app>` skill accurate as the app changes. | `/maintain-verification-skill` |
 
@@ -136,7 +137,7 @@ agents/          the agents, linked into ~/.claude/agents
 hooks/           kstack's hooks and the script that merges them into settings.json
 apps/            the Robovac app
 docs/            how the loops and reviews work
-upstream/        pstack and Cursor's plugins, unmodified, for reference
+upstream/        pstack, Cursor's plugins and Matt Pocock's skills, unmodified, for reference
 tests/           tests for install.sh
 ```
 
@@ -156,6 +157,9 @@ skill and run the tests.
   [orchestrate](https://github.com/cursor/plugins/tree/main/orchestrate) from
   [cursor/plugins](https://github.com/cursor/plugins). ralph-loop implements Geoffrey Huntley's
   [Ralph Wiggum technique](https://ghuntley.com/ralph/).
+- [Matt Pocock's skills](https://github.com/mattpocock/skills) are the source of
+  `improve-codebase-architecture`, with the codebase-design, grilling and domain-modeling skills it
+  reads.
 - [impeccable](https://github.com/pbakaus/impeccable) by Paul Bakaus shaped Robovac's design.
 - The code rules draw on [OWASP](https://owasp.org), the
   [OpenSSF Scorecard](https://github.com/ossf/scorecard) and
@@ -167,5 +171,5 @@ traces every skill to its sources.
 
 ## License
 
-MIT, see [LICENSE](LICENSE). The parts adapted from pstack and Cursor's plugins keep their own MIT
-notices, listed in [NOTICE](NOTICE).
+MIT, see [LICENSE](LICENSE). The parts adapted from pstack, Cursor's plugins and Matt Pocock's skills
+keep their own MIT notices, listed in [NOTICE](NOTICE).

@@ -129,3 +129,4 @@ lint rule or test.
 | `polish` | Ours. |
 | `create-verification-skill` | pstack's, translated to `.claude/skills/`, plus a data rule from our first verify skill. |
 | `maintain-verification-skill` | pstack's, translated to end in a commit rather than a PR. |
+| `improve-codebase-architecture` | Matt Pocock's, with the codebase-design, grilling and domain-modeling skills it calls carried as references, and grilling's rounds asked through AskUserQuestion. |

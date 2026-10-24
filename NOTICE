@@ -1,12 +1,14 @@
 kstack is MIT-licensed; see LICENSE. It also adapts text from MIT-licensed work. The originals are
-kept unmodified under upstream/, each with its LICENSE file, as imported from github.com/cursor/plugins
-at commit ccb5507 (2026-10-07).
+kept unmodified under upstream/, each with its LICENSE file. The first five were imported from
+github.com/cursor/plugins at commit ccb5507 (2026-10-07), and mattpocock-skills from
+github.com/mattpocock/skills at commit 5beb35b (2026-10-19).
 
   upstream/pstack              Copyright (c) 2026 Lauren Tan        MIT
   upstream/cursor-team-kit     Copyright (c) 2026 Cursor            MIT
   upstream/ralph-loop          Copyright (c) 2026 Cursor            MIT
   upstream/continual-learning  Copyright (c) 2026 Cursor            MIT
   upstream/orchestrate         Copyright (c) 2026 Cursor            MIT
+  upstream/mattpocock-skills   Copyright (c) 2026 Matt Pocock       MIT
 
 Each skill under skills/ that adapts that work names its source in its own files. The MIT permission
 notice in each upstream LICENSE applies to those portions.
