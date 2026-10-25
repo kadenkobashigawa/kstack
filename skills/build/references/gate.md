@@ -4,7 +4,7 @@ Load after check 4 (verify) for every change that is to be merged, whatever meth
 top of SKILL.md picked. The gate takes a change from "verified by its author" to "verified by agents
 that did not write it".
 
-Ported from pstack's autopilot-full playbook (steps 4 and 5), its shipping playbook (the patch-id
+Ported from pstack's autopilot-full playbook (steps 2, 4 and 5), its shipping playbook (the patch-id
 rule) and its swarm skill (Lauren Tan, MIT, `upstream/pstack/skills/`). The translation for Claude
 Code and local merges is marked where it departs from pstack.
 
@@ -27,7 +27,14 @@ fixes in their own PR." *(ours, the translation: pstack's unit is a PR, here it 
 ## A round
 
 A round starts at the commit the author calls code-ready, and again at every later commit that
-changes the patch. At that exact commit, fresh agents run these lanes. None of them wrote the code.
+changes the patch. Before that commit starts a round, its author runs the checks the project's own
+rules name for the paths it touches, on the commit itself. autopilot-full: "Before a push that
+starts a round, run the pre-review checks that the repo's AGENTS.md files and rules name for the
+touched paths. Run them on the committed head." *(the translation: for pstack's "AGENTS.md files
+and rules", a project here has its `CLAUDE.md` or `AGENTS.md` files and its rules, such as
+`.claude/rules/` or a contributing guide that names checks (kstack's `CONTRIBUTING.md` names
+`claude plugin validate .` for changes under `skills/`); and a round starts at a commit rather than
+a push)*. At that exact commit, fresh agents run these lanes. None of them wrote the code.
 
 1. **Gates.** Re-run the checks at that commit: the risk list from check 1 (understand), and the
    project's own pre-merge checks (tests, lint, type checks). The commit is checked as committed: "A hook pass is
@@ -51,10 +58,15 @@ changes the patch. At that exact commit, fresh agents run these lanes. None of t
    `nit`, as interrogate's reviewer prompt does. The full brief carries the change's stated intent,
    the rules, every capability the change drops with who approves each loss (the person who asked,
    or this verdict under the operator's grant: check 2 in SKILL.md) *(ours, as that rule is)*, and
-   the run's never-list, the things the run may not read or touch. *(pstack draws its adversarial
-   signal from different model families. Claude Code runs only Claude models, so the lanes use
-   different Claude models, such as Opus and Sonnet, and name which ran. This is weaker diversity,
-   and named as such.)*
+   the run's never-list, the things the run may not read or touch. Every brief the gate writes, a
+   lane's, the lead's or a fixer's, points at what it needs. poteto-mode's "Defaults for every
+   `Task` call" include "file pointers not inlined context", so commits and paths go as pointers
+   and the agent reads them itself. A report a brief depends on is the exception, since a report
+   is a reply and not a file: orchestrate's brief template has "upstream reports pasted in full
+   when this unit depends on them, because workers cannot see siblings". *(pstack draws its
+   adversarial signal from different model families. Claude Code runs only Claude models, so the
+   lanes use different Claude models, such as Opus and Sonnet, and name which ran. This is weaker
+   diversity, and named as such.)*
 4. **Regression.** "Run the same load-bearing scenario on current trunk. If trunk does not have the
    feature, record that fact and gate the behavior the diff adds plus the end state the user waits
    for instead of pretending trunk can produce it."

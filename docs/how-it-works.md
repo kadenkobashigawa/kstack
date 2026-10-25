@@ -69,7 +69,8 @@ broken rule sends that part of the code through build's checks.
 ## The review every change goes through
 
 build calls it the gate (`skills/build/references/gate.md`). Each self-contained change is its own
-branch, reviewed and merged alone; only changes that touch the same files wait for each other. For
+branch, reviewed and merged alone; only changes that touch the same files wait for each other. Before
+a round, the author runs the checks the project's own rules name for the files it touched. Then, for
 each change, fresh agents that did not write it:
 
 1. re-run the tests and checks at the exact commit,
