@@ -1,6 +1,6 @@
 ---
 name: polish
-description: "Brings files into the project's house style without changing behavior: comments, dividers, spacing and alignment, docstrings matched to the code they describe, and the markdown docs that cite those files. Defaults to the branch's changed files, and takes a path, a folder or \"all\". Proves Python unchanged by comparing parse trees before and after, and sends anything behavioral to the project's findings backlog. Run it with /polish."
+description: "Brings files into the project's house style without changing behavior: comments, dividers, spacing and alignment, docstrings matched to the code they describe, and the markdown docs that cite those files. Defaults to the branch's changed files, and takes a path, a folder or \"all\". Proves Python unchanged by comparing parse trees before and after, and reports anything behavioral without fixing it. Run it with /polish."
 disable-model-invocation: true
 ---
 
@@ -10,7 +10,7 @@ You are doing a **behavior-preserving hygiene pass**: making each file match the
 making its docs tell the truth about the code — without changing what the code *does*.
 
 The shape in one line: **load the live rules, resolve the scope, polish each file, prove nothing
-changed, then report what you fixed and send the behavioral findings to the findings backlog.**
+changed, then report what you fixed and the behavioral findings you left alone.**
 Polishing a file covers style, docstring format, and docstring and markdown freshness. The proof is
 the parse tree before against after for Python, and the linter and a cheap build elsewhere.
 
@@ -24,10 +24,10 @@ Docstrings are the one runtime-visible thing it rewrites: a program can read its
 - **Remove nothing that runs.** An unused import, even one ruff F401 flags, is **flagged, never
   removed**: deleting it changes the parse tree, so Phase 3's gate calls it a behavior change and
   reverts it. A dead *export* (module-level name something else might import) is **flagged, never
-  removed** too — it reaches across modules, so it belongs in the findings backlog.
+  removed** too — it reaches across modules, so it belongs in the report's beyond-polish list.
 - **Cosmetic-only edits.** Re-wording a comment, fixing a divider, aligning columns, reformatting a
   docstring, correcting a `Methods` list — yes. Re-ordering statements, merging duplicated logic,
-  narrowing an `except`, fixing a bug — **no**: flag it for the backlog.
+  narrowing an `except`, fixing a bug — **no**: flag it in the report.
 - **Prove it.** The pass snapshots each Python file before editing and compares parse trees after
   (see Phase 3). A file in another language rests on Phase 3's cheaper checks, which are weaker
   evidence. A cosmetic edit leaves the tree identical, so a tree that moved names the edit that
@@ -127,22 +127,23 @@ in the same diff.** One claim usually has several homes — a docstring, a comme
 guide — and fixing the one you happened to open leaves the others asserting it.
 
 ### Dead and unused imports — flagged, never removed
-- An import **ruff F401 flags** goes to the findings backlog, not out of the file. Removing it
-  changes the parse tree, so the Phase 3 gate reports `BEHAVIOUR CHANGED`, and Phase 3 sends a
-  refused edit through the change gates instead. Trust F401 over your own grep when flagging — it
-  understands re-exports and annotation-only use, and grep does not.
+- An import **ruff F401 flags** goes in the report's beyond-polish list, not out of the file.
+  Removing it changes the parse tree, so the Phase 3 gate reports `BEHAVIOUR CHANGED`, and Phase 3
+  sends a refused edit through the change gates instead. Trust F401 over your own grep when
+  flagging — it understands re-exports and annotation-only use, and grep does not.
 - **Three cases that aren't even a flag, though the name looks unused:** a module declaring
   `__all__` (a re-export surface — removing from it silently breaks the package's public API),
   imports inside `if TYPE_CHECKING:` (used only in annotations), and any import already carrying
   `# noqa: F401`.
 - A module-level name that *might* be imported elsewhere (a dead export, an unused constant other
-  modules could pull): **flag it for the backlog**, and don't remove it.
+  modules could pull): **flag it in the report**, and don't remove it.
 
 ### Out of scope — hand it off
 While polishing you'll notice behavioral issues. Do **not** fix them here. Collect them into a short
 "beyond polish" list (bug, duplicated logic, dead export, unused import, broad except, rot,
-build-session divergence where dedup would change behavior), surface it at the end, and write each
-one into the project's findings backlog so it survives the session. Build-session pollution — the
+build-session divergence where dedup would change behavior) and report it in Phase 4. The report
+carries these findings, and nothing else does: polish writes them to no file, the same rule as
+build's queue bucket in `skills/build/references/judgment.md`. Build-session pollution — the
 same value or recipe expressed two ways because two sessions each added their own — is a flag, not
 an auto-fix. Normalize it only when it's provably cosmetic, such as a duplicated *comment*.
 
@@ -176,7 +177,7 @@ these two are support.
 **The gate is deliberately conservative, and it will refuse some safe edits.** Rewriting
 `Optional[X]` to `X | None` changes the tree while changing nothing at runtime, so `verify` calls
 it a behavior change and polish declines it. That is the trade the contract asks for: a refused
-edit costs a line in the backlog, and a permissive gate costs a shipped bug. Route such an edit
+edit costs a line in the report, and a permissive gate costs a shipped bug. Route such an edit
 through the change gates rather than around this one.
 
 A markdown-only pass has no tree to compare, and needs none — a document has no behavior to
@@ -196,8 +197,8 @@ Per file, one tight line: what categories you fixed (for example,
 `models.py — 7 table-interruption comments stripped, Methods list +2`). Then:
 - **Proof:** `N/N proved unchanged · ruff clean`, then each `NO PARSER` file with the cheap build
   that stood in for it.
-- **Beyond polish (to the findings backlog):** the behavioral findings you deliberately didn't
-  touch, each one line with file:line.
+- **Beyond polish:** the behavioral findings you deliberately didn't touch, each one line with
+  file:line. This list is the only place they are recorded.
 
 Keep it short. The diff is the detail, and the report is the index.
 

@@ -66,6 +66,18 @@ An eval score takes the same care, asked of its trials (pstack,
 - Does the gap hold across trials and models?
 - Does the scenario matter?
 
+## A process number
+
+A process number, such as gate rounds, tokens or agents per item, is a claimed number and takes
+the questions above. Each sample names the kstack commit the gate ran on, and a comparison uses
+samples from one commit per side. benchmark-checklist: "Run every side the way production runs
+it ... and the same versions and data." (pstack, `skills/benchmark-checklist/SKILL.md`, l. 22)
+swarm: "A measurement brief also names the method ... The worker records both in its result."
+(pstack, `skills/swarm/SKILL.md`, l. 26) The root writes `kstack <sha>` as the last line of
+its message file, so it sits directly above the `GATE VERDICT:` block, from
+`git -C "$(cd "${CLAUDE_SKILL_DIR}" && pwd -P)" rev-parse --short HEAD` *(kstack: `gate.py`
+records no kstack commit, so the merge commit's message is where a sample reads it)*.
+
 ## Making something faster
 
 A speedup is its own playbook, `references/perf.md`. It runs this file's questions on its baseline

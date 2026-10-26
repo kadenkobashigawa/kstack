@@ -61,7 +61,9 @@ The root orders the commits, one concern per commit, in the order that proves th
 baseline capture before the treatment" (pstack,
 `skills/principle-sequence-verifiable-units/SKILL.md`, l. 15). The commit that carries the fix cites
 the measurement (pstack, `skills/poteto-mode/playbooks/perf-issue.md`, l. 20) *(kstack, the
-translation: the commit message in place of pstack's PR)*.
+translation: the commit message in place of pstack's PR)*. The Reply in the merge commit carries
+that measurement, because `gate.py land` squashes the commits and the branch is deleted after it
+*(kstack: the merge commit is the only record left)*.
 
 ## 7. Run the gate (`references/gate.md`)
 

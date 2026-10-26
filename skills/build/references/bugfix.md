@@ -83,12 +83,12 @@ The fix is the smallest change the evidence justifies, in the layer where the de
 that silences the symptom (a null check, a retry, a broad except) is not a fix. Fix every place the
 same pattern appears, in the same change. The fix brief carries the command that lists those places,
 such as a `git grep`, in VERIFY and its output in CONTEXT. The fixer reruns it after the fix
-(`references/gate.md`, The verdict). Record an instance that belongs to another owner in the
-project's findings queue instead. pstack's playbook says "If it crosses a function boundary,
-`architect` first" (pstack, `skills/poteto-mode/playbooks/bug-fix.md`, l. 9). Here
-`references/design.md`, the sketch step, runs first *(kstack: `references/design.md`, Design it
-twice, says why it runs on Opus and Sonnet)*. After two failed fixes for the same issue, stop and
-follow `references/when-a-fix-fails.md`.
+(`references/gate.md`, The verdict). An instance that belongs to another owner is a queue finding
+instead, reported in the Reply (`references/judgment.md`, The five buckets). pstack's playbook says
+"If it crosses a function boundary, `architect` first" (pstack,
+`skills/poteto-mode/playbooks/bug-fix.md`, l. 9). Here `references/design.md`, the sketch step, runs
+first *(kstack: `references/design.md`, Design it twice, says why it runs on Opus and Sonnet)*.
+After two failed fixes for the same issue, stop and follow `references/when-a-fix-fails.md`.
 
 ## 6. Prove it on the same surface
 
@@ -104,6 +104,8 @@ bug is gone. Then run the risk list, and smoke the nearby states, inputs and fai
 
 The root orders the commits, one concern per commit. The failing test or repro script lands before
 the fix, so history reads red then green (pstack, `skills/poteto-mode/playbooks/bug-fix.md`, l. 11).
+The Reply in the merge commit names the red test, because `gate.py land` squashes the commits and
+the branch is deleted after it *(kstack: the merge commit is the only record left)*.
 
 ## 8. Run the gate (`references/gate.md`)
 

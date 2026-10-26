@@ -57,9 +57,9 @@ carries out and who does it.
      l. 95). *(kstack: Claude Code runs only Claude models, and SKILL.md, Subagents, gives any
      change that alters behaviour to Opus.)*
    - **More than one valid shape.** pstack: "When the implementation admits multiple valid shapes
-     (error handling, abstraction layer, test structure), delegate via the **arena** skill instead."
-     (pstack, `skills/poteto-mode/playbooks/feature.md`, l. 12) Here two delegates, one Opus and one
-     Sonnet, write it from the same brief. The root picks the base and lists what the other did
+     (error handling, abstraction layer, test structure), delegate via the **arena** skill instead"
+     (pstack, `skills/poteto-mode/playbooks/feature.md`, l. 12). Here two delegates, one Opus and
+     one Sonnet, write it from the same brief. The root picks the base and lists what the other did
      better. A fresh subagent folds that list in, as `references/design.md`, Design it twice,
      does for a sketch *(kstack: kstack has no arena skill)*.
    - **No skipping it.** "Mandatory: no skip-with-reason escape, and Laziness Protocol does not

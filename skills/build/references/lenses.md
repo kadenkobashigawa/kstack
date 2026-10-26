@@ -42,8 +42,10 @@ synonyms, the SQL table names, the route paths, the error strings, and similar c
 existing helper and where it lives.
 
 **Is it in the right place?** (rules 2, 4 and 6) Check the change against the project's layering
-(its architecture or layers decision record, if it has one) and its ownership rules, such as
-"repositories own SQL" (pstack, `skills/interrogate/references/code-quality-review.md`, l. 33).
+(its architecture or layers decision record, if it has one) and its ownership rules, such as a rule
+that only the data-access layer builds queries. code-quality-review asks to "Keep logic in the
+canonical layer and reuse existing helpers." (pstack,
+`skills/interrogate/references/code-quality-review.md`, l. 33)
 
 **Is there a simpler shape?** (rules 1, 3, 5 and 7) Look for the restructure that deletes complexity
 rather than moving it (pstack, `skills/interrogate/references/code-quality-review.md`, l. 21).

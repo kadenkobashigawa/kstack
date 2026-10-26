@@ -66,14 +66,12 @@ and marks where its contents depart from interrogate.
   cost now goes to queue, so consider keeps only the person's calls.)*
 - **queue:** a proven rule break that would not block a real PR, such as a file past 1,000 lines
   (rule 1) or a duplicate helper (rule 4), whether or not the change wrote it. A later change fixes
-  it, not this round's fix-forward. This is interrogate's Noted, kept as work for later rather than
-  dropped (pstack, `skills/interrogate/SKILL.md`, l. 78). It goes in the Reply and the merge
-  commit's message. When the project's instruction file names a backlog for findings, it also goes
-  there, committed to main right after the merge *(kstack: a commit on the branch would change its
-  patch and void the verdict)*. pstack parks such follow-ups in the team's own tracker (pstack,
-  `skills/reflect/SKILL.md`, l. 55). A project with none keeps no backlog. *(kstack: when every
-  proven break went to a fix round, rounds ran to six or seven, per `references/evidence.md`, Run
-  evidence behind the gate.)* Queue also holds a proven defect in code or text the change didn't
+  it, not this round's fix-forward. This is interrogate's Noted, "Technically valid but not
+  actionable." (pstack, `skills/interrogate/SKILL.md`, l. 78), which is reported and not kept. It
+  goes in the Reply and the merge commit's message, and nowhere else: no project backlog and no
+  commit to main after the merge *(kstack: the operator's decision, 2026-10-26)*. *(kstack: when
+  every proven break went to a fix round, rounds ran to six or seven, per `references/evidence.md`,
+  Run evidence behind the gate.)* Queue also holds a proven defect in code or text the change didn't
   write. To confirm that, the lead reruns the finding at the base commit, with its repro, its test
   or its quoted line. A finding that holds there is queue, whatever severity its lane gave it. A
   finding that doesn't hold there belongs to the change, so it is act on *(kstack: the rerun
@@ -81,8 +79,8 @@ and marks where its contents depart from interrogate.
   evidence behind the gate)*. Mid-run discoveries fix only what blocks the frontier (pstack,
   `skills/poteto-mode/playbooks/orchestrate.md`, l. 109). lead-judgment dismisses changes to code
   the author didn't write (pstack, `skills/interrogate/references/lead-judgment.md`, l. 37).
-  *(kstack: proven ones are kept here, because check 3 records what was noticed outside the change
-  instead of fixing it there.)*
+  *(kstack: proven ones go to queue here, because check 3 records what was noticed outside the
+  change instead of fixing it there.)*
 - **dismissed:** only what is not proven, each with its reason. That is a hypothetical, a
   preference, which lead-judgment calls "I Would Have Done It Differently" (pstack,
   `skills/interrogate/references/lead-judgment.md`, l. 30), or a misreading that missing context

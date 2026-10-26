@@ -40,7 +40,9 @@ one first)*. Why each check exists is in `references/evidence.md`.
   `skills/technical-writing/SKILL.md`, l. 96). *(kstack: one pass over finished prose for the gate,
   where poteto-mode writes clean as it goes and gives comments their own rule.)*
 - **A claimed number (speedup, regression, latency, score) → `references/measure.md`** before you
-  report or act on it (pstack, `skills/poteto-mode/SKILL.md`, l. 31).
+  report or act on it (pstack, `skills/poteto-mode/SKILL.md`, l. 31). A process number, such as
+  gate rounds, tokens or agents per item, is a claimed number, and each sample names the kstack
+  commit the gate ran on (`references/measure.md`, A process number).
 - **A broken skill found mid-task → fix it on its own branch, through build.** Don't block on it,
   and don't work around it (pstack, `skills/poteto-mode/SKILL.md`, l. 35). *(kstack: a branch where
   pstack opens a PR, since build merges locally, `references/gate.md`, Merge preparation.)*
@@ -185,6 +187,16 @@ REPORT       status, branch, head SHA, verdict, what you actually ran, deviation
   file, so it is the one thing pasted.
 - **VERIFY** carries the commands because the author runs them on the committed head before a
   round (`references/gate.md`, A round).
+- **An empty field refuses the spawn.** "Missing fields are a refuse-to-spawn condition." (pstack,
+  `skills/poteto-mode/playbooks/orchestrate.md`, l. 56) The root does not spawn a writer, fixer or
+  lane whose brief has an empty field.
+- **A run of many items samples its briefs.** "Audit one sampled worker brief per sub-coordinator
+  per wave, concurrently with the wave it samples, never as a gate in front of it." (pstack,
+  `skills/poteto-mode/playbooks/orchestrate.md`, l. 56) *(kstack, the translation: the root writes
+  every brief, so it reads one sampled brief per wave alongside the run, and a failing brief fixes
+  the template it came from, not only that brief.)*
+- **A fix brief for a doc finding carries the deletion** and proposes no new prose, per the rule
+  on a false or unsupported claim (`references/gate.md`, The verdict).
 - *(kstack, the translation: pstack's PRs become the local branch and its head commit, and the
   ban on `gt` becomes a ban on merging and pushing, which the root alone does. pstack's STANDING
   field is dropped, because Claude Code loads the project's `CLAUDE.md` files into every subagent,
