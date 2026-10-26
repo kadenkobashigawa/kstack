@@ -1,6 +1,6 @@
 # Deepening
 
-From Matt Pocock's skills (MIT), `upstream/mattpocock-skills/skills/engineering/codebase-design/DEEPENING.md`, as written except where marked *(ours)* and for links to the other files here.
+From Matt Pocock's skills (MIT), `upstream/mattpocock-skills/skills/engineering/codebase-design/DEEPENING.md`, as written except where marked *(kstack)* and for links to the other files here.
 
 How to deepen a cluster of shallow modules safely, given its dependencies. Assumes the vocabulary in [codebase-design.md](codebase-design.md): **module**, **interface**, **seam**, **adapter**.
 

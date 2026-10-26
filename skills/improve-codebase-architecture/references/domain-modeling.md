@@ -1,10 +1,10 @@
 # Domain Modeling
 
-From Matt Pocock's skills (MIT), `upstream/mattpocock-skills/skills/engineering/domain-modeling/SKILL.md`, as written except where marked *(ours)* and for links to the other files here.
+From Matt Pocock's skills (MIT), `upstream/mattpocock-skills/skills/engineering/domain-modeling/SKILL.md`, as written except where marked *(kstack)* and for links to the other files here. Upstream's skill frontmatter is dropped *(kstack: this file is read as a reference, not loaded as a skill)*.
 
 Actively build and sharpen the project's domain model as you design. This is the *active* discipline: challenging terms, inventing edge-case scenarios, and writing the glossary and decisions down the moment they crystallise. (Merely *reading* `GLOSSARY.md` for vocabulary is not this skill: that's a one-line habit any skill can do. This skill is for when you're changing the model, not just consuming it.)
 
-*(ours)* Every "Which is it?" below is a decision, so it reaches the user as a question in the current grilling round, through AskUserQuestion, as [grilling.md](grilling.md) says.
+*(kstack)* Every "Which is it?" below is a decision, so it reaches the user as a question in the current grilling round, through AskUserQuestion, as [grilling.md](grilling.md) says.
 
 ## File structure
 
@@ -38,7 +38,7 @@ If a `GLOSSARY-MAP.md` exists at the root, the repo has multiple contexts. The m
 
 Create files lazily: only when you have something to write. If no `GLOSSARY.md` exists, create one when the first term is resolved. If no `docs/adr/` exists, create it when the first ADR is needed.
 
-*(ours)* `docs/adr/` gives way to the home the project's instruction files name for its decision records, as [adr-format.md](adr-format.md) says.
+*(kstack)* `docs/adr/` gives way to the home the project's instruction files name for its decision records, as [adr-format.md](adr-format.md) says.
 
 ## During the session
 

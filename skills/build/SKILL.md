@@ -1,208 +1,164 @@
 ---
 name: build
-description: Runs on every code change, one line or one module. Four checks against the measured ways coding agents fail (understand what the change disturbs and what already does the job, simplify, keep the diff to what was named, verify on the real path), plus methods for bugs, refactors, designs, measured numbers and unattended runs. Use when writing or changing any code, or when the user types /build or says "build X", "new feature", "fix this".
-trigger: /build
+description: "Runs on every code change, one line or one module. Routes the change to one playbook (feature, bug fix, refactor or performance) that the root session leads while fresh subagents write the code, and merges it into local main only after a review by agents that did not write it. Use when writing or changing any code, or when the user types /build or says \"build X\", \"add a feature\", \"fix this\", \"refactor\" or \"make it faster\"."
 ---
 
 # build
 
-Coding agents fail in four named ways. Every one of them ships code that looks right:
-**unchecked assumptions**, **over-complication**, **orthogonal damage**, **unvalidated
-execution**. This skill is one check per failure mode, and it runs on every change —
-a one-line fix is where the measured decay actually happens.
+build runs on every code change, one-line fixes included, because AI-assisted code gathers warnings
+and complexity that persist (He et al., 2026). It routes the change to one playbook, whose steps
+carry out the checks. Its shape is pstack's poteto-mode (Lauren Tan, MIT,
+`upstream/pstack/skills/poteto-mode/`) *(kstack: the playbooks come before the checks, so you pick
+one first)*. Why each check exists is in `references/evidence.md`.
 
-The checks are proportional by construction. A one-line fix has a small impact set and a
-one-sentence interpretation; a new module has a wide one. **Nothing here scales to zero.**
+## Non-negotiables
 
-Project specifics — test commands, where findings go, the language's reference syntax —
-are derived from the repo each run, never frozen here.
+- **The root leads, and fresh subagents do the work** (`## Subagents`). The root is the session
+  the user talks to. pstack's bug-fix playbook: "**You own this task. Plan, review, verify.**
+  Delegate investigation and the fix to subagents, stay in the lead." (pstack,
+  `skills/poteto-mode/playbooks/bug-fix.md`, l. 3)
+- **Every change that merges passes the gate** (`references/gate.md`), whatever its playbook. The
+  gate is a review by fresh agents that did not write the change, against the code rules in
+  `references/rules.md`. Give each self-contained change its own branch, in its own linked worktree,
+  gated and merged alone. A change waits only for one it overlaps (`references/gate.md`, The unit of
+  work).
+- **Read the project's specifics from the repo on each run**: its test commands, where findings
+  go, and what counts as a reference in its language (imports, calls, config keys). Never write
+  them into this file *(kstack: build serves any project)*.
 
-**Some changes carry their own method on top of the four checks.** Load the one that fits
-before starting:
+## Triggers
 
-| The change | Load |
+- **Code crossing a function boundary → `references/design.md`**, the sketch step, before any
+  code. poteto-mode sends it to its architect skill (pstack, `skills/poteto-mode/SKILL.md`, l. 22).
+- **A nontrivial multi-step task → the throughput checkpoint**, per `references/feature.md` step 3
+  (pstack, `skills/poteto-mode/SKILL.md`, l. 25).
+- **Prose in the diff (docs, comments, commit messages) → kstack's `technical-writing` and
+  `unslop` skills, before the code-ready commit** (pstack, `skills/poteto-mode/SKILL.md`, l. 27).
+  Both are verbatim copies of pstack's, and only the operator can invoke them, so read each file:
+  `$(cd "${CLAUDE_SKILL_DIR}" && pwd -P)/../technical-writing/SKILL.md` and `../unslop/SKILL.md`
+  beside it. Make each count true at its commit, with the command that regenerates it (pstack,
+  `skills/technical-writing/SKILL.md`, l. 96). *(kstack: one pass over finished prose for the gate,
+  where poteto-mode writes clean as it goes and gives comments their own rule.)*
+- **A claimed number (speedup, regression, latency, score) → `references/measure.md`** before you
+  report or act on it (pstack, `skills/poteto-mode/SKILL.md`, l. 31).
+- **A broken skill found mid-task → fix it on its own branch, through build.** Don't block on it,
+  and don't work around it (pstack, `skills/poteto-mode/SKILL.md`, l. 35). *(kstack: a branch where
+  pstack opens a PR, since build merges locally, `references/gate.md`, Merge preparation.)*
+- **Long or unattended work (`/loop`, or the user away) → `references/long-run.md`** around the
+  routed playbook, with its decision trail per pstack's show-me-your-work skill (pstack,
+  `skills/poteto-mode/playbooks/autonomous-run.md`, l. 9;
+  `skills/poteto-mode/SKILL.md`, ll. 36, 139).
+
+## Playbooks
+
+**Route every change to exactly one playbook.** Match the change to a row, open the file, and copy
+its steps verbatim into the task list before any task-specific item. A step you skip stays in the
+list as `skip: <reason>` (pstack, `skills/poteto-mode/SKILL.md`, l. 121).
+
+| The change | Playbook |
 |---|---|
+| adds behaviour | `references/feature.md` |
 | corrects a defect | `references/bugfix.md` |
 | reshapes code without changing behaviour | `references/refactor.md` |
-| is hard to undo: a boundary, schema or interface others build on | `references/design.md` |
-| claims a number: a speedup, regression, latency or score | `references/measure.md` |
-| runs unattended, under `/loop` or while the user is away | `references/long-run.md` |
+| makes something faster without changing behaviour | `references/perf.md` |
 
-**Every change that is to be merged then passes the gate,** `references/gate.md`, whichever method it
-used. Each self-contained change is its own branch, gated and merged alone; only overlapping work
-waits for another's merge (`references/gate.md`, The unit of work). `references/rules.md` holds the
-code rules that the gate's review lanes and the unattended loop both check.
+The rows are pstack's split (pstack, `skills/poteto-mode/playbooks/refactoring.md`, l. 3). A change
+that fits two rows is two diffs through two playbooks, because check 3 never restructures and
+changes behaviour in one diff. Ship the structural change first, with a test that pins today's
+behaviour. A redesign found during a refactor is a feature: name it and route it to
+`references/feature.md` (pstack, `skills/poteto-mode/playbooks/refactoring.md`, l. 5). *(kstack:
+every code change adds, corrects, reshapes or speeds up code, so build needs no figure-it-out
+fallback.)*
 
-## 1 — UNDERSTAND · counters unchecked assumptions
+## The checks
 
-Models make wrong assumptions on your behalf and run with them. They don't manage their
-confusion, don't seek clarification, don't surface inconsistencies, don't push back.
+The checks are poteto-mode's Principles (pstack, `skills/poteto-mode/SKILL.md`, l. 15), and each
+playbook step names the one it carries out. Read a check's file in full before you apply it, because
+it says when the check is satisfied (pstack, `skills/poteto-mode/SKILL.md`, l. 40). Checks 1 to 3
+counter the failures Karpathy names (Karpathy, 2026).
 
-- **Read what you're changing and the contract around it.** Never a remembered version.
-- **Find what already does this, and where it belongs.** Before any code, write one
-  placement line: the existing code that already does this job (or "none", with the search
-  terms you used) and the module that owns the concept. Nobody can read the whole codebase,
-  so this is a search, not a recollection; for anything past a one-file change, an Explore
-  subagent runs it and the main thread keeps its answer. The question is pstack's `how` skill's,
-  "where should this live" and "which package owns this" (`upstream/pstack/skills/how`); kstack
-  carries that question alone, as the 2026-10-09 vote placed it (C051).
-- **Build the impact set** — every reference to what you're touching: call sites, imports,
-  subclasses, config keys, templates, fixtures, docs, migrations. Non-code counts.
-- **Map it to tests** — which existing tests cover those references.
-- **Name the data shape before the logic** — the structure that organizes it (a table, a
-  state machine, a typed model). A new branch on an existing if-chain, or a second boolean
-  kept in sync with the first, is the tell that one is missing.
-- **Say what you think the request means, and surface what's unclear.** Surface tradeoffs.
-  Push back if the ask is wrong. When the change touches state, the interpretation names
-  **exactly one writer** for each piece of it — two owners is invisible in a diff, because
-  each side looks correct alone.
-- **A question you could settle by running something isn't a question.** Timing, output,
-  layout, whether an approach works at all: build a throwaway in the scratchpad and let the
-  result decide. Only product and taste calls go to the user.
+- **1. Understand** (`references/understand.md`). Counters unchecked assumptions. Before the first
+  line of code: the placement line, the impact set (everything the change reaches) and its tests,
+  the data shape, and the written interpretation of what the request means.
+- **2. Simplify** (`references/simplify.md`). Counters over-complication. Deciding what to build
+  and how big: whether it should exist (`/elon`), what already does it, which layer it belongs
+  in, no bloat, nothing orphaned.
+- **3. Contain** (`references/contain.md`). Counters orthogonal damage, meaning changes to code
+  the task never concerned. Every hunk traces to the interpretation, unrelated problems go to the
+  findings queue, and restructuring never shares a diff with a behaviour change.
+- **4. Verify** (`references/verify.md`). Counters unvalidated execution, shipping code nobody
+  ran *(kstack: build adds this fourth failure to Karpathy's three, `references/evidence.md`, Check
+  4)*. Before anything is called done: the risk list, each changed line broken on purpose to prove
+  a test catches it, the whole path run for real, the result judged against the interpretation,
+  then the gate.
+- **5. Automate** (`references/automate.md`). Never blocks a merge. Once a step repeats three times,
+  script it, and build the tool now when only a tool can prove the work. An invariant becomes a
+  mechanical check, and a correction made twice becomes a `/correct` proposal to the operator.
+- **When a fix fails** (`references/when-a-fix-fails.md`). After the second failed fix for one
+  issue, stop, revert, write down the premise both fixes shared, and count the problem per actor
+  before a third fix.
 
-Produces the **risk list** (references + their tests — VERIFY runs it, so it's an input,
-not a note) and the **written interpretation** with its placement line (CONTAIN checks the
-diff against it, so it has to exist as text).
+## Autonomy
 
-**Satisfied when** the placement line is written, every reference is named or you can say
-why the search was exhaustive, every ambiguity you noticed has been raised, and the
-interpretation is written down.
+**Decide reversible work alone, and pause for the operator on irreversible work**: force-pushes
+to shared branches, deploys, data deletion, customer messages (pstack,
+`skills/poteto-mode/SKILL.md`, ll. 83, 85), and pushes to a shared remote *(kstack: build merges
+to local main only)*.
 
-Details: `references/impact.md`.
+**Use any MCP tool for reversible work, without asking** (pstack, `skills/poteto-mode/SKILL.md`,
+l. 83). *(kstack: pstack also lets external actions such as team chat and ticket updates proceed
+unasked. Here a message or any other outward action still pauses, as the list above says.)*
 
-## 2 — SIMPLIFY · counters over-complication
+**Run it instead of asking.** When a fact a run could show answers a choice, run it. Ask only for
+a product or preference call no experiment can settle. Under a full-autonomy grant, decide and
+report a call the grant covers, and apply a default for a call only the operator can make (pstack,
+`skills/poteto-mode/SKILL.md`, l. 20).
 
-Models overcomplicate code and APIs, bloat abstractions, and leave dead code behind —
-a thousand lines where a hundred would do.
+**"Don't stop", "going to bed", "run until done" and "be fully autonomous" mean keep going**
+(pstack, `skills/poteto-mode/SKILL.md`, l. 87).
 
-In this order, because simplifying something that should be deleted is the classic error:
+**A merge needs the operator's grant and a clean verdict** (pstack,
+`skills/poteto-mode/playbooks/autopilot-full.md`, l. 9). The grant to merge into local main is
+standing, so a clean verdict merges, and pushing stays the operator's *(kstack: a local merge can be
+undone until the push, and the operator pushes)*. A change the operator names, or one they ask to
+see first, stops at merge-ready, a clean verdict on a branch (`references/gate.md`, Merge
+preparation).
 
-1. **Should this exist? Run `/elon`** — it owns this question. Every requirement gets a named
-   owner, and one whose owner is "the system" or "good practice" gets deleted rather than
-   built. Anything that outputs a design runs through it, not just the large ones.
-2. **Can existing code already do this?** Duplication is the measured signature of
-   AI-written code, so reuse is the specific counter — check before writing. If you replace
-   something that works anyway, name what the old one could do that the new one can't. Each
-   is kept, or its loss is approved: by the person who asked, or under the operator's grant
-   by a clean gate verdict whose review lanes were told of the loss. A capability lost by
-   omission is a regression wearing the word "done" *(ours: reasoning, not measurement)*.
-3. **Size the change to the code's condition.** Sound code takes the minimal change. When
-   the change would sit *on top of* a defect rather than *in* it, the defect's layer is
-   the change. Patching around bad structure is the same error as optimizing a part that
-   should have been deleted.
-4. **No bloat, and size is the signal.** Code volume is a near-perfect predictor of
-   structural degradation, and more capable models produce *more* bloat rather than less —
-   detailed prompting doesn't mitigate it. So compare what you wrote against what the job
-   needed, mechanically, before judging it. Then: no features beyond the ask, no
-   abstraction with one call site, no unrequested configurability, no forwarding wrapper.
-5. **Leave nothing orphaned.** Dead code this change strands is part of this change.
+**No is an acceptable answer.** When the operator asks whether to do something, invites more
+scope, or shows you an approach, give your real judgment. Decline or push back when that is the
+true answer, and choose candor over agreement (pstack, `skills/poteto-mode/SKILL.md`, l. 89).
 
-**Satisfied when** the requirement has a name, reuse was checked and taken or refused with
-a reason, the change sits at the layer its defect lives in, every new abstraction has two
-call sites or a written reason, and nothing orphaned remains.
+## Subagents
 
-## 3 — CONTAIN · counters orthogonal damage
+**Give each investigation, piece of writing and fix to a fresh subagent**, fix rounds, follow-ups,
+retries and the next queue item included. Hand it the original brief, every later directive, and
+the prior agent's report and branch. Reuse an agent only when the work needs its checkout, its
+uncommitted changes, or a process it still runs (pstack, `skills/poteto-mode/SKILL.md`, l. 99).
 
-Models change or remove comments and code they don't sufficiently understand as side
-effects, even when it's orthogonal to the task.
+**Brief each subagent with a scope, file pointers, the data shape and success criteria** (pstack,
+`skills/poteto-mode/playbooks/feature.md`, l. 12; `skills/poteto-mode/SKILL.md`, l. 95).
 
-- **The diff contains only what the interpretation named.** It may grow — but only by
-  going back and naming it first. Undeclared expansion is what's banned, not expansion.
-- **Don't touch what you didn't read the reason for.** Comments, error handling, imports,
-  names, formatting — if you don't know why it's there, it stays.
-- **Record what you noticed; never fix it in this diff.** Unrelated problems go to the
-  project's findings queue. In an unattended run they are the loop's next task: pstack's
-  autonomous-run says "Mid-run discoveries are yours."
-- **Never restructure and change behaviour in the same diff.** Restructuring done alongside
-  other changes is measurably where bugs land, and they land as soon as the first change
-  touches the restructured code. Two diffs, in either order.
+**The root owns the result.** Review each diff and write your own summary. A second opinion is
+the same prompt against a different model, which is how the gate runs its two review lanes
+(pstack, `skills/poteto-mode/SKILL.md`, l. 97).
 
-**Satisfied when** every hunk traces to a named item, and everything noticed-but-unrelated
-is written down somewhere else.
+**Opus writes any fix or change that alters behaviour and runs the correctness review lane. Sonnet
+runs the structure review lane and the mechanical work.** poteto-mode sends the hardest changes to
+its strongest model and trivial edits to its fast one (pstack, `skills/poteto-mode/SKILL.md`,
+l. 95). *(kstack: Claude Code runs only Claude models, so Opus is the strongest and Sonnet the fast
+one.)*
 
-## 4 — VERIFY · counters unvalidated execution
+**Run every subagent in the background**, so the root keeps working while it runs (pstack,
+`skills/poteto-mode/SKILL.md`, l. 95). **Run at most three agents at once** *(kstack: they share
+the session's usage limit)*. Set a subagent's effort only when the user or a skill asks
+*(kstack: poteto-mode picks a model per role instead)*.
 
-Write the test before the code it checks — a test written against flawed code encodes the
-flaw. But writing it first is not the verification. This is:
+**Only the root spawns agents.** A subagent owns its diff directly, with the same review separation
+(pstack, `skills/poteto-mode/playbooks/feature.md`, l. 12). *(kstack: pstack's single owner fans
+out after the blocking phase, l. 19. Here the root spawns every agent, so it holds the three-agent
+cap and sees all the work.)*
 
-- **Run the risk list.** Every test covering every reference you named, not just the new
-  one. Of everything here, this is the check with the most direct evidence behind it —
-  one study, small sample, so treat it as the best available finding rather than a law.
-- **Mutate the changed lines.** Break each on purpose and confirm something fails. A green
-  suite is not evidence that your tests reach the semantics.
-- **Run the whole thing, the way it is actually reached.** Not the unit, not a proxy — the
-  full path, at real data volume, on the real device. "Should work" is the failure this
-  check is named after. (The conditions half of this is judgment, not measurement.) When
-  the project has a verify skill (`verify-<app>`), the drive goes through it, and the
-  verdict is one of VERIFIED, NOT VERIFIED or INCONCLUSIVE from a baseline against the
-  changed build. Inconclusive is never reported as a pass.
-- **Judge the result against the interpretation, not against your tests.** Check 1 wrote
-  down what this change was supposed to mean. Passing tests you wrote yourself is a weaker
-  claim than doing the thing that was asked. A change can be locally correct and still not
-  be the change.
-- **Have someone other than the author check** when the risk list is wide.
-- **Then the gate,** for a change that is to be merged (`references/gate.md`). Fresh agents re-run
-  the checks at the exact commit, drive the real app, review the diff against `references/rules.md`
-  in two or more lanes, and run the same scenario on main for comparison.
+## Every rule names its source or says it is reasoning
 
-Running it is your job — boot it, drive it, read the logs. **Declaring it done is the gate's,
-not the author's.** A change is done when `references/gate.md` returns a clean verdict from
-agents that did not write it. With the operator's grant it merges on that verdict; without it,
-present what you ran and what came back, and the person who asked decides. And when a
-condition is out of reach — a deploy, production data volume,
-the real device — say so plainly. "I couldn't reach it" quietly becoming "it passed" is the
-failure this check is named after. (Judgment, not measurement.)
-
-**Satisfied when** the risk list is green, every changed line has a mutant that something
-catches, the whole path ran for real, the result matches the written interpretation, and the
-evidence has been shown rather than summarized — with a green suite never the only
-evidence.
-
-Details: `references/verify.md`.
-
-## When a fix isn't working
-
-Two failed corrections on the same issue means stop. The context is polluted with failed
-approaches and every further attempt is conditioned on them — revert to the last good
-state, write down what was actually wrong rather than what you tried, and restart clean.
-
-Before a third attempt, write down the premise both failed fixes shared — the one sentence
-each of them assumed — and test the premise rather than writing another fix that assumes
-it. When the imbalance sits with some actors and not others, count it per actor first: the
-skew points at whatever assigns them that role.
-
-A fix that creates new bugs sends you backward, not forward. It's a signal about the design,
-not an invitation to patch again: return to check 1 and re-read what you're disturbing, then
-to check 2 and ask whether the change is sitting at the wrong layer.
-
-## 5 — AUTOMATE · a ratchet, not a gate
-
-Runs last, never first. Automating a step that hasn't stabilized is the ordering error.
-The ordering is borrowed; the thresholds below are judgment, not measurement.
-
-- **Three times, then script it.** Anything that fired the same way three times becomes a
-  script or a hook.
-- **The impact query is the first candidate.** The evidence behind check 1 came from a
-  tool, not an instruction — every step toward that compounds.
-- **Invariants become mechanical checks.** A written invariant lies quietly; a check fails
-  loudly.
-- **A check you can rerun beats one you eyeballed.** The script that proves a change is
-  the artifact a reviewer can run again; keep it where they can find it.
-- **A correction made twice goes to `/correct`.** It turns the mistake class into a lint,
-  a hook or a test, so the next change can't repeat it.
-- **One concern per commit**, and checkpoint before anything risky. Two reasons for a
-  change means two commits.
-
-## Why these four
-
-Each check answers a failure that was measured, not one that felt likely. Read
-`references/evidence.md` when a rule looks arbitrary, or when you want to argue with one — it
-holds the sources and states the strength of each.
-
-**Where each rule's source is named.** A rule in this file is sourced when `references/evidence.md`
-discusses it, or when its own line names a source or a reference that names one.
-`references/rules.md`, `references/gate.md`, `references/prior-art.md` and the per-kind methods
-name their sources at their top or at the rule. A rule with no source named anywhere is reasoning,
-and the load-bearing ones say so at their own line. Keeping that distinction visible is the point,
-because a rule claiming evidence it doesn't have is the same confident over-claim this skill exists
-to catch.
+Each rule carries a citation or a *(kstack: reason)* tag, in the style of `CONTRIBUTING.md`,
+Citations.

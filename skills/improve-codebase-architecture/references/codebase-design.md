@@ -1,6 +1,6 @@
 # Codebase Design
 
-From Matt Pocock's skills (MIT), `upstream/mattpocock-skills/skills/engineering/codebase-design/SKILL.md`, as written except where marked *(ours)* and for links to the other files here.
+From Matt Pocock's skills (MIT), `upstream/mattpocock-skills/skills/engineering/codebase-design/SKILL.md`, as written except where marked *(kstack)* and for links to the other files here. Upstream's skill frontmatter is dropped *(kstack: this file is read as a reference, not loaded as a skill)*.
 
 Design **deep modules**: a lot of behaviour behind a small interface, placed at a clean seam, testable through that interface. Use this language and these principles wherever code is being designed or restructured. The aim is leverage for callers, locality for maintainers, and testability for everyone.
 

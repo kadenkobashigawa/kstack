@@ -15,8 +15,8 @@ by Lauren Tan, and most of its skills still build on pstack's. See [Credits](#cr
 
 ## Install
 
-You need Claude Code, `git` and `python3`. Pick one of the two methods below; with both, kstack's hooks
-would run twice.
+You need Claude Code, `git` and `python3`. Pick one of the two methods below. With both, kstack's
+hooks would run twice.
 
 ### From the plugin marketplace
 
@@ -27,7 +27,7 @@ In Claude Code, run:
 /plugin install kstack@kstack
 ```
 
-Plugin skills are namespaced, so you type `/kstack:robovac`, `/kstack:vet` and so on. Update with
+Plugin skills are namespaced, so you type `/kstack:robovac`, `/kstack:polish` and so on. Update with
 `/plugin marketplace update kstack`, and uninstall with `/plugin uninstall kstack@kstack`.
 
 ### From a clone
@@ -40,10 +40,11 @@ git clone https://github.com/kadenkobashigawa/kstack.git ~/kstack
 ```
 
 `install.sh` links each skill into `~/.claude/skills` and each agent into `~/.claude/agents`, so
-every project and every Claude Code surface picks them up, without the `kstack:` prefix. It also adds
-kstack's hooks to `~/.claude/settings.json`, after saving a backup beside it. It never overwrites an
-existing folder, and it's safe to run again. Keep the clone outside `~/.claude`, because Claude Code
-asks before every edit inside a `.claude` folder.
+every project and every Claude Code surface picks them up, without the `kstack:` prefix. It also
+adds kstack's hooks to `~/.claude/settings.json`, after saving a backup beside it as
+`settings.json.kstack-backup`. It never
+overwrites an existing folder, and it's safe to run again. Keep the clone outside `~/.claude`,
+because Claude Code asks before every edit inside a `.claude` folder.
 
 **Update** by pulling and running the installer again, then rebuilding Robovac if you use it:
 
@@ -52,60 +53,55 @@ git -C ~/kstack pull && ~/kstack/install.sh
 ```
 
 **Uninstall** by deleting the links in `~/.claude/skills` and `~/.claude/agents` that point into
-`~/kstack`, and removing the hooks that call `~/.claude/skills/vet` or `~/.claude/skills/robovac`
-from `~/.claude/settings.json`. If you built Robovac, delete `~/Applications/Robovac.app` too.
+`~/kstack`, and removing the hooks that call `$HOME/.claude/skills/robovac` from
+`~/.claude/settings.json`. If you built Robovac, delete `~/Applications/Robovac.app` too.
 
 ## Skills
 
-Every skill except the five you type yourself loads a one-line description into every session, so
-Claude can use it when it fits. `vet`, `robovac`, `clorox` and `stack-check` stay visible this way so
-that a loop or a robovac pass can call them. `correct`, `polish`, `improve-codebase-architecture` and
-the two verification skills cost nothing until you run them.
+Every skill except the seven you type yourself loads a one-line description into every session, so
+Claude can use it when it fits. `robovac`, `clorox` and `stack-check` stay visible this way so
+that a loop or a robovac pass can call them. `correct`, `polish`, `unslop`, `technical-writing`,
+`improve-codebase-architecture` and the two verification skills cost nothing until you run them.
 
 | Skill | What it does | Runs |
 |---|---|---|
-| `build` | Four checks on every code change: understand what it touches, simplify, keep the diff on task, and verify it on the real path. | Automatically |
+| `build` | Sends each code change through one of four playbooks (feature, bug fix, refactor, performance). The session you talk to leads, and fresh subagents write the code. The steps map what the change touches, simplify it, keep the diff on task and run it on the real path. A clean review by agents that did not write the change merges it into local main. | Automatically |
 | `elon` | Questions every requirement in a design, deletes what nobody needs, then simplifies what's left. | Automatically, in design work |
-| `teach` | Writing rules for explanations: plain words, short active sentences, and clear about what's known versus inferred. | Automatically, when explaining |
-| `vet` | Reviews each new commit on `main` with two independent reviewers and reports only the findings it can prove. | In a loop, or `/vet` |
-| `robovac` | One cleanup pass over a project: clears leftovers, reviews your Claude Code setup, and fixes one proven code problem. | In a loop, or `/robovac` |
+| `teach` | Writing rules for explanations: plain words, short active sentences, and a clear line between what's known and what's inferred. | Automatically, when explaining |
+| `robovac` | One cleanup pass over a project: clears leftovers, reviews your Claude Code setup, and fixes one proven code problem, merging that fix into local main. It never pushes. | In a loop, or `/robovac` |
 | `clorox` | Moves proven leftovers (caches, `__pycache__`, duplicate iCloud copies, finished worktrees) into a bin it empties after 30 days. | Inside `robovac` |
 | `stack-check` | Reviews your skills, agents, hooks and memory against the last week of sessions, and suggests edits without applying them. | Inside `robovac` |
 | `correct` | Turns a mistake made twice into a hook, lint rule or test. | `/correct` |
 | `polish` | Tidies comments and docstrings, and proves Python behavior didn't change. | `/polish` |
+| `unslop` | Cuts the tells that mark writing as machine-written. A verbatim copy of pstack's skill. | `/unslop` |
+| `technical-writing` | Shapes a document so a tired engineer understands it on first read: one kind of document per page, plain sentences, conditions first. A verbatim copy of pstack's skill. | `/technical-writing` |
 | `improve-codebase-architecture` | Finds shallow modules worth deepening, draws them as a before-and-after HTML report, then interviews you about the one you pick. Never changes code. | `/improve-codebase-architecture` |
 | `create-verification-skill` | Generates a `verify-<app>` skill that launches, drives and checks your real app. | `/create-verification-skill` |
 | `maintain-verification-skill` | Keeps a `verify-<app>` skill accurate as the app changes. | `/maintain-verification-skill` |
 
-Three agents come with them:
+Two agents come with them:
 
-- `vet-reviewer`: a read-only code reviewer that `vet` spawns, one focus per reviewer.
 - `researcher`: read-only prior-art research across docs, GitHub and papers, used by `build` for
   design work.
 - `impeccable-finish-reviewer`: a final review for UI work built with
   [impeccable](https://github.com/pbakaus/impeccable), which you install separately.
 
-## Running the loops
+## Running robovac
 
-`vet` and `robovac` are meant to run on a schedule with Claude Code's `/loop`, each in its own tab.
-The commands below are a clone install's; with the plugin, type `/kstack:vet` and `/kstack:robovac`.
+`robovac` is meant to run on a schedule with Claude Code's `/loop`, in its own tab. The commands
+below are a clone install's. With the plugin, type `/kstack:robovac`.
 
-**Commit review.** `/loop /vet watch` reviews new commits on `main` after the branch has been quiet
-for five minutes, or hourly. Two fresh reviewers read each batch, one for structure and one for
-correctness, and a lead keeps only the findings it can prove. vet never edits code, commits or
-pushes.
-
-**Cleanup.** `/loop 12h /robovac` runs a full pass twice a day, or run `/robovac <file or folder>`
-once after finishing a piece of work. Each pass bins leftovers, reviews your setup, and fixes the
-worst code-rule problem it can prove. The fix is built in a temporary worktree, reviewed by agents
-that didn't write it, and merged into your local `main` only if the review is clean. robovac never
-pushes. Its final reply lists what it moved, suggested and merged; other findings are left for the
+`/loop 12h /robovac` runs a full pass twice a day, or run `/robovac <file or folder>` once after
+finishing a piece of work. Each pass bins leftovers, reviews your setup, and fixes the worst
+code-rule problem it can prove. The fix is built in a temporary worktree, reviewed by agents that
+didn't write it, and merged into your local `main` only if the review is clean. robovac never
+pushes. Its final reply lists what it moved, suggested and merged. Other findings are left for the
 next pass.
 
-In the Claude Code desktop app, type `/loop 12h run the robovac skill` instead, since a slash command
-can't go inside another command's arguments.
+In the Claude Code desktop app, type `/loop 12h run the robovac skill` instead, since a slash
+command can't go inside another command's arguments.
 
-[docs/how-it-works.md](docs/how-it-works.md) covers the loops, the review process and unattended
+[docs/how-it-works.md](docs/how-it-works.md) covers robovac, the review process and unattended
 runs in detail.
 
 ## Robovac
@@ -136,7 +132,7 @@ skills/          the skills, linked into ~/.claude/skills
 agents/          the agents, linked into ~/.claude/agents
 hooks/           kstack's hooks and the script that merges them into settings.json
 apps/            the Robovac app
-docs/            how the loops and reviews work
+docs/            how robovac, unattended runs and the review work
 upstream/        pstack, Cursor's plugins and Matt Pocock's skills, unmodified, for reference
 tests/           tests for install.sh
 ```
@@ -150,7 +146,8 @@ skill and run the tests.
 
 - [pstack](https://github.com/cursor/plugins/tree/main/pstack) by Lauren Tan
   ([@poteto](https://github.com/poteto)) is the source of most of kstack: build's methods and review
-  process, vet's reviewers, clorox, stack-check, `/correct` and the verification skills.
+  process, clorox, stack-check, `/correct`, the verification skills, and `unslop` and
+  `technical-writing`, which are copied verbatim.
 - [cursor-team-kit](https://github.com/cursor/plugins/tree/main/cursor-team-kit),
   [continual-learning](https://github.com/cursor/plugins/tree/main/continual-learning),
   [ralph-loop](https://github.com/cursor/plugins/tree/main/ralph-loop) and
@@ -166,10 +163,11 @@ skill and run the tests.
   [the Twelve-Factor App](https://12factor.net). clorox follows the
   [CACHEDIR.TAG spec](https://bford.info/cachedir/) and [PEP 3147](https://peps.python.org/pep-3147/).
 
-Each skill names what it adapts in its own files, and [docs/how-it-works.md](docs/how-it-works.md#where-each-skill-comes-from)
-traces every skill to its sources.
+Each skill names what it adapts in its own files, and
+[docs/how-it-works.md](docs/how-it-works.md#where-each-skill-comes-from) traces every skill to its
+sources.
 
 ## License
 
-MIT, see [LICENSE](LICENSE). The parts adapted from pstack, Cursor's plugins and Matt Pocock's skills
-keep their own MIT notices, listed in [NOTICE](NOTICE).
+MIT, see [LICENSE](LICENSE). The parts adapted from pstack, Cursor's plugins and Matt Pocock's
+skills keep their own MIT notices, listed in [NOTICE](NOTICE).

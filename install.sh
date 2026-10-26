@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # install.sh: link every kstack skill and agent into ~/.claude, so every project and every Claude Code
 # surface (terminal, VS Code, the Desktop app) sees them, and merge kstack's hooks into
-# ~/.claude/settings.json, backing that file up beside itself first. Safe to re-run: a link that
-# points elsewhere is relinked, and a real file or folder in a link's place is reported, never
-# overwritten.
+# ~/.claude/settings.json, backing that file up beside itself before any change. Safe to re-run: a
+# link that points elsewhere is relinked, and a real file or folder in a link's place is reported,
+# never overwritten.
 #
 #   ./install.sh                      link every skill and agent, and merge kstack's hooks
 #   python3 tests/test_install_sh.py  run it on throwaway HOMEs and check what it links and skips
@@ -39,7 +39,7 @@ for agent in "$here"/agents/*.md; do
   link "$agent" "$HOME/.claude/agents/$(basename "$agent")"
 done
 
-# kstack's hooks (robovac's run log for the app, vet's session-start line) merge into the settings...
+# kstack's hooks (robovac's run log for the app) merge into the settings...
 python3 "$here/hooks/install.py" "$here/hooks/hooks.json" "$HOME/.claude/settings.json" "$here/skills"
 
 # the links in a folder whose target is inside this checkout, by path prefix, not by pattern...

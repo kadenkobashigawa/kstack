@@ -10,5 +10,7 @@ github.com/mattpocock/skills at commit 5beb35b (2026-10-19).
   upstream/orchestrate         Copyright (c) 2026 Cursor            MIT
   upstream/mattpocock-skills   Copyright (c) 2026 Matt Pocock       MIT
 
-Each skill under skills/ that adapts that work names its source in its own files. The MIT permission
-notice in each upstream LICENSE applies to those portions.
+skills/unslop and skills/technical-writing are verbatim copies of upstream/pstack/skills/unslop and
+upstream/pstack/skills/technical-writing. Each other skill under skills/ that adapts that work names
+its source in its own files. The MIT permission notice in each upstream LICENSE applies to those
+portions.

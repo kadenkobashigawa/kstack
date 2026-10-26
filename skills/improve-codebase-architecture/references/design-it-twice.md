@@ -1,6 +1,6 @@
 # Design It Twice
 
-From Matt Pocock's skills (MIT), `upstream/mattpocock-skills/skills/engineering/codebase-design/DESIGN-IT-TWICE.md`, as written except where marked *(ours)* and for links to the other files here.
+From Matt Pocock's skills (MIT), `upstream/mattpocock-skills/skills/engineering/codebase-design/DESIGN-IT-TWICE.md`, as written except where marked *(kstack)* and for links to the other files here.
 
 When the user wants to explore alternative interfaces for a chosen deepening candidate, use this parallel sub-agent pattern. Based on "Design It Twice" (Ousterhout): your first idea is unlikely to be the best.
 
@@ -29,7 +29,7 @@ Prompt each sub-agent with a separate technical brief (file paths, coupling deta
 - Agent 3: "Optimise for the most common caller: make the default case trivial."
 - Agent 4 (if applicable): "Design around ports & adapters for cross-seam dependencies."
 
-*(ours)* Run at most three at once, kstack's cap from build's `references/gate.md`, since sub-agents share the session's usage limit. Agent 4 starts when one of the first three returns.
+*(kstack)* Run at most three at once, the cap in build's `SKILL.md`, since sub-agents share the session's usage limit. Agent 4 starts when one of the first three returns.
 
 Include both [codebase-design.md](codebase-design.md) vocabulary and GLOSSARY.md vocabulary in the brief so each sub-agent names things consistently with the architecture language and the project's domain language.
 
@@ -47,4 +47,4 @@ Present designs sequentially so the user can absorb each one, then compare them 
 
 After comparing, give your own recommendation: which design you think is strongest and why. If elements from different designs would combine well, propose a hybrid. Be opinionated: the user wants a strong read, not a menu.
 
-*(ours)* Then put the choice to the user as a grilling question ([grilling.md](grilling.md)): your recommended design first, then the strongest of the others and any hybrid, four options at most, each option's preview holding that design's interface sketch. A design left out is still named through "Other", since every design was already presented above.
+*(kstack)* Then put the choice to the user as a grilling question ([grilling.md](grilling.md)): your recommended design first, then the strongest of the others and any hybrid, four options at most, each option's preview holding that design's interface sketch. A design left out is still named through "Other", since every design was already presented above.

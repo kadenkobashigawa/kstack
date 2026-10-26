@@ -1,16 +1,5 @@
 {
   "hooks": {
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "cd \"${CLAUDE_PROJECT_DIR:-.}\" 2>/dev/null && [ -x \"${CLAUDE_PLUGIN_ROOT}/skills/vet/scripts/vet.sh\" ] && \"${CLAUDE_PLUGIN_ROOT}/skills/vet/scripts/vet.sh\" status --hook 2>/dev/null || true",
-            "timeout": 10
-          }
-        ]
-      }
-    ],
     "UserPromptSubmit": [
       {
         "hooks": [

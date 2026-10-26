@@ -59,7 +59,7 @@ def s2_mention_is_not_a_run(tmp: Path) -> None:
 def s5_loop_mentions_are_not_runs(tmp: Path) -> None:
     log = Log(tmp, 's5')
     for sid, prompt in (('a', '/loop 5m check whether /robovac is done'),
-                        ('b', '/loop 10m /vet watch, and do not run /robovac'),
+                        ('b', '/loop 10m /build, and do not run /robovac'),
                         ('c', '/robovac-widget please'), ('d', '/loop /robovac'),
                         ('e', '/loop 12h /robovac apps/robovac-widget')):
         log.hook('UserPromptSubmit', sid=sid, prompt=prompt)

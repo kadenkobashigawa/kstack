@@ -1,7 +1,7 @@
 # Esc and a denied prompt
 
 Esc stops the turn, and no hook runs for it, so the app watches the session's transcript for its
-interrupt line and docks the robot at once; the next prompt starts a run again. A prompt the person
+interrupt line and docks the robot at once. The next prompt starts a run again. A prompt the person
 denies without Esc lets the turn go on, so the robot docks for the wait and goes out again at the
 denial.
 
@@ -30,19 +30,19 @@ Preconditions:
   answers it. Still `prompt-waiting`: docked for the wait. Still `esc-at-prompt`:
   still docked, and the clock shows `log end interrupted` (`esc-prompt`).
 - **Esc mid-tool.** Step 4 runs `python3 -c "import time; time.sleep(30)"`, because Claude Code
-  refuses a standalone `sleep 30`; the scenario sends the host's interrupt while it runs. The tool
+  refuses a standalone `sleep 30`. The scenario sends the host's interrupt while it runs. The tool
   must still be running at the Esc: a turn that has already ended makes the Esc a no-op, and Esc
   mid-tool is never reached. Still `sleeping`: the whole house. Still `esc-mid-tool`: docked
-  (`esc-tool`); the log's `end interrupted` may only land at the next hook, while the app docks
+  (`esc-tool`). The log's `end interrupted` may only land at the next hook, while the app docks
   from the transcript.
 - **Denied.** Step 6's `touch` is denied without Esc after 24 s. Still `deny-waiting`:
   docked. The clock shows `log answered` and `log start via=again` at the denial's
-  `PostToolBatch`, then `end finished`; still `denied-then-done` after it (`deny-plain`).
+  `PostToolBatch`, then `end finished`. Still `denied-then-done` after it (`deny-plain`).
 - **Next prompt.** Each step after an Esc starts with `log start via=again` (`esc-next`).
 
 ## Gotchas
 
 - The app reads the transcript the run's start row names, so a still taken before the app's next
   2 s read can show the robot still out.
-- A denial with Esc ends the turn with an `error_during_execution` result; that is the turn's end,
+- A denial with Esc ends the turn with an `error_during_execution` result. That is the turn's end,
   not a failed drive.

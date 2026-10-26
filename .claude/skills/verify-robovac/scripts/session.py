@@ -120,9 +120,9 @@ def hook_settings(tree: Path, extra: dict, values: dict) -> dict:
     -------
     dict
         settings whose hooks are the tree's robovac hooks with runs.py pointed at the tree, less
-        SessionStart (vet's, not robovac's, and it would run the person's own vet), plus the
-        observer on every event the clock reads, logging to the VERIFY_HOOKS the session's
-        environment names.
+        SessionStart (an older revision's, not robovac's, which would run the person's own
+        setup), plus the observer on every event the clock reads, logging to the VERIFY_HOOKS the
+        session's environment names.
 
     Raises
     ------

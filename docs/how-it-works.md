@@ -1,30 +1,9 @@
 # How kstack works
 
-The README covers installing and using kstack. This page covers what happens underneath: the two
-loops, the review every change goes through, and how the repository is wired into Claude Code.
-Commands are shown as a clone install names them; with the plugin, prefix each with `kstack:`, as in
-`/kstack:vet`.
-
-## vet: the commit reviewer
-
-Start it in its own tab with `/loop /vet watch`. Each tick reviews any new commits on `main` as one
-range:
-
-1. Two fresh reviewers read the range, each with one focus. The structure reviewer looks for
-   duplicated code, code in the wrong place, a simpler shape, and docs the change made untrue. The
-   correctness reviewer checks intent, security, what else the change affects, and whether the
-   tests reach the changed lines.
-2. A lead checks every finding itself and reports only the ones it can prove, in its reply and as a
-   notification. Each finding is marked `open` (to fix) or `consider` (a call for you to make).
-
-vet wakes when `main` moves, once it has been quiet for five minutes, or hourly. It stays silent
-unless it finds something. Once a month it replays a known past bug to check it still catches one.
-
-It keeps very little state: the last commit it reviewed, the date of its last replay and, while a
-range is blocked, when to retry. They sit in `.git/vet/`, or in `state/report/vet/` when the project
-ignores that folder. It keeps no findings file. It never edits code, commits, pushes or
-deploys. If its tab closes, the next session you open tells you how many commits are unreviewed, and
-`/vet status` shows where it stands.
+The README covers installing and using kstack. This page covers what happens underneath: the
+cleanup pass, the review every change goes through, and how the repository is wired into Claude
+Code. Commands are shown as a clone install names them. With the plugin, prefix each with `kstack:`,
+as in `/kstack:robovac`.
 
 ## robovac: the cleanup pass
 
@@ -37,22 +16,22 @@ everything you need is in its final reply.
   caches that mark themselves as caches, `__pycache__` folders, identical iCloud " 2" copies and
   finished worktrees. Everything else stays. Bin batches older than 30 days are deleted.
 - **stack-check** reviews your skills, agents, hooks, instruction files and memory against the last
-  7 days of sessions in this repository, and suggests edits in its reply. It applies nothing.
+  7 days of sessions that worked in this repository, from any workspace, and suggests edits in its
+  reply. It applies nothing.
 - **build** checks the code against the rules in `skills/build/references/rules.md` and takes one
   task per pass: the worst rule break it can prove. It builds the fix in a fresh worktree, sends it
   through the review below, and on a clean verdict merges it into the project's local `main`
-  without asking. Running `/robovac` is your permission for that merge. It never pushes. The
-  worktree is removed when the pass ends. The branch is deleted once merged; a branch left at
-  ready-to-merge, or a failed one that holds work worth keeping, stays. The pass's other findings
-  aren't recorded, since the next pass finds whatever still stands. If the task fails twice, the
-  pass stops and says why.
+  without asking, under build's standing grant to merge locally. It never pushes. The worktree is
+  removed when the pass ends. The branch is deleted once merged. A branch left at merge-ready, or a
+  failed one that holds work worth keeping, stays. The pass lists its other findings in its reply
+  and leaves them for the next pass. If the task fails twice, the pass stops and says why.
 
 In the Claude Code desktop app, a slash command can't go inside another command's arguments, so type
 `/loop 12h run the robovac skill` there.
 
-vet and robovac are the only loop skills Claude can invoke on its own. A `/loop` wake re-enters each
-one through the Skill tool, which refuses a skill marked as typed-only, so each description says to
-use it only when typed or looped.
+robovac is kstack's only loop skill, so it stays one Claude can invoke. A `/loop` wake re-enters it
+through the Skill tool, which refuses a skill marked typed-only (`disable-model-invocation`).
+Instead, its description says to use it only when typed or looped.
 
 ## Unattended changes
 
@@ -62,32 +41,37 @@ To hand Claude a task to finish on its own, type in your work tab:
 /loop <task>. Done when <check>. Work in a new worktree.
 ```
 
-`build` then follows `skills/build/references/long-run.md`: one change, one check and one log entry
-per iteration, and the done-check is never relaxed. With no task given, the task is the code rules: a
-broken rule sends that part of the code through build's checks.
+`build` then follows `skills/build/references/long-run.md`: one change, one check and one log
+entry per iteration, and the done-check is never relaxed. With no task given, the run checks its
+part of the code against the code rules and takes one task: the worst broken rule it can prove,
+fixed through one of build's playbooks.
 
 ## The review every change goes through
 
-build calls it the gate (`skills/build/references/gate.md`). Each self-contained change is its own
-branch, reviewed and merged alone; only changes that touch the same files wait for each other. Before
-a round, the author runs the checks the project's own rules name for the files it touched. Then, for
-each change, fresh agents that did not write it:
+build routes each code change to one of four playbooks: feature, bug fix, refactor or performance.
+The session you talk to leads, and fresh subagents write the code. Every playbook ends at the same
+review, which build calls the gate (`skills/build/references/gate.md`). Each self-contained change
+is its own branch, in its own worktree, reviewed and merged alone. Only changes that touch the same
+files wait for each other. Before a round, the author runs the checks the project's own rules name
+for the files it touched. Then, for each change, fresh agents that did not write it:
 
 1. re-run the tests and checks at the exact commit,
 2. prove the main behavior live on the smallest real surface that could disprove it,
-3. review the diff in two lanes on two models (Sonnet by default, Opus for correctness), and
+3. review the diff in two lanes on two models (Opus for correctness, Sonnet for structure), and
 4. compare the result with `main`.
 
-At most three agents run at once. The change merges when you have given permission and the verdict
-is clean, as in pstack's autopilot-full. Without your permission it stops at ready-to-merge. It
-never deploys.
+At most three agents run at once. `skills/build/scripts/gate.py` records each lane's result in the
+branch's ledger. A clean verdict merges the change into local `main` under a standing grant, as in
+pstack's autopilot-full. `gate.py land` makes that merge as one commit whose message carries a
+`GATE VERDICT:` line, and it refuses without a clean verdict. A change you named, or asked to see
+first, stops at merge-ready. Pushing stays yours, and build never deploys.
 
 ## What happens to findings
 
-The session you work in owns what vet reports and what a robovac pass replies with. Fix a finding
-through `/build`, or dismiss it with the reason it's wrong. A `consider` finding is either built or
-you decide against it. A kind of mistake seen twice goes to `/correct`, which turns it into a hook,
-lint rule or test.
+The session you work in owns what a robovac pass replies with. Fix a finding through `/build`, or
+dismiss it with the reason it's wrong. A `consider` finding is a call only you can make: build it,
+or decide against it. For a kind of mistake seen twice, the session proposes `/correct`, which only
+you can type, and which turns the mistake into a hook, lint rule or test.
 
 ## How the repository is wired
 
@@ -96,39 +80,42 @@ lint rule or test.
   `hooks/hooks.json` from there. With no version in `plugin.json`, every commit is a new version.
 - **`skills/<name>`** is linked from `~/.claude/skills/<name>` by a clone install, and
   **`agents/<name>.md`** from `~/.claude/agents/<name>.md`. A skill finds its own scripts and its
-  sibling skills through `${CLAUDE_SKILL_DIR}`, so the same files work under either install. You edit and commit in the repository, and the links make every edit
-  live at once. User-level skills reach every project and every Claude Code surface: the terminal,
-  VS Code and the desktop app. No skill here is tied to one project; a project's own `verify-<app>`
-  skill is made inside that project by `/create-verification-skill`.
+  sibling skills through `${CLAUDE_SKILL_DIR}`, so the same files work under either install. You
+  edit and commit in the repository, and the links make every edit live at once. User-level skills
+  reach every project and every Claude Code surface: the terminal, VS Code and the desktop app. No
+  skill here is tied to one project. A project's own `verify-<app>` skill is made inside that
+  project by `/create-verification-skill`.
 - **`.claude/skills/verify-robovac`** is kstack's own test skill. It proves a change to the Robovac
   app or its hooks with a real Claude Code session and a filmed test copy of the app, against a
-  baseline. Claude Code loads it in sessions opened in this repository; `install.sh` doesn't link
-  it.
-- **`hooks/hooks.json`** holds vet's session-start line and robovac's run hooks for the app. Each
-  command runs its script from `${CLAUDE_PLUGIN_ROOT}/skills/`, which Claude Code fills in for the
-  plugin. For a clone install, `hooks/install.py` merges them into `~/.claude/settings.json` with
-  `$HOME/.claude/skills/` in that place: it adds missing ones, removes kstack
-  hooks that `hooks.json` no longer has, and leaves every other hook alone.
+  baseline. Claude Code loads it in sessions opened in this repository, and `install.sh` doesn't
+  link it.
+- **`hooks/hooks.json`** holds robovac's run hooks for the app, and no other hooks. Each command
+  runs its script from `${CLAUDE_PLUGIN_ROOT}/skills/`, which Claude Code fills in for the plugin.
+  For a clone install, `hooks/install.py` merges them into `~/.claude/settings.json` with
+  `$HOME/.claude/skills/` in that place. It adds missing ones, removes hooks that run a current
+  kstack skill's script but are no longer in `hooks.json`, and leaves every other hook alone.
 - **`apps/<name>`** holds programs that are not skills, as pstack keeps benny under
   `automations/`. `apps/robovac-widget` is the Robovac app.
 - **`upstream/`** holds pstack, four of Cursor's plugins and part of Matt Pocock's skills exactly as
   imported (MIT, see `NOTICE`), so every adapted part can be compared with its source. See
   [upstream/README.md](../upstream/README.md).
-- A project opts into the loops and `/correct` by naming them in its own `CLAUDE.md`.
+- A project needs no setup for robovac or `/correct`. Naming them in its own `CLAUDE.md` tells
+  every session there how the project uses them.
 
 ## Where each skill comes from
 
 | Skill | Built from |
 |---|---|
-| `build` | Ours, plus pstack's bug-fix, refactoring, architect, blast-radius, tdd, benchmark-checklist, autonomous-run, prototype and principles. The gate comes from pstack's autopilot-full, shipping and swarm; the code rules from interrogate's rubric, OWASP, the OpenSSF Scorecard and the Twelve-Factor App. |
+| `build` | Ours, plus pstack's poteto-mode (one playbook per change, its triggers, Autonomy and Subagents) and its feature, bug-fix, refactoring, perf-issue, autonomous-run and prototype playbooks. Also pstack's architect, interrogate, blast-radius, tdd, benchmark-checklist, technical-writing and show-me-your-work skills, and its principles, attack-the-premise among them. The gate comes from pstack's autopilot-full, shipping and swarm. The code rules come from interrogate's rubric, OWASP, the OpenSSF Scorecard and the Twelve-Factor App. |
 | `elon` | Ours. |
 | `teach` | Ours, plus the machine-written tells from pstack's unslop. |
-| `vet` | New, drawing on pstack's interrogate, swarm, show-me-your-work and autopilot-full's review lanes, and cursor-team-kit's thermo-nuclear review. |
-| `robovac` | New, drawing on pstack's authoring-a-skill (delegation), autopilot-stack (the `/loop` cadence), recall (the branch in flight), and the stop rules of pause-safely and create-verification-skill. |
+| `robovac` | New, drawing on pstack's authoring-a-skill (delegation), autopilot-stack (the `/loop` cadence), autonomous-run and orchestrate (one task, the rest left for later), autopilot-full (the merge grant), and the stop rules of pause-safely and create-verification-skill. |
 | `clorox` | pstack's worktree-cleanup and build-the-lever, the CACHEDIR.TAG spec, PEP 3147 and Claude Code's trash rule. |
-| `stack-check` | pstack's reflect, its templates kept verbatim with Claude Code's names, plus two lines of ours, and its tooling lens run on Sonnet. |
+| `stack-check` | pstack's reflect, its templates kept verbatim with Claude Code's names, plus two lines of kstack's own, and its tooling lens run on Sonnet. The 7-day window is pstack's recall default. |
 | `correct` | pstack's correct and encode-lessons. |
 | `polish` | Ours. |
+| `unslop` | pstack's unslop, copied verbatim. |
+| `technical-writing` | pstack's technical-writing, copied verbatim. |
 | `create-verification-skill` | pstack's, translated to `.claude/skills/`, plus a data rule from our first verify skill. |
 | `maintain-verification-skill` | pstack's, translated to end in a commit rather than a PR. |
 | `improve-codebase-architecture` | Matt Pocock's, with the codebase-design, grilling and domain-modeling skills it calls carried as references, and grilling's rounds asked through AskUserQuestion. |

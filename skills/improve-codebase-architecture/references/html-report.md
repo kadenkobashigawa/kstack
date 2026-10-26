@@ -1,6 +1,6 @@
 # HTML Report Format
 
-From Matt Pocock's skills (MIT), `upstream/mattpocock-skills/skills/engineering/improve-codebase-architecture/HTML-REPORT.md`, as written except where marked *(ours)* and for links to the other files here.
+From Matt Pocock's skills (MIT), `upstream/mattpocock-skills/skills/engineering/improve-codebase-architecture/HTML-REPORT.md`, as written except where marked *(kstack)* and for links to the other files here.
 
 The architectural review is rendered as a single self-contained HTML file in the OS temp directory. Tailwind and Mermaid both come from CDNs. Mermaid handles graph-shaped diagrams reliably; hand-built divs and inline SVG handle the more editorial visuals (mass diagrams, cross-sections). Mix the two: don't lean on Mermaid for everything, it'll start to look generic.
 

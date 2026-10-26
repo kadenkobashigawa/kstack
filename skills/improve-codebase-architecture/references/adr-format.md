@@ -1,12 +1,12 @@
 # ADR Format
 
-From Matt Pocock's skills (MIT), `upstream/mattpocock-skills/skills/engineering/domain-modeling/ADR-FORMAT.md`, as written except where marked *(ours)* and for links to the other files here.
+From Matt Pocock's skills (MIT), `upstream/mattpocock-skills/skills/engineering/domain-modeling/ADR-FORMAT.md`, as written except where marked *(kstack)* and for links to the other files here.
 
 ADRs live in `docs/adr/` and use sequential numbering: `0001-slug.md`, `0002-slug.md`, etc.
 
 Create the `docs/adr/` directory lazily: only when the first ADR is needed.
 
-*(ours)* When the project's instruction files (CLAUDE.md, AGENTS.md) name another home for its decision records, the record goes there instead, in that home's own format and naming, and this file's template and numbering give way to it. A project that keeps its decisions somewhere already should not grow a second place for them.
+*(kstack)* When the project's instruction files (CLAUDE.md, AGENTS.md) name another home for its decision records, the record goes there instead, in that home's own format and naming, and this file's template and numbering give way to it. A project that keeps its decisions somewhere already should not grow a second place for them.
 
 ## Template
 

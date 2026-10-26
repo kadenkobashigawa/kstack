@@ -9,12 +9,12 @@ Made for this repository on 2026-10-17 by kstack's create-verification-skill, wh
 (MIT, `upstream/pstack/skills/create-verification-skill/`). The feature map is `features/README.md`.
 
 **What a person touches.** A Claude Code session in which robovac runs. Its hooks
-(`hooks/hooks.json`, each running `skills/robovac/scripts/runs.py hook`) append to a run log, and
-the Robovac app (`apps/robovac-widget`, built by `mac/build.sh`) reads that log as it opens and
-every two seconds after, and moves one robot per robovac session: out sweeping while its agent works,
-a turn or background work, and home to its dock with a **!** when nothing works or something waits
-on the person. The other surfaces are `runs.py say|live|path` and the house
-page opened in a browser, which has no runs; neither is how a person sees robovac.
+(`hooks/hooks.json`, each running `skills/robovac/scripts/runs.py hook`) append to a run log. The
+Robovac app (`apps/robovac-widget`, built by `mac/build.sh`) reads that log as it opens and every
+two seconds after. It moves one robot per robovac session: out sweeping while its agent works, a
+turn or background work, and home to its dock with a **!** when nothing works or something waits on
+the person. The other surfaces are `runs.py say|live|path` and the house page opened in a browser,
+which has no runs. Neither is how a person sees robovac.
 
 **How a drive reaches it.** Two halves, both real, joined only by the log file:
 
@@ -23,30 +23,30 @@ page opened in a browser, which has no runs; neither is how a person sees robova
   started in the desktop app's own host mode, the flags `ps` shows the app using:
   `--output-format stream-json --input-format stream-json --verbose --permission-prompt-tool stdio`.
   In that mode Claude Code sends each permission request to its host as a `can_use_tool` control
-  request, and the app answers it when the person clicks; an MCP form comes the same way, as an
+  request, and the app answers it when the person clicks. An MCP form comes the same way, as an
   `elicitation` control request. **The person's click is simulated at that protocol**:
-  `scripts/host.py` answers each request after the hold the scenario names (a question,
-  AskUserQuestion, with each question's first option, and a form filled in by its fields' types),
-  and sends Esc as the app does, an `interrupt` control request. A form needs a server that asks:
-  for a scenario that sets `form`, `scripts/form.py`, an MCP server whose one tool `ask` opens a
-  form mid-call, is the session's only MCP server. The Claude app's own window isn't driven,
+  `scripts/host.py` answers each request after the hold the scenario names. It answers a question,
+  AskUserQuestion, with each question's first option, and fills a form in by its fields' types. It
+  sends Esc as the app does, as an `interrupt` control request. A form needs a server that asks.
+  For a scenario that sets `form`, the session's only MCP server is `scripts/form.py`, whose one
+  tool `ask` opens a form mid-call. The Claude app's own window isn't driven,
   because it is the person's live app: its sessions, its `~/.claude/settings.json` hooks and its
   real run log are theirs.
 - **The app side** is a test copy built from the same revision's sources with build.sh's own swiftc
   line, under its own bundle id, opened from its binary with `ROBOVAC_RUNS` naming the claim's log.
-  It reads only the rows the hooks really wrote; nothing is replayed into the log or injected into
-  the page. `ROBOVAC_HOUSE=1` holds the drawing fixed so two sides film the same house; the page's
+  It reads only the rows the hooks really wrote. Nothing is replayed into the log or injected into
+  the page. `ROBOVAC_HOUSE=1` holds the drawing fixed so two sides film the same house. The page's
   other variable, `ROBOVAC_KEYS`, is never set, since it presses keys on the page from inside.
 
 The session's first prompt starts with `/robovac`, as a person starts robovac. The drive session
 loads no robovac skill (`--setting-sources local` loads none of the person's skills), so Claude
-Code passes `/robovac <words>` to the model as text: the hooks see the same prompt a person's
+Code passes `/robovac <words>` to the model as text. The hooks see the same prompt a person's
 `/robovac` sends, and the words after it are the turn's instructions. Measured 2026-10-17:
 UserPromptSubmit carried `/robovac Reply with only the word ready.` and the model replied `ready`.
-The cleaning pass itself (clorox, stack-check, build) never runs; the app shows none of it.
+The cleaning pass itself (clorox, stack-check, build) never runs, and the app shows none of it.
 
 `V=.claude/skills/verify-robovac/scripts/verify.py`, run from the repository root, in every
-command below. `<E>` is the claim folder `claim` prints; `<side>` is `baseline` or `treatment`.
+command below. `<E>` is the claim folder `claim` prints, and `<side>` is `baseline` or `treatment`.
 
 ## Launch
 
@@ -55,24 +55,25 @@ E=$(python3 $V claim wait-on-prompt)
 python3 $V launch "$E" baseline 80cf3ea
 ```
 
-`launch` exports the revision with `git archive` (or `WORKTREE` for the checkout as it stands,
-untracked files git doesn't ignore included), copies the checkout's house images when `images.lock`
-names the same pack (else `images.sh fetch`, which downloads the pack from the public release),
-builds `Robovac Verify.app`, and opens it. **A commit builds once per round**: the copy lives in `<tmp>/verify-robovac/builds/<sha>`
-under `com.kstack.robovac.verify-<sha12>`, and every claim of the round that names that commit
-reuses it (launch prints `(reused)`), so the gate's live lane builds one copy per version, not one
-per claim. A `WORKTREE` changes under one name, so it builds again for each claim, in the claim's
+`launch` exports the revision with `git archive`, or takes `WORKTREE` for the checkout as it stands,
+untracked files git doesn't ignore included. It copies the checkout's house images when
+`images.lock` names the same pack, and otherwise runs `images.sh fetch`, which downloads the pack
+from the public release. Then it builds `Robovac Verify.app` and opens it. **A commit builds once
+per round**: the copy lives in `<tmp>/verify-robovac/builds/<sha>` under
+`com.kstack.robovac.verify-<sha12>`, and every claim of the round that names that commit reuses it.
+Launch prints `(reused)` then. So the gate's live lane builds one copy per version, not one per
+claim. A `WORKTREE` changes under one name, so it builds again for each claim, in the claim's
 scratch, as `...verify-<claim time>-<side>`. `python3 $V end-round` removes the round's copies once
 its last claim is cleaned up, and exits 1 naming any whose app still runs. **Ready** is its window
-on screen: `launch` waits up to 20 s, brings the window forward the way a click on its Dock icon
-does (an app started from a background process stays off screen until then), waits 2 s for the house
-to draw, and prints the side's sha and the test copy's path. Opening one side stops the other side's
-app, so one window is filmed at a time. `--later` builds without opening, for a scenario whose
-`open` anchor opens the app mid-turn. Teardown is Cleanup below.
+on screen. `launch` waits up to 20 s and brings the window forward the way a click on its Dock icon
+does, since an app started from a background process stays off screen until then. It then waits 2 s
+for the house to draw, and prints the side's sha and the test copy's path. Opening one side stops
+the other side's app, so one window is filmed at a time. `--later` builds without opening, for a
+scenario whose `open` anchor opens the app mid-turn. Teardown is Cleanup below.
 
 **It takes the screen.** Opening and each drive bring the test window to the front, and the film
 records that part of the screen, so tell the person before a drive. A window they bring over it
-lands in the film; the stills photograph the window alone and stay clean.
+lands in the film, but the stills photograph the window alone and stay clean.
 
 ## Doctor
 
@@ -89,8 +90,8 @@ first and refuses on a FAIL) and whenever anything looks off.
 
 A FAIL on the sign-in means the binary's own login expired: `auth status` reports `loggedIn: false`
 and a drive fails with "OAuth session expired". The Claude app signs its own sessions in without
-it, so the app working proves nothing here. The person runs `"<binary>" auth login` in a browser;
-never sign in for them.
+it, so the app working proves nothing here. The person runs `"<binary>" auth login` in a browser.
+Never sign in for them.
 
 ## Drive
 
@@ -98,24 +99,25 @@ never sign in for them.
 python3 $V drive "$E" baseline .claude/skills/verify-robovac/scenarios/wait-on-prompt.json
 ```
 
-A drive writes the session's settings (the revision's `hooks.json` with `runs.py` pointed at the
-exported tree, vet's SessionStart dropped, and an observer hook on every event the clock reads),
-films the window's frame with `screencapture -v`, starts the session (`--settings <generated>
---setting-sources local --strict-mcp-config --session-id <new> --model haiku`, its folder in
-scratch, its environment without one `CLAUDE*` or `ANTHROPIC*` variable of the session running the
-drive), sends each step, takes each still, closes the session the way the app closes one, stops the
-film, **quits the test copy by the pid it started and confirms its window is gone** (the `app pid N
-quit, window gone` mark in the clock), and writes `<side>/clock.md`. The window is open only from
-`launch` to the end of the recording; a second drive of the same side opens it again. Prompts and
+A drive writes the session's settings: the revision's `hooks.json` with `runs.py` pointed at the
+exported tree, any SessionStart hook dropped, and an observer hook on every event the clock reads.
+It films the window's frame with `screencapture -v` and starts the session (`--settings <generated>
+--setting-sources local --strict-mcp-config --session-id <new> --model haiku`). The session's
+folder is in scratch, and its environment carries no `CLAUDE*` or `ANTHROPIC*` variable of the
+session running the drive. The drive sends each step, takes each still, closes the session the way
+the app closes one, and stops the film. Then it **quits the test copy by the pid it started and
+confirms its window is gone** (the `app pid N quit, window gone` mark in the clock), and writes
+`<side>/clock.md`. The window is open only from
+`launch` to the end of the recording. A second drive of the same side opens it again. Prompts and
 answers are the scenario's, never typed by hand, so both sides get the same ones.
 
 **A scenario** is JSON in `scenarios/`, one per mapped feature:
 
 - `steps`: each a `prompt`, or a `pause` in seconds. A prompt may carry:
   - `answers`: in order, one per permission request or form as each arrives,
-    `{"hold": s, "behavior": "allow"|"deny", "interrupt": true}`; `interrupt` makes a denial an Esc
+    `{"hold": s, "behavior": "allow"|"deny", "interrupt": true}`. `interrupt` makes a denial an Esc
     at the prompt, and a form denied is declined. A request past the list is allowed at once, which
-    docks nothing for a permission prompt, since it docks only after its notice at about 6 s; a
+    docks nothing for a permission prompt, since it docks only after its notice at about 6 s. A
     question or a form docks as it opens, so give each one its own entry.
   - `shots`: `[anchor, seconds, name]` stills, anchored to the turn's first `prompt`, `ask` (a
     permission request or a form arriving), `answer` (sent) or `result`.
@@ -124,13 +126,13 @@ answers are the scenario's, never typed by hand, so both sides get the same ones
 - `files`: names and text to put in the session's folder first.
 - `form`: true gives the session `scripts/form.py` as its one MCP server, whose tool is
   `mcp__form__ask`.
-- `hooks`: more hooks by event; `{verify}` and `{scratch}` fill in, as in
+- `hooks`: more hooks by event. `{verify}` and `{scratch}` fill in, as in
   `stop-hook-continues.json`'s `{verify} continue-once {scratch}/stop-once '<reason>'`.
 
 `{runs}` in a prompt is the revision's `runs.py`, for the robovac skill's own first step,
 `runs.py say "<line>"`, which sets the line the hover shows.
 
-**Reading a still.** The whole house means a run is going, or a robot is still driving home; the
+**Reading a still.** The whole house means a run is going, or a robot is still driving home. The
 camera zoomed in on a dock with a **!** over it means the robot docked and its run stopped. The
 log rows say which, and the film shows the motion between. The robot is the white disc with a
 ring on top.
@@ -144,7 +146,7 @@ and never removed by cleanup. It holds verify-this's layout
 
 - `claim.md`, written by you before any drive: the claim in falsifiable form (condition, what is
   observed, threshold), the baseline and treatment revisions, the scenario and the data.
-- `timeline.md`: one line per helper command, appended by the helpers; add your own steps to it.
+- `timeline.md`: one line per helper command, appended by the helpers. Add your own steps to it.
 - `baseline/` and `treatment/`, each: `setup.json` (revision, sha, bundle, window, Claude Code
   version), `video.mov`, one PNG per still, `clock.md` (driver marks, hooks and log rows on one
   clock), `runs.jsonl` (the log the hooks wrote, the side effect itself), `hooks.jsonl` (each hook
@@ -155,24 +157,25 @@ and never removed by cleanup. It holds verify-this's layout
   `INCONCLUSIVE`, the claim, the evidence (each still and row, baseline against treatment), and one
   paragraph naming any confound.
 
-**Proof standards** (pstack's): exercise the real user path, not internal setters or test-only
-endpoints; capture the action and the resulting state, not just the final screen; verify side
+**Proof standards** (pstack's). Exercise the real user path, not internal setters or test-only
+endpoints. Capture the action and the resulting state, not just the final screen. Verify side
 effects alongside what's visible (here, the log rows and the files the session wrote, listed at
-the end of each clock); mocks only where a production boundary already isolates the external
+the end of each clock). Use mocks only where a production boundary already isolates the external
 system. The stand-ins are the person's click and, for a form, form.py's server behind the MCP
 boundary, both named above. A still alone never proves a state: pair it with the log row at its
 time in `clock.md`.
 
-**Verdicts** follow verify-this: VERIFIED when baseline and treatment differ in the claimed way with
-no confound; NOT VERIFIED when they don't, or move the wrong way; INCONCLUSIVE when a side has no
-valid run, a still MISSED, or the sides' `asked` lines differ (another command, or another number
-of prompts), since the model's replies are the one input not held fixed. Where the same calls were
-sent differently, two in one message on one side and one each on the other, the verdict names it
-as a confound and says which of the claim's moments it can reach. Never report INCONCLUSIVE as a
-pass.
+**Verdicts** follow verify-this. VERIFIED is when baseline and treatment differ in the claimed way
+with no confound. NOT VERIFIED is when they don't, or move the wrong way. INCONCLUSIVE is when a
+side has no valid run, a still MISSED, or the sides' `asked` lines differ (another command, or
+another number of prompts). The `asked` lines matter because the model's replies are the one input
+not held fixed. Where the
+same calls were sent differently, two in one message on one side and one each on the other, the
+verdict names it as a confound and says which of the claim's moments it can reach. Never report
+INCONCLUSIVE as a pass.
 
 **What stays out of the evidence.** The session's opening reply carries the account's email, so
-`stream.jsonl` drops it; the transcripts carry it too, so they aren't copied, and go to the Trash
+`stream.jsonl` drops it. The transcripts carry it too, so they aren't copied, and go to the Trash
 at cleanup.
 
 ## Cleanup
@@ -183,14 +186,14 @@ ls "$E"/*/video.mov
 ```
 
 `cleanup` stops each process the claim recorded in `started.json`, by pid, and only while that pid
-still runs the executable it started; unregisters each test copy built for a `WORKTREE` from Launch
-Services (`lsregister -u`; the round's commit copies wait for `end-round`) and removes its defaults,
-WebKit data and caches, which macOS keeps under `~/Library` by bundle id whatever `HOME` says
-(measured 2026-10-17, so a temporary `HOME` separates nothing and isn't used), only for ids under
-the verify prefix; moves the drive sessions' transcript folders, only those in `~/.claude/projects`
-named for this claim's scratch path, to the Trash; removes the scratch folder; and lists the
-evidence it kept. It exits 1 if anything it started still runs. Run it after every drive, failed
-ones too, then confirm the evidence is still there.
+still runs the executable it started. It unregisters each test copy built for a `WORKTREE` from
+Launch Services (`lsregister -u`), while the round's commit copies wait for `end-round`. For ids
+under the verify prefix only, it removes the copy's defaults, WebKit data and caches, which macOS
+keeps under `~/Library` by bundle id whatever `HOME` says. That was measured 2026-10-17, so a
+temporary `HOME` separates nothing and isn't used. It moves the drive sessions' transcript folders
+to the Trash, only those in `~/.claude/projects` named for this claim's scratch path. Then it
+removes the scratch folder and lists the evidence it kept. It exits 1 if anything it started still
+runs. Run it after every drive, failed ones too, then confirm the evidence is still there.
 
 Never: the person's `~/.claude/robovac/runs.jsonl`, `~/.claude/settings.json`,
 `~/Applications/Robovac.app` or its `com.kstack.robovac` defaults; `build.sh` (it installs over

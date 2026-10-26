@@ -108,7 +108,7 @@ def i1_settings_run_the_revisions_hooks(tmp: Path) -> None:
     check('I1 the clock observes every event the revision\'s robovac hooks run on', not unseen,
           str(unseen))
     stray = tree_with_hooks(tmp / 'i1b', {'Stop': [{'hooks': [
-        {'type': 'command', 'command': '"$HOME/.claude/skills/vet/scripts/vet.sh" status'}]}]})
+        {'type': 'command', 'command': '"$HOME/.claude/skills/clorox/x.py" status'}]}]})
     try:
         session.hook_settings(stray, {}, {})
         refused = False
@@ -123,7 +123,7 @@ def i1_settings_run_the_revisions_hooks(tmp: Path) -> None:
           orobo and all(str(otree / 'skills' / 'robovac' / 'scripts' / 'runs.py') in c and '$HOME' not in c
                         for c in orobo), f'{len(orobo)} robovac hooks')
     left  = tree_with_hooks(tmp / 'i1d', {'Stop': [{'hooks': [
-        {'type': 'command', 'command': '"${CLAUDE_PLUGIN_ROOT}/skills/vet/scripts/vet.sh" status'}]}]})
+        {'type': 'command', 'command': '"${CLAUDE_PLUGIN_ROOT}/skills/clorox/x.py" status'}]}]})
     try:
         session.hook_settings(left, {}, {})
         refused = False

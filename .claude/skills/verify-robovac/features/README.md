@@ -16,33 +16,34 @@ then use the matching feature file as the recipe. Each feature has a scenario of
 
 ## Driving conventions
 
-- Every feature starts from an empty log and an empty session folder; its scenario holds the rest.
+- Every feature starts from an empty log and an empty session folder. Its scenario holds the rest.
 - Drive both sides with the same scenario file, unchanged between them.
-- The session's first prompt starts with `/robovac`, which makes it a robovac session; every later
+- The session's first prompt starts with `/robovac`, which makes it a robovac session. Every later
   prompt in that session starts a run again.
 - A permission prompt's, a question's or a form's answer is the scenario's `answers` entry, in the
   order they arrive: its hold is the person's pause before clicking. A permission prompt answered
-  within about 6 s never docks the robot; a question or a form docks it as it opens.
-- The robot drives home along its route before the camera zooms in, which took from 3 s to about
-  31 s from the `end` row on the 2026-10-18 films (the longest, 31 s, in
-  `2026-10-18-004018-two-states-2`; one drive in `2026-10-18-022717-questions-and-forms` had not
-  docked when its film ended, 19 s after its end). A still taken after a turn ends waits that out;
-  one taken while a prompt, question or form waits comes before its answer, so it can catch the
+  within about 6 s never docks the robot. A question or a form docks it as it opens.
+- The robot drives home along its route before the camera zooms in. On the 2026-10-18 films that
+  took from 3 s to about 31 s from the `end` row, the longest in `2026-10-18-004018-two-states-2`.
+  One drive in `2026-10-18-022717-questions-and-forms` had not docked when its film ended, 19 s
+  after its end. A still taken after a turn ends waits that out.
+  One taken while a prompt, question or form waits comes before its answer, so it can catch the
   robot on its way home. When a still does, the log rows and the film decide.
 - Hover and keyboard are the person's own input: drive them with the computer-use tools on the
   test copy, `Robovac Verify`, never by script.
 - Run `python3 $V cleanup "$E"` after every drive, failed ones included.
-- A commit's test copy is built once per round and reused by every claim that names it; run
+- A commit's test copy is built once per round and reused by every claim that names it. Run
   `python3 $V end-round` when the round's last claim is cleaned up.
-- A drive quits its test copy when the recording ends; do not leave the window open by hand.
+- A drive quits its test copy when the recording ends. Do not leave the window open by hand.
 
 ## Proof and skip reporting
 
-- Pair every still with the log row at its time in `<side>/clock.md`; a still alone proves nothing.
-- A docked robot is the camera zoomed in on its dock with a **!**; a going one is the whole house.
+- Pair every still with the log row at its time in `<side>/clock.md`. A still alone proves nothing.
+- A docked robot is the camera zoomed in on its dock with a **!**, and a going one is the whole
+  house.
 - Side effects: the rows in `<side>/runs.jsonl` and the files listed at the end of the clock.
-- Compare the `asked` lines of both clocks; different tool calls make the claim INCONCLUSIVE.
-- A still marked MISSED, a turn timed out or a doctor FAIL is INCONCLUSIVE; report its line.
+- Compare the `asked` lines of both clocks. Different tool calls make the claim INCONCLUSIVE.
+- A still marked MISSED, a turn timed out or a doctor FAIL is INCONCLUSIVE. Report its line.
 - Do not report a sub-feature as verified through another feature's drive.
 
 ## Feature entry contract

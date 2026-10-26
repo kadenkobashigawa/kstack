@@ -1,12 +1,12 @@
 # The run follows its turn
 
 A session becomes a robovac session when a prompt starts with `/robovac`, or `/loop`, an interval
-and then `/robovac`, and its robot has two states: out sweeping while its agent works, and docked
-with its **!** when nothing works or something waits on the person. This feature is the plain turn:
-the robot leaves its dock as a turn starts, sweeps however long the turn thinks or a tool runs, and
-drives home to dock with its **!** when the turn finishes with nothing left running, as the camera
-zooms in on it. A prompt that only mentions `/robovac` starts nothing. Background work, questions
-and forms, and a turn starting while the robot drives home are features of their own.
+and then `/robovac`. Its robot has two states: out sweeping while its agent works, and docked with
+its **!** when nothing works or something waits on the person. This feature is the plain turn: the
+robot leaves its dock as a turn starts, sweeps however long the turn thinks or a tool runs, and
+drives home to dock with its **!** when the turn finishes with nothing left running. The camera
+zooms in on it as it docks. A prompt that only mentions `/robovac` starts nothing. Background work,
+questions and forms, and a turn starting while the robot drives home are features of their own.
 
 ## Sub-features
 
@@ -39,13 +39,13 @@ Preconditions:
 - **Dock.** Still `docked`: the camera on the dock, the **!** over it, after
   `log end finished` (`turn-dock`).
 - **Again.** Step 4 is a plain prompt. Still `next-prompt-sweeps`: the whole house after
-  `log start via=again`; still `docked-again` after its end (`turn-again`).
+  `log start via=again`. Still `docked-again` after its end (`turn-again`).
 
 ## Gotchas
 
 - The Skill tool's path (`/loop ... run the robovac skill`) needs the robovac skill loaded, which
-  the drive session doesn't load; this map reaches only the typed `/robovac`.
+  the drive session doesn't load. This map reaches only the typed `/robovac`.
 - `/robovac-widget` and `/loop 5m check /robovac` are mentions, not starts: runs.py's own tests
   hold those cases, not this drive.
-- A run's suite stays ten minutes after it stops; a second claim within that time in the same app
+- A run's suite stays ten minutes after it stops. A second claim within that time in the same app
   isn't fresh, so launch a new claim, which opens a new test copy.

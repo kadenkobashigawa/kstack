@@ -10,7 +10,7 @@ session closed, Went quiet for twelve hours, or the error it stopped on.
 - `app-opens-going` shows a run already going as a robot already out, the moment the app opens.
 - `app-hover-line` shows the run's own line in the slip over a hovered robot.
 - `app-hover-why` adds why the run stopped, once it has.
-- `app-dock-zoom` zooms the camera in on a robot as it docks; Esc or 0 fits the house again.
+- `app-dock-zoom` zooms the camera in on a robot as it docks. Esc or 0 fits the house again.
 
 ## How to get to it (user POV)
 
@@ -33,12 +33,12 @@ Preconditions:
 - **Hover.** While the run sweeps, take a screenshot with the computer-use tools, find the white
   disc, and hover it. The slip reads the `say` line (`app-hover-line`). After still `docked`,
   hover the docked robot: the slip adds "Finished" (`app-hover-why`).
-- **Fit.** Still `docked` shows the zoom (`app-dock-zoom`); press `0` with the computer-use tools
+- **Fit.** Still `docked` shows the zoom (`app-dock-zoom`). Press `0` with the computer-use tools
   and screenshot the whole house again.
 
 ## Gotchas
 
 - The hover and keys are the person's own input, so they go through the computer-use tools on the
-  test copy; the page's `ROBOVAC_KEYS` would press keys from inside and is never set.
-- A still before the app opens is marked MISSED; anchor stills after the `open`.
+  test copy. The page's `ROBOVAC_KEYS` would press keys from inside and is never set.
+- A still before the app opens is marked MISSED. Anchor stills after the `open`.
 - The film starts at the `open`, so its second 0 is the clock's `film started` line, not 0.

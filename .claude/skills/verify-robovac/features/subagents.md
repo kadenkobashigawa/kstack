@@ -2,7 +2,7 @@
 
 A subagent's permission prompt waits on the person like the main agent's own: the robot docks
 after its notice. A foreground subagent's approved tool sends the robot out again, since the
-subagent works on; while only a background agent's prompt waits, the main agent's next call or
+subagent works on. While only a background agent's prompt waits, the main agent's next call or
 batch sends it out, since the main agent works on past it.
 
 ## Sub-features
@@ -32,13 +32,13 @@ Preconditions:
 - **Background prompt.** Step 3 starts a background agent whose `touch bg.txt` is held 20 s while
   the main agent runs `sleep 3` five times. Still `bg-waiting`: the whole house, with the
   clock showing the main agent's calls going on (`sub-bg-out`).
-- **After.** Stills `bg-approved` and `bg-done`; the step waits for two results, the turn's and the
+- **After.** Stills `bg-approved` and `bg-done`. The step waits for two results, the turn's and the
   background agent's report.
 
 ## Gotchas
 
-- The `asked` lines name the asking agent; a subagent's request carries its agent id, the main
+- The `asked` lines name the asking agent. A subagent's request carries its agent id, the main
   agent's says `main`. Compare them across sides before judging.
-- A background agent's report can start a turn of its own; its `start` and `end` rows are part of
+- A background agent's report can start a turn of its own. Its `start` and `end` rows are part of
   the drive, not noise.
 - Subagents run on the model the Agent tool picks, not always haiku, so a side can take longer.

@@ -36,9 +36,9 @@ Preconditions:
 
 ## Gotchas
 
-- Each step waits for two results, the turn's and the report turn's; a report that never comes
+- Each step waits for two results, the turn's and the report turn's. A report that never comes
   times the step out, which is INCONCLUSIVE.
 - A background agent runs on the model the Agent tool picks, so its report lands later on one side
-  than the other; judge by its rows in the clock, not by the still's second alone.
+  than the other. Judge by its rows in the clock, not by the still's second alone.
 - Claude Code refuses a standalone foreground `sleep 30` ("Blocked: standalone sleep 30", seen
   2026-10-18), so the agent's wait is `sleep 15`, as its probe of 2026-10-17 ran.

@@ -1,7 +1,7 @@
 # A Stop hook continues the turn
 
 When another Stop hook the person has installed (a loop runner, a checker) refuses to let a turn
-end and hands the agent more to do, the turn goes on, but the robot docks at the first Stop, goes
+end and hands the agent more to do, the turn goes on. The robot still docks at the first Stop, goes
 out again with the main agent's next tool call, and docks for good when the turn really ends. A
 continuation that only replies, with no tool call, leaves it docked throughout.
 
@@ -37,16 +37,16 @@ Preconditions:
 ## Gotchas
 
 - The stand-in is verification scaffolding, written to the drive's settings and gone with the
-  scratch folder; the person's own Stop hooks are never loaded.
+  scratch folder. The person's own Stop hooks are never loaded.
 - The first Stop and the continuation's first call can land within one 2 s read of the log, so
-  the app may never show the dock between them; the log rows still show both.
-- `stop-line` needs the hover; this drive doesn't reach it.
+  the app may never show the dock between them. The log rows still show both.
+- `stop-line` needs the hover. This drive doesn't reach it.
 - The user asked on 2026-10-15 that a turn a Stop hook keeps going not dock at all. On 2026-10-18
   the user kept the dock, the option that adds no delay, so this drive shows the dock and the way
   back out. Keeping the robot out would mean waiting at every turn's end for every Stop hook to
   finish, a median 2.5 s: the time from a turn's last assistant line to its `stop_hook_summary`
   line, over 400 desktop-app turns.
 - A Stop hook that keeps a turn going sets `hasOutput` true on that line, with one `hookErrors`
-  entry if it blocks or one `hookAdditionalContext` entry if it adds context;
+  entry if it blocks or one `hookAdditionalContext` entry if it adds context.
   `preventedContinuation` stays false either way. None of the user's desktop-app turns from
   2026-10-14 to 2026-10-18 (UTC) has them.

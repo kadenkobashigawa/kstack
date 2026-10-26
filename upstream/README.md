@@ -34,5 +34,6 @@ later is ported from the source rather than rewritten from memory.
 - The pull-request and stacked-PR machinery, since kstack merges locally. autopilot-full's review
   and merge rule live on in build's `references/gate.md`.
 - The comment strippers, which delete required docstrings.
-- pstack's writing and teaching skills that duplicate `teach`.
+- pstack's teach workflow, whose writing rules `teach` carries. pstack's `unslop` and
+  `technical-writing` are carried verbatim as skills of their own.
 - The TypeScript and Grok Bot pieces, and the principles kstack's skills already state.

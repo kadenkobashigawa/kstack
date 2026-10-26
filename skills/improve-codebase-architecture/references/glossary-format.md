@@ -1,6 +1,6 @@
 # GLOSSARY.md Format
 
-From Matt Pocock's skills (MIT), `upstream/mattpocock-skills/skills/engineering/domain-modeling/GLOSSARY-FORMAT.md`, as written except where marked *(ours)* and for links to the other files here.
+From Matt Pocock's skills (MIT), `upstream/mattpocock-skills/skills/engineering/domain-modeling/GLOSSARY-FORMAT.md`, as written except where marked *(kstack)* and for links to the other files here.
 
 ## Structure
 

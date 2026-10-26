@@ -22,34 +22,34 @@ if they aren't current, and installs the app in `~/Applications`, so it opens fr
 Dock. A build made on your own Mac carries no download quarantine, so Gatekeeper lets it run. A copy
 sent to another Mac by AirDrop or a download is quarantined and blocked, so build it on each Mac.
 
-Open the app whenever you want to see what robovac is doing; it doesn't need to stay open. Opened
+Open the app whenever you want to see what robovac is doing. It doesn't need to stay open. Opened
 mid-run, it shows the robots already sweeping.
 
 ## What the robots do
 
 A robot has two states, tied to what its session's agent is doing.
 
-- **Sweeping** while the agent works: a turn in progress, in a loop or not, however long it thinks or
-  a tool runs, and after the turn while a background shell or background agent still runs.
+- **Sweeping** while the agent works: a turn in progress, in a loop or not, however long it thinks
+  or a tool runs, and after the turn while a background shell or background agent still runs.
 - **Docked**, with a **!** over its dock, when nothing is working, when the session closes, or when
   something waits on you.
 
 The details of waiting:
 
-- A question or an MCP form docks the robot as it opens. A permission prompt docks it after about six
-  seconds, so a prompt you approve at once never sends it home.
+- A question or an MCP form docks the robot as it opens. A permission prompt docks it after about
+  six seconds, so a prompt you approve at once never sends it home.
 - A wait outranks background work but not the turn's own work: a background agent's prompt docks the
   robot only once the turn has ended.
 - The robot goes out again once no prompt is open. An approved prompt closes when its tool call's
-  result comes back; one denied without Esc closes when its agent's batch ends. While only
+  result comes back. One denied without Esc closes when its agent's batch ends. While only
   subagents' prompts wait, the main agent's next call sends the robot out.
 - A robot already driving home docks first, then goes back out a moment later.
 - Esc ends the turn and docks the robot, unless a background shell is still running, which Esc
   doesn't stop. An Esc in the instant between the turn's last reply and its Stop hook leaves no
   trace, so the robot docks six seconds after that reply.
 
-As a robot docks, the camera zooms in on it. Hovering a robot shows its run's one-line status and why
-it stopped.
+As a robot docks, the camera zooms in on it. Hovering a robot shows its run's one-line status and
+why it stopped.
 
 ## Controls
 

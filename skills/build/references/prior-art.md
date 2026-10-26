@@ -1,21 +1,25 @@
 # Prior art
 
-Trust no design until outside evidence has had a chance to beat it, ours included. Treat the current
-design as a hypothesis, and look for evidence against it before evidence for it. The step is
-pstack's prototype playbook's "Search for prior art". *(ours: the method below. The playbook
-gathers references "when the design space is open" and skips the step "when the direction is set",
-while this step also runs on a design already chosen. It came here from crawl, a kstack skill that
-crawled the standing codebase, which pstack has no crawler for, so the query hygiene, the verdicts
-and the confidence line have no pstack source.)* It's used by `references/design.md` and
-`references/refactor.md`. The rules for which sources count are the project owner's, and they apply
-to every claim this step makes. The `researcher` agent runs it with a fresh context, given this file's path in its brief.
+Load this when you check a design against how others solved the same problem.
+`references/design.md` and `references/refactor.md` call for it, and the `researcher` agent runs it
+with a fresh context, given this file's path in its brief.
+
+Treat the current design as a hypothesis, and look for evidence against it before
+evidence for it. The step is pstack's prototype playbook's "Search for prior art" (pstack,
+`skills/poteto-mode/playbooks/prototype.md`, l. 8). *(kstack: the playbook gathers references "when
+the design space is open" and skips the step "when the direction is set", while this step also runs
+on a design already chosen. The method below came from crawl, a kstack skill that crawled the
+standing codebase. pstack has no crawler, so the source ranking, the query hygiene, the verdicts and
+the confidence line have no pstack source. The source ranking is the project owner's, and it
+applies to every claim this step makes.)*
 
 ## What counts as a source
 
 In order of weight:
 
 1. **The official documentation and specifications of what the code is built on**: the database,
-   the framework, the language, the browser platform, the standard or regulation the code answers to.
+   the framework, the language, the browser platform, the standard or regulation the code answers
+   to.
 2. **The code of mature, widely used projects solving the same problem.** Find candidates with
    `gh search code '<generic query>' --limit 20` (add `--language` and `--extension` to narrow),
    then read the matching file in its repository: `gh api repos/<owner>/<repo>/contents/<path>`, or
@@ -29,8 +33,8 @@ marketing and AI-written summaries. An unreviewed preprint is a lead, not a numb
 ## Query hygiene
 
 A query leaves this machine. Describe the problem in general terms: "optimistic concurrency with a
-content hash and HTTP 412", "append-only audit table with HMAC rows in PostgreSQL". Never paste our
-code, identifiers that only we use, file contents, data, or the names of people or customers.
+content hash and HTTP 412", "append-only audit table with HMAC rows in PostgreSQL". Never paste this
+project's code, identifiers only it uses, file contents, data, or the names of people or customers.
 
 ## Per design
 
@@ -40,7 +44,8 @@ sketches to design it twice, or a refactor's target shape:
 - **What established projects do.** Two or more independent ones when they exist, each with a link
   to the exact file or section.
 - **The verdict**, one of:
-  - `HOLDS`: ours matches the established pattern, or differs for a reason this project actually has.
+  - `HOLDS`: the design matches the established pattern, or differs for a reason this project
+    actually has.
   - `BETTER EXISTS`: a pattern with a concrete advantage that applies here. Name it, cite its
     sources, and say what it would remove.
   - `OURS IS BETTER`: the common pattern doesn't fit. Name the constraint, such as an
