@@ -84,8 +84,8 @@ counter the failures Karpathy names (Karpathy, 2026).
   and how big: whether it should exist (`/elon`), what already does it, which layer it belongs
   in, no bloat, nothing orphaned.
 - **3. Contain** (`references/contain.md`). Counters orthogonal damage, meaning changes to code
-  the task never concerned. Every hunk traces to the interpretation, unrelated problems go to the
-  findings queue, and restructuring never shares a diff with a behaviour change.
+  the task never concerned. Every hunk traces to the interpretation, unrelated problems are recorded
+  rather than fixed in this diff, and restructuring never shares a diff with a behaviour change.
 - **4. Verify** (`references/verify.md`). Counters unvalidated execution, shipping code nobody
   ran *(kstack: build adds this fourth failure to Karpathy's three, `references/evidence.md`, Check
   4)*. Before anything is called done: the risk list, each changed line broken on purpose to prove

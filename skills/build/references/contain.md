@@ -7,10 +7,9 @@ that code has nothing to do with the task (Karpathy, 2026).
   addition in the interpretation first. Only growth you didn't name first is banned.
 - **Touch only what you know the reason for.** Comments, error handling, imports, names and
   formatting stay when you don't know why they are there.
-- **Write down unrelated problems you notice, and never fix them in this diff.** They go to the
-  project's findings queue, its list of problems waiting for a fix, in attended and unattended
-  runs alike. A run that keeps no file, such as a robovac pass, records its queue in its reply
-  instead (`references/judgment.md`, The five buckets). pstack's orchestrate:
+- **Write down unrelated problems you notice, and never fix them in this diff.** They go in the
+  Reply, and in the project's backlog when its instruction file names one, in attended and
+  unattended runs alike (`references/judgment.md`, The five buckets). pstack's orchestrate:
   "Mid-run discoveries fix only what blocks the frontier. Everything else parks in follow-ups."
   (pstack, `skills/poteto-mode/playbooks/orchestrate.md`, l. 109) A problem that blocks this
   change is not unrelated. Name it in the interpretation, and fix it in a diff of its own.

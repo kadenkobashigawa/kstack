@@ -30,11 +30,6 @@ A rule kstack adds or changes, with no source to cite, carries the tag *(kstack:
 after it, so a reader can tell it from a ported rule. A translation of a pstack rule to Claude Code
 reads *(kstack, the translation: what changed)*.
 
-## Queue
-
-`QUEUE.md` holds proven findings that wait for a change of their own: the gate files each one
-there, and an unattended build run takes the worst one first.
-
 ## Tests
 
 Check the plugin and marketplace manifests with `claude plugin validate .` after changing

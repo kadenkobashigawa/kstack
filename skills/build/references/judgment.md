@@ -65,20 +65,18 @@ and marks where its contents depart from interrogate.
 - **queue:** a proven rule break that would not block a real PR, such as a file past 1,000 lines
   (rule 1) or a duplicate helper (rule 4), whether or not the change wrote it. A later change fixes
   it, not this round's fix-forward. This is interrogate's Noted, kept as work for later rather than
-  dropped (pstack, `skills/interrogate/SKILL.md`, l. 78). It goes in the project's findings queue,
-  one line with its place and the commit it was found at, committed to main right after the merge
-  and named in the Reply *(kstack: a commit on the branch would change its patch and void the
-  verdict)*. kstack's queue is `QUEUE.md`; a project names its own in its
-  instruction file. A run that keeps no file, such as a robovac pass, records it in its reply.
-  *(kstack: when every proven break went to a fix round, rounds ran to six or seven,
-  per `references/evidence.md`, Run evidence behind the gate.)*
-
-  Queue also holds a proven defect in code or text the change didn't write. To confirm that, the
-  lead reruns the finding at the base commit, with its repro, its test or its quoted line. A finding
-  that holds there is queue, whatever severity its lane gave it. A finding that doesn't hold there
-  belongs to the change, so it is act on *(kstack: the rerun replaces a sort by eye, which got
-  findings wrong both ways, per `references/evidence.md`, Run evidence behind the gate)*. Mid-run
-  discoveries fix only what blocks the frontier (pstack,
+  dropped (pstack, `skills/interrogate/SKILL.md`, l. 78). It goes in the Reply and the merge
+  commit's message. When the project's instruction file names a backlog for findings, it also goes
+  there, committed to main right after the merge *(kstack: a commit on the branch would change its
+  patch and void the verdict)*. pstack parks such follow-ups in the team's own tracker (pstack,
+  `skills/reflect/SKILL.md`, l. 55); a project with none keeps no backlog. *(kstack: when every
+  proven break went to a fix round, rounds ran to six or seven, per `references/evidence.md`, Run
+  evidence behind the gate.)* Queue also holds a proven defect in code or text the change didn't
+  write. To confirm that, the lead reruns the finding at the base commit, with its repro, its test
+  or its quoted line. A finding that holds there is queue, whatever severity its lane gave it. A
+  finding that doesn't hold there belongs to the change, so it is act on *(kstack: the rerun
+  replaces a sort by eye, which got findings wrong both ways, per `references/evidence.md`, Run
+  evidence behind the gate)*. Mid-run discoveries fix only what blocks the frontier (pstack,
   `skills/poteto-mode/playbooks/orchestrate.md`, l. 109). lead-judgment dismisses changes to code
   the author didn't write (pstack, `skills/interrogate/references/lead-judgment.md`, l. 37).
   *(kstack: proven ones are kept here, because check 3 records what was noticed outside the change

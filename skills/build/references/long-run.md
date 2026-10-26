@@ -65,18 +65,18 @@ its own branch through build, and then goes back to the predicate. "Keep the pre
 drive, and return to it after each side fix." (pstack,
 `skills/poteto-mode/playbooks/autonomous-run.md`, l. 9) *(kstack, the translation: a branch of its
 own that passes the gate, in place of pstack's "their own PR")*. A discovery that does not block the
-predicate goes to the findings queue (`references/contain.md`). *(kstack: autonomous-run makes every
+predicate is recorded, not fixed (`references/contain.md`). *(kstack: autonomous-run makes every
 discovery the run's own, and contain.md keeps a non-blocking one out of every run, attended or not.
 Taking only the blocking ones keeps both rules true.)*
 
 ## When no task is handed over
 
-One task per run. The project's findings queue goes first: the run takes its worst item that
-still holds at current main, proved again there, and its fix's change deletes that line. A fresh
-owner "picks up the next self-contained item from the queue" (pstack,
-`skills/poteto-mode/playbooks/autopilot-full.md`, l. 9). When the queue is empty, or no item still
-holds, the code rules choose the task. The run checks a slice against `references/rules.md`
-in the rules' order (built well, works, written true), then takes the worst broken rule and nothing
+One task per run. When the project's instruction file names a backlog for findings, it goes first:
+the run takes its worst item that still holds at current main, proved again there, and its fix's
+change deletes that line. A fresh owner "picks up the next self-contained item from the queue"
+(pstack, `skills/poteto-mode/playbooks/autopilot-full.md`, l. 9). With no backlog, or no item that
+still holds, the code rules choose the task. The run checks a slice against `references/rules.md` in
+the rules' order (built well, works, written true), then takes the worst broken rule and nothing
 else. orchestrate holds the same line for a large run: "Mid-run discoveries fix only what blocks the
 frontier. Everything else parks in follow-ups." (pstack,
 `skills/poteto-mode/playbooks/orchestrate.md`, l. 109) *(kstack: this is robovac's build step, which
