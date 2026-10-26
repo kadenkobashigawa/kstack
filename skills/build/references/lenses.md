@@ -11,11 +11,14 @@ pinned to exact SHAs, the stated intent and the rest of its brief, in the fields
 SKILL.md (The brief), which `references/gate.md` (A round, lane 3) fills. It reports findings in
 the shape at the bottom, or "no findings".
 
-The ways to look come from pstack's interrogate rubric and code-quality lens (pstack,
-`skills/interrogate/references/rubric.md` and
-`skills/interrogate/references/code-quality-review.md`) and cursor-team-kit's thermo-nuclear review
-(MIT; cursor-team-kit, `skills/thermo-nuclear-code-quality-review/SKILL.md`). Practice, not
-measurement.
+The ways to look come from pstack's interrogate review. The structure lens draws on the rubric's
+Structural Integrity and Complexity Budget sections (pstack,
+`skills/interrogate/references/rubric.md`, ll. 32–43, 56–68) and the code-quality dimensions
+(pstack, `skills/interrogate/references/code-quality-review.md`, ll. 21–35). The correctness lens
+draws on the rubric's Correctness, Verification and Security sections (pstack,
+`skills/interrogate/references/rubric.md`, ll. 5–17, 45–54, 70–77). A third source is
+cursor-team-kit's thermo-nuclear review (MIT; cursor-team-kit,
+`skills/thermo-nuclear-code-quality-review/SKILL.md`, ll. 73–87). Practice, not measurement.
 
 *(kstack: the focus is split by rules, structure on Sonnet and correctness on Opus as the gate
 staffs its lanes.)* Interrogate instead gives every reviewer "the same prompt and rubric", because

@@ -8,11 +8,11 @@ Verification is these steps:
 - **Mutate the changed lines.** Break each on purpose and confirm something fails. A passing suite
   doesn't prove the tests check what those lines do (Foster et al., 2025).
 - **Run the whole thing, the way it runs for real.** Run the full path, at real data volume, on the
-  real device, not the unit or a stand-in. The failure this check is named after is "should work"
-  (pstack, `skills/principle-prove-it-works/SKILL.md`, l. 9). When the project has a verify skill
-  (`verify-<app>`), use it to drive the app the way a user would. It compares a baseline build with
-  the changed build and returns VERIFIED, NOT VERIFIED or INCONCLUSIVE. Never report INCONCLUSIVE as
-  a pass.
+  real device, not the unit or a stand-in: "Verify every task output by checking the real thing
+  directly." (pstack, `skills/principle-prove-it-works/SKILL.md`, l. 9) When the project has a
+  verify skill (`verify-<app>`), use it to drive the app the way a user would. It compares a
+  baseline build with the changed build and returns VERIFIED, NOT VERIFIED or INCONCLUSIVE. Never
+  report INCONCLUSIVE as a pass.
 - **Judge the result against the interpretation, not against the change's own tests.** Check 1
   wrote down what this change should mean. Passing the writer's own tests is a weaker claim than
   doing the thing that was asked. A change can be correct on its own terms and still not be the

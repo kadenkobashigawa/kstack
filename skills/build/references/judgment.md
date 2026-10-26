@@ -14,8 +14,9 @@ filters, puts each finding in context and decides, and never just aggregates (ps
 
 - **Nitpick gravity.** A reviewer with nothing serious to say inflates nits. All nits means the code
   is probably fine, so say so (pstack, `skills/interrogate/references/lead-judgment.md`, l. 20).
-- **Hypothetical, not actual.** "What if this is None" is a finding only if a caller can pass None.
-  Trace the call site yourself (pstack, `skills/interrogate/references/lead-judgment.md`, l. 24).
+- **Hypothetical, not actual.** "What if someone passes null here?" is only a finding if the caller
+  can actually pass null. Trace the call site yourself (pstack,
+  `skills/interrogate/references/lead-judgment.md`, l. 24).
 - **Premature abstraction.** A suggested extraction with one call site and no second use coming
   (pstack, `skills/interrogate/references/lead-judgment.md`, l. 28). The gate holds it to rule 3:
   dismissed unless the diff already adds a second caller.
