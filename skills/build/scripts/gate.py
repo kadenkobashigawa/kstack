@@ -8,11 +8,15 @@ is clean. Run it from inside the branch's linked worktree.
   gate.py record lane <name> --kept-from SHA --note T
                           keeps the lane's row at SHA, from an earlier patch, at this one; never
                           gates or a review lane
-  gate.py record finding <id> <act-on|consider|queue|dismissed|nit> [--cmd C] [--note T]
+  gate.py record finding <id> <act-on|consider|queue|dismissed|nit|fixed> [--cmd C] [--note T]
+                          fixed closes a finding left act-on at an earlier patch, once a later
+                          round's lanes found its sites clean
   gate.py record fix <agent> fixed --model M [--note T]
   gate.py status          prints the current patch's lanes, whether its verdict is clean and why
-                          not, and each finding's failed corrections, with STOP at two for a
-                          finding still act-on. Exits 0 on a clean verdict and 1 otherwise
+                          not, each open finding with the patch it was recorded at when that
+                          is an earlier one, and each finding's failed corrections, with STOP at
+                          two for a finding still open at the current patch. Exits 0 on a
+                          clean verdict and 1 otherwise
   gate.py land FILE       refuses an empty patch or a verdict that is not clean. Otherwise it
                           commits the head's tree on main with FILE's message and the verdict,
                           deletes the ledger, and prints the commands that remove the worktree,
@@ -26,7 +30,7 @@ A clean verdict for the current patch needs these lanes, by name:
   regression              PASS, whenever live passed
   review...               PASS or ISSUES, on two models, each recorded with --at at this patch
 
-No lane may be BLOCKED or a gap, and no finding may still be act-on.
+No lane may be BLOCKED or a gap, and no finding may be open at the current patch.
 
 --at names the commit a lane checked, and that commit must carry the current patch. A gap names
 none. When the patches differ only in tests, docs or lint config, the patch-id rule keeps a lane
@@ -38,10 +42,11 @@ lane ran on a main that is no longer current. --kept-from names the commit the l
 earlier patch, and the latest row of that lane at that patch must have checked it. gate.py copies
 that row's result and model into a new row at this patch. Its note names the commit and, from
 --note, the reason. A NO-RUNTIME row drove nothing, so it has no build output to keep, and you
-record it again with --at. An act-on finding keeps the command that finds its sites
-(--cmd). Keep a finding's id across rounds, because an id still act-on at a later patch is a failed
-correction. A fix names the fresh agent that wrote it, never `root`. GATE_MAIN names the main branch
-(default `main`).
+record it again with --at. An act-on finding keeps the command that finds its sites (--cmd).
+references/gate.md, A finding stays open until a later row closes it, says when a finding is open
+at a patch and how it is closed. Keep a finding's id across rounds, because an id recorded act-on
+again at a later patch is a failed correction, and one carried open is not. A fix names the fresh
+agent that wrote it, never `root`. GATE_MAIN names the main branch (default `main`).
 
 When main moved since the merge base, `land` refuses, naming the check, unless three checks pass.
 The gates row at the head must have recorded main's tip equal to the head's merge base, so the
@@ -61,9 +66,10 @@ refuses a detached HEAD. It also refuses the main worktree, whose git folder is 
 own and outlives a deleted branch. git before 2.31 cannot tell the main worktree apart, so there
 `record` refuses everywhere. A lane row carries the commit it checked, and any other row carries
 the head. Every row carries main's tip when it was written, and the stable patch-id of the
-branch's diff from its merge base with main, so a new patch starts a new verdict and an old
-patch's rows never count toward it. gate.py only appends rows. Within a patch, the latest row for
-a lane or a finding supersedes the earlier ones.
+branch's diff from its merge base with main. A lane counts only at the patch its row carries, so a
+new patch needs its lanes again, while a finding's state at a patch is its latest row there, else
+its latest row at any patch. gate.py only appends rows, and a later row for a lane or a finding
+supersedes the earlier ones.
 """
 
 from __future__ import annotations
@@ -81,7 +87,7 @@ import sys
 COLUMNS = ['ts', 'head', 'patch', 'kind', 'name', 'model', 'result', 'cmd', 'note', 'main']
 RESULTS = {
     'lane':    {'PASS', 'ISSUES', 'BLOCKED', 'gap', 'NO-RUNTIME'},
-    'finding': {'act-on', 'consider', 'queue', 'dismissed', 'nit'},
+    'finding': {'act-on', 'consider', 'queue', 'dismissed', 'nit', 'fixed'},
     'fix':     {'fixed'},
 }
 
@@ -205,7 +211,13 @@ def record(kind: str, name: str, result: str, model: str, cmd: str, note: str, s
     if kind == 'lane' and sha and patch_of(head)[1] != at['patch']:
         return refuse(f'{sha} does not carry the current patch; a lane the patch-id rule keeps '
                       'from an earlier patch takes --kept-from with --note, and gates runs again')
-    append(ledger_path(at['branch']), [head, at['patch'], kind, name, model, result, cmd, note])
+    path = ledger_path(at['branch'])
+    if kind == 'finding' and result == 'fixed':
+        was = findings_at(read_rows(path), at['patch']).get(name, {})
+        if was.get('result') != 'act-on' or was['patch'] == at['patch']:
+            return refuse(f'fixed closes a finding left act-on at an earlier patch, once a later '
+                          f'round found its sites clean; {name} is not one')
+    append(path, [head, at['patch'], kind, name, model, result, cmd, note])
     return 0
 
 
@@ -246,12 +258,29 @@ def keep(kind: str, name: str, result: str, model: str, cmd: str, note: str, sha
     return 0
 
 
-def latest(rows: list[dict], kind: str, patch: str) -> dict[str, dict]:
-    """The last row of `kind` at `patch` for each name; a later row supersedes."""
+def latest(rows: list[dict], kind: str, patch: str | None = None) -> dict[str, dict]:
+    """The last row of `kind` at `patch`, or at any patch, for each name; a later row supersedes."""
     out: dict[str, dict] = {}
     for r in rows:
-        if r['kind'] == kind and r['patch'] == patch:
+        if r['kind'] == kind and patch in (None, r['patch']):
             out[r['name']] = r
+    return out
+
+
+def findings_at(rows: list[dict], patch: str) -> dict[str, dict]:
+    """
+    Each finding's deciding row at `patch`: open when its latest row there or anywhere is act-on.
+
+    Notes
+    -----
+    An open finding maps to the act-on row that holds it open, the one at `patch` first. A closed
+    one maps to its latest row at `patch`, else its latest row at any patch.
+    """
+    here = latest(rows, 'finding', patch)
+    out  = {**latest(rows, 'finding'), **here}
+    for name, r in latest(rows, 'finding').items():
+        if r['result'] == 'act-on' and here.get(name, {}).get('result') != 'act-on':
+            out[name] = r
     return out
 
 
@@ -274,14 +303,15 @@ def verdict(rows: list[dict], patch: str, head: str) -> tuple[bool, list[str], d
                and r['result'] in ('PASS', 'ISSUES')]
     if len({r['model'] for r in reviews}) < 2:
         why.append('fewer than two review lanes on two models')
-    for name, r in sorted(latest(rows, 'finding', patch).items()):
+    for name, r in sorted(findings_at(rows, patch).items()):
         if r['result'] == 'act-on':
-            why.append(f"act-on finding {name} is open; its sites: {r['cmd']}")
+            then = '' if r['patch'] == patch else f", recorded at patch {r['patch'][:12]}"
+            why.append(f"act-on finding {name} is open{then}; its sites: {r['cmd']}")
     return not why, why, lanes
 
 
 def failed_corrections(rows: list[dict]) -> dict[str, int]:
-    """For each finding, the patches after its first at which its latest row was still act-on."""
+    """For each finding, the patches after its first at which a row recorded it act-on again."""
     patches = dict.fromkeys(r['patch'] for r in rows if r['kind'] == 'finding')
     counts: dict[str, int] = {}
     for patch in patches:
@@ -302,8 +332,8 @@ def status() -> int:
     for w in why:
         print(f'    - {w}')
 
-    #a finding no longer act-on at this patch has no third fix coming, so only an open one stops...
-    now = latest(rows, 'finding', at['patch'])
+    #a finding still open at this patch stops, since a third fix would start from it...
+    now = findings_at(rows, at['patch'])
     for name, n in sorted(failed_corrections(rows).items()):
         stop = ' STOP: write the premise both fixes shared and test it before a third fix' \
             if n >= 2 and now.get(name, {}).get('result') == 'act-on' else ''

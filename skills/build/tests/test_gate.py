@@ -21,12 +21,21 @@ and keeps that later one. G2g keeps a regression lane only while the merge base 
 one it ran on, and a live lane across a moved main. G4c refuses a gap lane, G4d a live lane with
 ISSUES, and G5b a gates lane standing in for a review lane.
 
-G6 holds that a new patch starts a new verdict and an act-on finding blocks it, G6b that a finding
-at an older patch does not, G6c that a later row on a finding at the same patch supersedes it, and
-G6d that status prints an open finding's command. G6e holds that after a tests-only patch change
-the review lanes are never kept, and the verdict needs two fresh review lanes on two models. G7
-counts failed corrections and says STOP at two (G7a: not at one; G7b: not for a finding no longer
-act-on at the current patch, whose count stays).
+G6 holds that an act-on finding blocks and a new patch needs its lanes again, G6b that an act-on
+finding at an older patch blocks a later one and status names the patch it was recorded at, G6c that
+a later row on a finding at the same patch supersedes it, and G6d that status prints an open
+finding's command. G6e holds that after a tests-only patch change the review lanes are never kept,
+and the verdict needs two fresh review lanes on two models. G6f holds that an act-on finding carried
+past a new commit and two fresh PASS reviews is not clean and land refuses. G6g refuses fixed for a
+finding act-on at the current patch, never recorded, or already closed, G6h closes a carried finding
+with fixed at the later patch, and G6i with dismissed. G6j holds that fixed at a later patch leaves
+the finding open at its own patch, so a reset back to it is not clean and land refuses, G6k the
+same for a revert, and G6l refuses fixed where the finding's own row at this patch is act-on.
+G6m and G6n hold that an older closing row at a patch never hides a newer act-on row recorded at
+another, so a reset back to the closing row's patch is not clean and land refuses. G7
+counts failed corrections and says STOP at two (G7a: not at one; G7c: also for a finding carried
+open to a patch with no row of its own; G7b: not for a finding no longer act-on at the current
+patch, whose count stays).
 
 G8 refuses to land without a clean verdict. G9 lands past a main that moved on paths the change
 does not touch, on main's new commit, and the verdict line names the move. G9b refuses a new head
@@ -314,12 +323,13 @@ def g6_g7() -> None:
               and 'grep -n one a.txt' in s.stdout, s.stdout)
         commit(feat, 'a.txt', 'two\n', 'fix 1')
         fresh = gate('status', cwd=feat)
-        check('G6 an act-on finding blocks, and a new patch starts a new verdict',
+        check('G6 an act-on finding blocks, and a new patch needs its lanes again',
               s.returncode == 1 and fresh.returncode == 1 and 'no gates lane' in fresh.stdout)
         clean_lanes(feat)
         s = gate('status', cwd=feat)
-        check('G6b an act-on finding at an older patch does not block a later one',
-              s.returncode == 0, s.stdout)
+        check('G6b an act-on finding at an older patch blocks a later one, naming its patch',
+              s.returncode == 1 and 'act-on finding F1 is open' in s.stdout
+              and 'recorded at patch' in s.stdout, s.stdout)
         gate('record', 'finding', 'F1', 'act-on', '--cmd', 'grep -n x', cwd=feat)
         s = gate('status', cwd=feat).stdout
         check('G7a a finding back after one fix is counted, without STOP',
@@ -331,11 +341,13 @@ def g6_g7() -> None:
               and 'STOP' in s, s)
         commit(feat, 'a.txt', 'four\n', 'design settled')
         moved = gate('status', cwd=feat).stdout
+        check('G7c a finding carried open to a new patch with no row there keeps its count and '
+              'STOP',
+              '2 failed correction' in moved and 'STOP' in moved, moved)
         gate('record', 'finding', 'F1', 'dismissed', '--note', 'the design settled it', cwd=feat)
         closed = gate('status', cwd=feat).stdout
         check('G7b a finding no longer act-on at the current patch keeps its count, without STOP',
-              all('2 failed correction' in s and 'STOP' not in s for s in (moved, closed)),
-              moved + closed)
+              '2 failed correction' in closed and 'STOP' not in closed, closed)
     with tempfile.TemporaryDirectory() as tmp:
         _, feat = repo(tmp)
         clean_lanes(feat)
@@ -351,6 +363,121 @@ def g6_g7() -> None:
         check('G6c a later row on a finding at the same patch supersedes it',
               same.returncode == 0 and later.returncode == 0
               and 'failed correction' not in later.stdout, same.stdout + later.stdout)
+    with tempfile.TemporaryDirectory() as tmp:
+        _, feat = repo(tmp)
+        msg = message(tmp)
+        lane(feat, 'gates', 'PASS', 'sonnet')
+        lane(feat, 'live', 'NO-RUNTIME', 'root')
+        lane(feat, 'review-a', 'ISSUES', 'opus')
+        lane(feat, 'review-b', 'PASS', 'sonnet')
+        gate('record', 'finding', 'F1', 'act-on', '--cmd', 'grep -n one a.txt', cwd=feat)
+        commit(feat, 'b.txt', 'unrelated\n', 'another change')
+        lane(feat, 'gates', 'PASS', 'sonnet')
+        lane(feat, 'live', 'NO-RUNTIME', 'root')
+        lane(feat, 'review-a', 'PASS', 'opus')
+        lane(feat, 'review-b', 'PASS', 'sonnet')
+        s = gate('status', cwd=feat)
+        r = gate('land', msg, cwd=feat)
+        check('G6f an act-on finding carried past a new commit and two fresh PASS reviews is not '
+              'clean, and land refuses', s.returncode == 1 and 'F1' in s.stdout
+              and r.returncode == 1 and 'F1' in r.stderr, s.stdout + r.stderr)
+        same = gate('record', 'finding', 'F2', 'act-on', '--cmd', 'grep -n x', cwd=feat)
+        early = gate('record', 'finding', 'F2', 'fixed', '--note', 'its sites came back clean',
+                     cwd=feat)
+        never = gate('record', 'finding', 'F3', 'fixed', '--note', 'no such finding', cwd=feat)
+        gate('record', 'finding', 'F2', 'dismissed', '--note', 'a misreading', cwd=feat)
+        shut = gate('record', 'finding', 'F2', 'fixed', '--note', 'already closed', cwd=feat)
+        check('G6g fixed closes only a finding open at an earlier patch: never one act-on at this '
+              'patch, one never recorded, or one already closed',
+              same.returncode == 0 and [early.returncode, never.returncode, shut.returncode]
+              == [2, 2, 2], early.stderr + never.stderr + shut.stderr)
+        fixed = gate('record', 'finding', 'F1', 'fixed', '--note', 'grep -n one a.txt is empty',
+                     cwd=feat)
+        s = gate('status', cwd=feat)
+        check('G6h fixed at the later patch closes a carried act-on finding', fixed.returncode == 0
+              and s.returncode == 0, fixed.stderr + s.stdout)
+    with tempfile.TemporaryDirectory() as tmp:
+        _, feat = repo(tmp)
+        clean_lanes(feat)
+        gate('record', 'finding', 'F1', 'act-on', '--cmd', 'grep -n x', cwd=feat)
+        commit(feat, 'a.txt', 'two\n', 'fix 1')
+        clean_lanes(feat)
+        held = gate('status', cwd=feat)
+        gate('record', 'finding', 'F1', 'dismissed', '--note', 'a misreading', cwd=feat)
+        s = gate('status', cwd=feat)
+        check('G6i dismissed at the later patch closes a carried act-on finding',
+              held.returncode == 1 and s.returncode == 0, held.stdout + s.stdout)
+    with tempfile.TemporaryDirectory() as tmp:
+        _, feat = repo(tmp)
+        msg = message(tmp)
+        lane(feat, 'gates', 'PASS', 'sonnet')
+        lane(feat, 'live', 'NO-RUNTIME', 'root')
+        lane(feat, 'review-a', 'ISSUES', 'opus')
+        lane(feat, 'review-b', 'PASS', 'sonnet')
+        gate('record', 'finding', 'F1', 'act-on', '--cmd', 'grep -n one a.txt', cwd=feat)
+        bad = head(feat)
+        commit(feat, 'a.txt', 'two\n', 'fix 1')
+        good = head(feat)
+        clean_lanes(feat)
+        gate('record', 'finding', 'F1', 'fixed', '--note', 'grep -n one a.txt is empty', cwd=feat)
+        sh('git', 'reset', '-q', '--hard', bad, cwd=feat)
+        s = gate('status', cwd=feat)
+        r = gate('land', msg, cwd=feat)
+        check('G6j fixed at a later patch does not close the finding at its own patch: a reset '
+              'back to it is not clean, and land refuses', s.returncode == 1
+              and 'act-on finding F1 is open' in s.stdout and r.returncode == 1
+              and 'F1' in r.stderr, s.stdout + r.stderr)
+        sh('git', 'reset', '-q', '--hard', good, cwd=feat)
+        sh('git', 'revert', '--no-edit', 'HEAD', cwd=feat)
+        lane(feat, 'gates', 'PASS', 'sonnet')
+        s = gate('status', cwd=feat)
+        check('G6k a revert back to the patch where a finding was recorded act-on is not clean',
+              s.returncode == 1 and 'act-on finding F1 is open' in s.stdout, s.stdout)
+    with tempfile.TemporaryDirectory() as tmp:
+        _, feat = repo(tmp)
+        gate('record', 'finding', 'F1', 'act-on', '--cmd', 'grep -n x', cwd=feat)
+        bad = head(feat)
+        commit(feat, 'a.txt', 'two\n', 'fix 1')
+        gate('record', 'finding', 'F1', 'act-on', '--cmd', 'grep -n x', cwd=feat)
+        sh('git', 'reset', '-q', '--hard', bad, cwd=feat)
+        back = gate('record', 'finding', 'F1', 'fixed', '--note', 'no round ran here', cwd=feat)
+        check('G6l fixed is refused at a patch where the finding\'s own row is act-on, whatever '
+              'another patch holds', back.returncode == 2, back.stderr)
+    with tempfile.TemporaryDirectory() as tmp:
+        _, feat = repo(tmp)
+        msg = message(tmp)
+        clean_lanes(feat)
+        gate('record', 'finding', 'F1', 'act-on', '--cmd', 'grep -n x', cwd=feat)
+        commit(feat, 'a.txt', 'two\n', 'fix 1')
+        clean_lanes(feat)
+        gate('record', 'finding', 'F1', 'dismissed', '--note', 'a misreading', cwd=feat)
+        mid = head(feat)
+        commit(feat, 'a.txt', 'three\n', 'fix 2')
+        clean_lanes(feat)
+        gate('record', 'finding', 'F1', 'act-on', '--cmd', 'grep -n x', cwd=feat)
+        sh('git', 'reset', '-q', '--hard', mid, cwd=feat)
+        s = gate('status', cwd=feat)
+        r = gate('land', msg, cwd=feat)
+        check('G6m an older closing row at this patch does not hide a newer act-on row at a later '
+              'one: a reset back to it is not clean, and land refuses', s.returncode == 1
+              and 'act-on finding F1 is open' in s.stdout and r.returncode == 1
+              and 'F1' in r.stderr, s.stdout + r.stderr)
+    with tempfile.TemporaryDirectory() as tmp:
+        _, feat = repo(tmp)
+        msg = message(tmp)
+        clean_lanes(feat)
+        gate('record', 'finding', 'F1', 'dismissed', '--note', 'a misreading', cwd=feat)
+        first = head(feat)
+        commit(feat, 'a.txt', 'two\n', 'fix 1')
+        clean_lanes(feat)
+        gate('record', 'finding', 'F1', 'act-on', '--cmd', 'grep -n x', cwd=feat)
+        sh('git', 'reset', '-q', '--hard', first, cwd=feat)
+        s = gate('status', cwd=feat)
+        r = gate('land', msg, cwd=feat)
+        check('G6n a finding sorted dismissed and then act-on at a later patch is open when a '
+              'reset brings back the dismissed patch, and land refuses', s.returncode == 1
+              and 'act-on finding F1 is open' in s.stdout and r.returncode == 1
+              and 'F1' in r.stderr, s.stdout + r.stderr)
     with tempfile.TemporaryDirectory() as tmp:
         _, feat = repo(tmp)
         old = head(feat)
@@ -369,6 +496,7 @@ def g6_g7() -> None:
         lane(feat, 'review-correctness', 'PASS', 'opus')
         one   = gate('status', cwd=feat)
         lane(feat, 'review-structure', 'PASS', 'sonnet')
+        gate('record', 'finding', 'F1', 'fixed', '--note', 'its sites came back clean', cwd=feat)
         two   = gate('status', cwd=feat)
         check('G6e after a tests-only patch change the review lanes are never kept, and the '
               'verdict needs two fresh review lanes on two models',

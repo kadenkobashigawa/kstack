@@ -144,9 +144,12 @@ l. 40).
 branch's ledger with `scripts/gate.py record`, run as
 `$(cd "${CLAUDE_SKILL_DIR}" && pwd -P)/scripts/gate.py`. `gate.py status` says whether the verdict
 is clean. The lanes are named `gates`, `live`, `regression` and `review-<focus>`. Each row
-carries the patch-id, so a new patch starts a new verdict (pstack,
-`skills/poteto-mode/playbooks/orchestrate.md`, l. 89). `record` runs only in the branch's own
-linked worktree, so the ledger goes when the worktree does.
+carries the patch-id, and a lane counts only at its own patch, so a new patch needs its lanes again
+(pstack, `skills/poteto-mode/playbooks/orchestrate.md`, l. 89). "The ledger answers 'was this
+verified', not memory and not the transcript." (pstack,
+`skills/poteto-mode/playbooks/orchestrate.md`, l. 89) A finding carries across patches instead,
+as the paragraph "A finding stays open until a later row closes it", below, says. `record` runs
+only in the branch's own linked worktree, so the ledger goes when the worktree does.
 
 **The root decides which findings are proven before any of them blocks**, after interrogate's step 5
 and lead-judgment. The root is the session running the gate. It reads the diff and every lane's
@@ -165,8 +168,22 @@ round whose findings are all nits is a clean verdict, and its nits go in the Rep
 **A clean verdict** means that, at the head that lands, no lane is BLOCKED or a gap, the gates lane
 passed at that head, the live lane passed or the change has no runtime surface, the regression lane
 passed whenever the live lane did, two review lanes on different models read the round's diff, a
-fresh agent wrote every fix in the round, and the root left nothing in act on. Nits in the Reply do
-not count against it. `gate.py status` checks the lane and finding parts of this from the ledger.
+fresh agent wrote every fix in the round, and the root left nothing in act on, from this round or
+an earlier one. Nits in the Reply do not count against it. `gate.py status` checks the lane and
+finding parts of this from the ledger.
+
+**A finding stays open until a later row closes it.** It is open at a patch when its latest row
+at that patch is act-on, or its latest row at any patch is, and closed otherwise. So an act-on
+finding blocks every later patch, blocks again when a reset or a revert brings back the patch it
+was recorded at, since that code still holds the defect, and an older closing row at a patch never
+hides a newer act-on row recorded at another. The root closes it at a later patch with `fixed` once
+that round's lanes reran its site command and it came back clean, or sorts it again as dismissed,
+consider, queue or nit. `gate.py` refuses `fixed` at a patch whose own row for the finding is
+act-on *(kstack: review probes landed an act-on finding unfixed, once after a new commit and two
+fresh passing reviews, once by a reset to its patch after a later patch closed it, and once by a
+reset to a patch whose older row closed it after a later patch recorded it act-on)*. The next
+round can check the fix because the fix-forward adds the defect to that round's review brief
+(pstack, `skills/poteto-mode/playbooks/autopilot-full.md`, l. 8).
 
 **Otherwise, fix forward.** "When the lanes return, send every proven finding against the PR to
 the owner in one fix-forward." (pstack, `skills/poteto-mode/playbooks/autopilot-full.md`, l. 8)
@@ -217,8 +234,12 @@ results that stay valid under the patch-id rule.
 
 **A finding that comes back is a failed correction.** Each act-on finding gets an ID in the round's
 record, `R<round>-<n>`, and the Reply carries it. When a later round reports the same defect, or a
-defect that a fix introduced, it is a failed correction against that ID.
-`references/when-a-fix-fails.md` says what happens next, based on that count.
+defect that a fix introduced, it is a failed correction against that ID, and the root records it
+act-on again at that patch. `gate.py` counts only those rows: a finding carried open from an earlier
+patch without one is not counted *(kstack: the count measures fixes that failed, not rounds a fix
+was pending)*. `gate.py status` prints STOP at a count of two for every finding still open at the
+current patch, re-recorded there or carried. `references/when-a-fix-fails.md` says what happens
+next, based on that count.
 
 ## The patch-id rule
 

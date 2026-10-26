@@ -50,14 +50,15 @@ and marks where its contents depart from interrogate.
   issue affecting correctness, security or maintainability given the change's goals (pstack,
   `skills/interrogate/SKILL.md`, l. 76). A bug is always act on. So is a new behaviour with no test
   that would catch it breaking (rule 13). Every act-on finding goes to one fix-forward, with an ID
-  per finding in the Reply (`references/gate.md`, The verdict). A defect that a lane filed as a
-  note is still a finding (pstack, `skills/poteto-mode/playbooks/autopilot-full.md`, l. 8). A
-  finding is proven when it identifies a concrete execution path, not a hypothetical (pstack,
-  `skills/interrogate/references/lead-judgment.md`, l. 48). Two other proofs count: the finding
-  quotes the line that breaks a rule in `references/rules.md`, or it names a doc claim the code
-  contradicts, which breaks rule 18 *(kstack: a quoted rule line or a contradicted doc is proof
-  that needs no execution path)*. A claim of fact in a decision record that cites nothing and isn't
-  common knowledge also files under rule 18 *(kstack)*.
+  per finding in the Reply (`references/gate.md`, The verdict). How it is closed is in
+  `references/gate.md`, A finding stays open until a later row closes it. A defect that a lane
+  filed as a note is still a finding (pstack, `skills/poteto-mode/playbooks/autopilot-full.md`,
+  l. 8). A finding is proven when it identifies a concrete execution path, not a hypothetical
+  (pstack, `skills/interrogate/references/lead-judgment.md`, l. 48). Two other proofs count: the
+  finding quotes the line that breaks a rule in `references/rules.md`, or it names a doc claim the
+  code contradicts, which breaks rule 18 *(kstack: a quoted rule line or a contradicted doc is
+  proof that needs no execution path)*. A claim of fact in a decision record that cites nothing and
+  isn't common knowledge also files under rule 18 *(kstack)*.
 - **consider:** a call only the person who asked can make, such as taste or product scope. It goes
   in the Reply with the options. interrogate's Consider also holds points not worth their cost right
   now (pstack, `skills/interrogate/SKILL.md`, l. 77). *(kstack: here a proven break not worth its
