@@ -9,14 +9,12 @@ say so at their own line.
 Andrej Karpathy named these failures on 26 January 2026, after shifting from about 80% manual coding
 to about 80% agent-driven coding over two months (Karpathy, 2026):
 
-- **Unchecked assumptions** — The models make wrong assumptions on your behalf and just
-  run along with them without checking. They don't manage their confusion, don't seek
-  clarifications, don't surface inconsistencies, don't present tradeoffs, don't push back
-  when they should.
-- **Over-complication** — They really like to overcomplicate code and APIs, bloat
-  abstractions, don't clean up dead code... implement a bloated construction over 1000 lines
-  when 100 would do.
-- **Orthogonal damage** — They still sometimes change/remove comments and code they don't
+- **Unchecked assumptions.** The models make wrong assumptions on your behalf and just run along
+  with them without checking. They don't manage their confusion, don't seek clarifications, don't
+  surface inconsistencies, don't present tradeoffs, don't push back when they should.
+- **Over-complication.** They really like to overcomplicate code and APIs, bloat abstractions, don't
+  clean up dead code... implement a bloated construction over 1000 lines when 100 would do.
+- **Orthogonal damage.** They still sometimes change/remove comments and code they don't
   sufficiently understand as side effects, even if orthogonal to the task.
 
 Checks 1 to 3 (understand, simplify, contain) counter these three, one each. Check 4 (verify)
@@ -31,26 +29,26 @@ warnings and code complexity (He et al., 2026). The paper measures projects, not
 Running every check on a one-line fix is kstack's reading of it. The decay builds up one edit at a
 time, so no edit is too small to check *(kstack: judgment)*.
 
-## Check 1 — understand
+## Check 1 (understand)
 
 The impact set, and the one fact that makes a change safe, follow pstack's blast-radius skill
 (pstack, `skills/blast-radius/SKILL.md`, ll. 1–35). Running it on every change is kstack's call,
 made proportional by the impact set's size.
 
-## Check 2 — simplify
+## Check 2 (simplify)
 
 Check for reuse before writing, and make the smallest change that solves the problem. Both come
 from pstack's laziness protocol, "Consolidate decisions" and "Minimize the diff" (pstack,
 `skills/principle-laziness-protocol/SKILL.md`, ll. 13–14).
 
-## Check 3 — contain: restructuring is its own diff
+## Check 3 (contain): restructuring is its own diff
 
 Code touched by refactoring performed **in conjunction with other changes** ("floss refactoring")
 is more bug-prone, and bugs appear as soon as the first later change lands on the refactored code
 (Ferreira et al., 2018). Refactoring is behaviour-preserving in theory only, and developers see it
 as costly and risky (Kim et al., 2012; Di Penta et al., 2020).
 
-## Check 4 — why green tests are not enough
+## Check 4 (verify): why green tests are not enough
 
 Line coverage does not show that a test checks what the line does. In Meta's mutation-guided test
 generation, about half (49%) of the new tests that caught a fault every existing test missed
@@ -66,9 +64,9 @@ because a change can be built right and still be the wrong change (Boehm, 1984).
 Build adds unvalidated execution to Karpathy's three because the other checks all end in a claim,
 and only a run shows the claim holds *(kstack: judgment)*.
 
-Running it at real data volume on the real device is **judgment, not measurement**. Nothing
-we found measures it. It stays because a check that cannot reach the failure is not
-evidence, and toy fixtures often cannot *(kstack: judgment)*.
+Running it at real data volume on the real device is **judgment, not measurement**. Nothing we
+found measures it. It stays because a check that cannot reach the failure is not evidence, and toy
+fixtures often cannot *(kstack: judgment)*.
 
 The author does not verify their own change. Google holds even a directory's owners to that: they
 get their code reviewed before committing (Sadowski et al., 2018).
@@ -195,8 +193,9 @@ can point at a result, but it has not been checked by anyone outside its authors
   removing unused dependencies, unnecessary features, components, files, and documentation." The
   standard industry list of web application risks.
 - **Sadowski, C., Söderberg, E., Church, L., Sipko, M., and Bacchelli, A. (2018).** Modern Code
-  Review: A Case Study at Google. ICSE-SEIP 2018, 181–190. https://doi.org/10.1145/3183519.3183525.
-  "even directory owners are expected to have their code reviewed before committing."
+  Review: A Case Study at Google. ICSE-SEIP 2018, 181–190.
+  https://doi.org/10.1145/3183519.3183525. "even directory owners are expected to have their code
+  reviewed before committing."
 - **SQLAlchemy (2026).** Relationship Loading Techniques. SQLAlchemy 2.1 Documentation.
   https://docs.sqlalchemy.org/en/21/orm/queryguide/relationships.html. "In SQLAlchemy, the usual
   mitigation for the N+1 problem is to make use of its very capable eager load system." Official

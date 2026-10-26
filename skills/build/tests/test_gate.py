@@ -13,13 +13,12 @@ needs: a known result, its model and the commit it checked, at the current patch
 fix row names its model and never the root, and that an act-on finding keeps its command. G2c keeps
 a lane's commit given short or by name as its full sha. G2d keeps a lane with build output from an
 older patch, with a note and no result or model of its own, never gates or a review lane, and
-records a gap with no commit. G2e takes
---kept-from only at a commit where the ledger holds a row of that lane from an earlier patch, and
-copies the latest one's result and model, unless it is NO-RUNTIME, which has no build output to
-keep. G2f refuses a commit whose live row a later row at its patch, at another commit, replaced,
-and keeps that later one. G2g keeps a regression lane only while the merge base with main is the
-one it ran on, and a live lane across a moved main. G4c refuses a gap lane, G4d a live lane with
-ISSUES, and G5b a gates lane standing in for a review lane.
+records a gap with no commit. G2e takes --kept-from only at a commit where the ledger holds a row of
+that lane from an earlier patch, and copies the latest one's result and model, unless it is
+NO-RUNTIME, which has no build output to keep. G2f refuses a commit whose live row a later row at
+its patch, at another commit, replaced, and keeps that later one. G2g keeps a regression lane only
+while the merge base with main is the one it ran on, and a live lane across a moved main. G4c
+refuses a gap lane, G4d a live lane with ISSUES, and G5b a gates lane standing in for a review lane.
 
 G6 holds that an act-on finding blocks and a new patch needs its lanes again, G6b that an act-on
 finding at an older patch blocks a later one and status names the patch it was recorded at, G6c that
@@ -32,10 +31,10 @@ with fixed at the later patch, and G6i with dismissed. G6j holds that fixed at a
 the finding open at its own patch, so a reset back to it is not clean and land refuses, G6k the
 same for a revert, and G6l refuses fixed where the finding's own row at this patch is act-on.
 G6m and G6n hold that an older closing row at a patch never hides a newer act-on row recorded at
-another, so a reset back to the closing row's patch is not clean and land refuses. G7
-counts failed corrections and says STOP at two (G7a: not at one; G7c: also for a finding carried
-open to a patch with no row of its own; G7b: not for a finding no longer act-on at the current
-patch, whose count stays).
+another, so a reset back to the closing row's patch is not clean and land refuses. G7 counts
+failed corrections and says STOP at two. G7a holds that it does not say STOP at one, G7c that it
+says STOP for a finding carried open to a patch with no row of its own, and G7b that it does not
+for a finding no longer act-on at the current patch, whose count stays.
 
 G8 refuses to land without a clean verdict. G9 lands past a main that moved on paths the change
 does not touch, on main's new commit, and the verdict line names the move. G9b refuses a new head
@@ -43,11 +42,12 @@ that keeps the patch until the gates lane runs again at it, and G9c refuses an e
 main moved, G9d refuses when main changed a path the change touches, G9e when the merge of main and
 the head conflicts, and G9f when main changed a path that GATE_CHECK_PATHS names, which G9g reads
 from the repository top when landing from a subfolder. G9h refuses past a moved main when the gates
-lane ran on a base that was not main's tip, and G9i lands once it ran on the rebased head. G9j
-reads the main a row recorded in a ledger whose header predates that column.
+lane was recorded while main's tip was not the head's merge base, and G9i lands once it was recorded
+on the rebased head. G9j reads the main a row recorded in a ledger whose header predates that
+column.
 
 G10 lands one commit carrying the verdict, each lane with the commit it checked and each fixer with
-its model, from a subfolder of the branch's worktree, and updates main's worktree; G10b deletes the
+its model, from a subfolder of the branch's worktree, and updates main's worktree. G10b deletes the
 ledger once it has, G10c lands a kept live lane at the commit it checked, its note saying so, and
 G10d keeps the ledger of another branch the same worktree had checked out, and the folder they
 share. G10e prints the commands that remove the whole worktree, then delete the branch, which run
@@ -63,7 +63,7 @@ and G17b refuses to record in main's worktree, whose git folder is the repositor
 refuses to record anywhere when git echoes --path-format back, as git before 2.31 does, or drops it
 and names a git folder by a relative path, and G17d in a main worktree whose path holds a newline.
 G18 holds that a record waits for another writer's lock on the ledger, so a ledger two writers
-begin at once has one header, first, and G18b that an empty ledger file gets the header first; G1
+begin at once has one header, first, and G18b that an empty ledger file gets the header first. G1
 reads a ledger not yet written as an empty one.
 """
 

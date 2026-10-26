@@ -50,7 +50,7 @@ agent that wrote it, never `root`. GATE_MAIN names the main branch (default `mai
 
 When main moved since the merge base, `land` refuses, naming the check, unless three checks pass.
 The gates row at the head must have recorded main's tip equal to the head's merge base, so the
-gates lane ran on a head rebased onto the main of its time. Then pstack's two merge checks:
+gates lane was recorded on a head rebased onto the main of its time. Then pstack's two merge checks:
 `git merge-tree --write-tree` of main and the head must be clean, and no path main changed since
 the merge base may be a path the patch changes, or a path that GATE_CHECK_PATHS names
 (space-separated git pathspecs, read from the repository's top, for the files that decide which
@@ -93,7 +93,7 @@ RESULTS = {
 
 
 def git_bytes(*args: str, cwd: str | None = None, stdin: bytes | None = None) -> bytes:
-    """git's stdout as bytes; a failing git prints its own message and exits with its code."""
+    """git's stdout as bytes. A failing git prints its own message and exits with its code."""
     p = subprocess.run(['git', *args], cwd=cwd, input=stdin, capture_output=True)
     if p.returncode:
         sys.stderr.write(f'gate: git {args[0]} failed\n{text(p.stderr)}')
@@ -102,7 +102,7 @@ def git_bytes(*args: str, cwd: str | None = None, stdin: bytes | None = None) ->
 
 
 def text(raw: bytes) -> str:
-    """Bytes git wrote as text; a name or path that is not UTF-8 keeps its bytes."""
+    """Bytes git wrote as text. A name or path that is not UTF-8 keeps its bytes."""
     return raw.decode('utf-8', 'surrogateescape')
 
 
@@ -140,7 +140,7 @@ def ledger_path(branch: str) -> str:
 
 
 def read_rows(path: str) -> list[dict]:
-    """The ledger's rows; a ledger not yet written, or deleted by `land`, has none."""
+    """The ledger's rows. A ledger not yet written, or deleted by `land`, has none."""
     try:
         with open(path, newline='') as f:
             rows = list(csv.DictReader(f, delimiter='\t', restkey='main'))
@@ -164,7 +164,7 @@ def refuse(why: str) -> int:
 
 
 def branch_at() -> dict:
-    """where(), for a row's branch; a detached HEAD, main's worktree or old git exits 2."""
+    """where(), for a row's branch. A detached HEAD, main's worktree or old git exits 2."""
     at = where()
     if at['branch'] == 'HEAD':
         sys.exit(refuse('HEAD is detached; record from the branch being gated'))
@@ -259,7 +259,7 @@ def keep(kind: str, name: str, result: str, model: str, cmd: str, note: str, sha
 
 
 def latest(rows: list[dict], kind: str, patch: str | None = None) -> dict[str, dict]:
-    """The last row of `kind` at `patch`, or at any patch, for each name; a later row supersedes."""
+    """The last row of `kind` at `patch`, or at any patch, for each name. A later row supersedes."""
     out: dict[str, dict] = {}
     for r in rows:
         if r['kind'] == kind and patch in (None, r['patch']):
@@ -268,8 +268,7 @@ def latest(rows: list[dict], kind: str, patch: str | None = None) -> dict[str, d
 
 
 def findings_at(rows: list[dict], patch: str) -> dict[str, dict]:
-    """
-    Each finding's deciding row at `patch`: open when its latest row there or anywhere is act-on.
+    """Each finding's deciding row at `patch`: open when its latest row there or anywhere is act-on.
 
     Notes
     -----
@@ -369,7 +368,8 @@ def merge_past(base: str, tip: str, head: str) -> tuple[str, str]:
         return '', f'git merge-tree of it and the head is not clean:\n{text(p.stdout + p.stderr)}'
     if p.returncode:
         return '', (f'git merge-tree failed with exit {p.returncode}, so the merge went unchecked; '
-                    f'--write-tree needs git 2.38 or later:\n{text(p.stderr)}')
+                    f'one possible cause is a git older than 2.38, which --write-tree needs:'
+                    f'\n{text(p.stderr)}')
     both = changed(base, tip) & changed(base, head)
     if both:
         return '', 'it changed paths the patch changes: ' + ', '.join(sorted(both))
@@ -397,8 +397,8 @@ def land(message_file: str) -> int:
     tree = git('rev-parse', f"{at['head']}^{{tree}}")
     if at['base'] != tip and lanes['gates'].get('main') != at['base']:
         print(f"gate: not landing, {main_ref()} moved since the merge base, and the gates lane at "
-              f"this head ran while {main_ref()} was not that base. Rebase onto {main_ref()}, "
-              'rerun the gates lane, then land.', file=sys.stderr)
+              f"this head was recorded while {main_ref()} was not that base. Rebase onto "
+              f"{main_ref()}, rerun the gates lane, then land.", file=sys.stderr)
         return 1
     if at['base'] != tip:
         tree, why = merge_past(at['base'], tip, at['head'])

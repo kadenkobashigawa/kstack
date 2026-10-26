@@ -88,12 +88,11 @@ carries out and who does it.
    `references/gate.md` takes this from autopilot-full, "Run owners in true parallel and never
    stack" (pstack, `skills/poteto-mode/playbooks/autopilot-full.md`, l. 7).
 7. **Interrogate a contested design.** pstack: "If the design is contested, `interrogate` before
-   shipping." (pstack, `skills/poteto-mode/playbooks/feature.md`, l. 16) Run it only when step 2
-   did not already interrogate the sketch, so a design is interrogated once. pstack
-   interrogates the built change here, and architect's interrogation of the sketch is optional
-   (pstack, `skills/architect/SKILL.md`, l. 49), so pstack can run both. *(kstack: a second pass
-   repeats what the sketch's reviewers already sorted, and the gate still reviews the built
-   change.)* Carries out
+   shipping." (pstack, `skills/poteto-mode/playbooks/feature.md`, l. 16) Run it only when step 2 did
+   not already interrogate the sketch, so a design is interrogated once. pstack interrogates the
+   built change here, and architect's interrogation of the sketch is optional (pstack,
+   `skills/architect/SKILL.md`, l. 49), so pstack can run both. *(kstack: a second pass repeats what
+   the sketch's reviewers already sorted, and the gate still reviews the built change.)* Carries out
    check 4 (verify), whose reviewers never wrote the change. It runs over the built change the way
    `references/design.md`, Interrogate the sketch, runs over a sketch. Two read-only reviewers, one
    Opus and one Sonnet, get `references/rules.md` as the rubric, and the root sorts their findings

@@ -61,13 +61,12 @@ checkout of that commit:
 2. review the diff in two lanes on two models (Opus for correctness, Sonnet for structure), and
 3. compare the result with `main`.
 
-`skills/build/scripts/gate.py` records each lane's result in the
-branch's ledger. A clean verdict merges the change into local `main` under a standing grant, as in
-pstack's autopilot-full. `gate.py land` makes that merge as one commit whose message carries a
-`GATE VERDICT:` line, and it refuses without a clean verdict. When `main` has moved since the
-branch's base, it lands only if the merge is clean and `main` changed no file the change touches.
-A change you named, or asked to see first, stops at merge-ready. Pushing stays yours, and build
-never deploys.
+`skills/build/scripts/gate.py` records each lane's result in the branch's ledger. A clean verdict
+merges the change into local `main` under a standing grant, as in pstack's autopilot-full.
+`gate.py land` makes that merge as one commit whose message carries a `GATE VERDICT:` line, and it
+refuses without a clean verdict. When `main` has moved since the branch's base, it lands only if the
+merge is clean and `main` changed no file the change touches. A change you named, or asked to see
+first, stops at merge-ready. Pushing stays yours, and build never deploys.
 
 ## What happens to findings
 
@@ -99,9 +98,9 @@ you can type, and which turns the mistake into a hook, lint rule or test.
   skill's script but are no longer in `hooks.json`, and leaves every other hook alone. A kstack
   skill is one the checkout holds, or one whose `~/.claude/skills` link, live or dead, points into
   the checkout's `skills/`, so a retired skill's hook goes too, even when git-ignored files keep its
-  folder there. It then removes each dead link in
-  `~/.claude/skills` that points into the checkout's `skills/`, and each in `~/.claude/agents` that
-  points into its `agents/`. A link into anywhere else, `upstream/` included, stays.
+  folder there. It then removes each dead link in `~/.claude/skills` that points into the checkout's
+  `skills/`, and each in `~/.claude/agents` that points into its `agents/`. A link into anywhere
+  else, `upstream/` included, stays.
 - **`apps/<name>`** holds programs that are not skills, as pstack keeps benny under
   `automations/`. `apps/robovac-widget` is the Robovac app.
 - **`upstream/`** holds pstack, four of Cursor's plugins and part of Matt Pocock's skills exactly as
@@ -112,19 +111,32 @@ you can type, and which turns the mistake into a hook, lint rule or test.
 
 ## Where each skill comes from
 
-| Skill | Built from |
-|---|---|
-| `build` | Ours, plus pstack's poteto-mode (one playbook per change, its triggers, Autonomy and Subagents) and its feature, bug-fix, refactoring, perf-issue, autonomous-run and prototype playbooks. Also pstack's architect, interrogate, blast-radius, tdd, benchmark-checklist, technical-writing and show-me-your-work skills, and its principles, attack-the-premise among them. The gate comes from pstack's autopilot-full, shipping and swarm. The code rules come from interrogate's rubric, OWASP, the OpenSSF Scorecard and the Twelve-Factor App. |
-| `elon` | Ours. |
-| `teach` | Ours, plus the machine-written tells from pstack's unslop. |
-| `write-report` | kstack's own. Its layout's values trace to Sphinx's LaTeX output, DocBook XSL-FO, the PostgreSQL manual and the Read the Docs theme, and its prose step reads kstack's technical-writing and unslop. |
-| `robovac` | New, drawing on pstack's authoring-a-skill (delegation), autopilot-stack (the `/loop` cadence), autonomous-run and orchestrate (one task, the rest left for later), autopilot-full (the merge grant), and the stop rules of pause-safely and create-verification-skill. |
-| `clorox` | pstack's worktree-cleanup and build-the-lever, the CACHEDIR.TAG spec, PEP 3147 and Claude Code's trash rule. |
-| `stack-check` | pstack's reflect, its templates kept verbatim with Claude Code's names, plus two lines of kstack's own, and its tooling lens run on Sonnet. The 7-day window is pstack's recall default. |
-| `correct` | pstack's correct and encode-lessons. |
-| `polish` | Ours. |
-| `unslop` | pstack's unslop, copied verbatim. |
-| `technical-writing` | pstack's technical-writing, copied verbatim. |
-| `create-verification-skill` | pstack's, translated to `.claude/skills/`, plus a data rule from our first verify skill. |
-| `maintain-verification-skill` | pstack's, translated to end in a commit rather than a PR. |
-| `improve-codebase-architecture` | Matt Pocock's, with the codebase-design, grilling and domain-modeling skills it calls carried as references, and grilling's rounds asked through AskUserQuestion. |
+- `build`: Ours, plus pstack's poteto-mode (one playbook per change, its triggers, Autonomy and
+  Subagents) and its feature, bug-fix, refactoring, perf-issue, autonomous-run and prototype
+  playbooks. Also pstack's architect, interrogate, blast-radius, tdd, benchmark-checklist,
+  technical-writing and show-me-your-work skills, and its principles, attack-the-premise among them.
+  The gate comes from pstack's autopilot-full, shipping and swarm. The code rules come from
+  interrogate's rubric, OWASP, the OpenSSF Scorecard and the Twelve-Factor App.
+- `elon`: Ours.
+- `teach`: Ours, plus the machine-written tells from pstack's unslop.
+- `write-report`: kstack's own. Its layout's values trace to Sphinx's LaTeX output, DocBook XSL-FO,
+  the PostgreSQL manual and the Read the Docs theme, and its prose step reads kstack's
+  technical-writing and unslop.
+- `robovac`: New, drawing on pstack's authoring-a-skill (delegation), autopilot-stack (the `/loop`
+  cadence), autonomous-run and orchestrate (one task, the rest left for later), autopilot-full (the
+  merge grant), and the stop rules of pause-safely and create-verification-skill.
+- `clorox`: pstack's worktree-cleanup and build-the-lever, the CACHEDIR.TAG spec, PEP 3147 and
+  Claude Code's trash rule.
+- `stack-check`: pstack's reflect, its templates kept verbatim with Claude Code's names, plus two
+  lines of kstack's own, and its tooling lens run on Sonnet. The 7-day window is pstack's recall
+  default.
+- `correct`: pstack's correct and encode-lessons.
+- `polish`: Ours.
+- `unslop`: pstack's unslop, copied verbatim.
+- `technical-writing`: pstack's technical-writing, copied verbatim.
+- `create-verification-skill`: pstack's, translated to `.claude/skills/`, plus a data rule from our
+  first verify skill.
+- `maintain-verification-skill`: pstack's, translated to end in a commit rather than a PR.
+- `improve-codebase-architecture`: Matt Pocock's, with the codebase-design, grilling and
+  domain-modeling skills it calls carried as references, and grilling's rounds asked through
+  AskUserQuestion.

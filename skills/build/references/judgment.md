@@ -70,7 +70,7 @@ and marks where its contents depart from interrogate.
   commit's message. When the project's instruction file names a backlog for findings, it also goes
   there, committed to main right after the merge *(kstack: a commit on the branch would change its
   patch and void the verdict)*. pstack parks such follow-ups in the team's own tracker (pstack,
-  `skills/reflect/SKILL.md`, l. 55); a project with none keeps no backlog. *(kstack: when every
+  `skills/reflect/SKILL.md`, l. 55). A project with none keeps no backlog. *(kstack: when every
   proven break went to a fix round, rounds ran to six or seven, per `references/evidence.md`, Run
   evidence behind the gate.)* Queue also holds a proven defect in code or text the change didn't
   write. To confirm that, the lead reruns the finding at the base commit, with its repro, its test

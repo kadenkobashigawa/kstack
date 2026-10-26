@@ -19,10 +19,9 @@ build to merge, and is gated and merged alone (pstack,
 worktree. Run branches in parallel and never stack them. Many run at once when each has one
 writer and disjoint files, and a rebase absorbs the drift between them. A self-contained branch
 starts from main, and sequenced work merges before the next branch starts. Only overlapping work
-serializes (pstack,
-`skills/poteto-mode/playbooks/autopilot-full.md`, l. 7). A change that touches a file another
-unmerged branch touches waits for that branch to merge, then branches off the new main. *(kstack,
-the translation: pstack's unit is a PR, and here it is a local branch.)*
+serializes (pstack, `skills/poteto-mode/playbooks/autopilot-full.md`, l. 7). A change that touches
+a file another unmerged branch touches waits for that branch to merge, then branches off the new
+main. *(kstack, the translation: pstack's unit is a PR, and here it is a local branch.)*
 
 A round's findings against the change go back in one fix-forward on the change's own branch, which
 keeps its merge base (pstack, `skills/poteto-mode/playbooks/autopilot-full.md`, l. 6). A defect
@@ -102,12 +101,12 @@ round starts at a commit, not a push.)*
    `skills/interrogate/references/reviewer-prompt.md`, ll. 35–38). The full brief (SKILL.md, The
    brief) carries the change's stated intent and the rules in CONTEXT, and the run's never-list,
    which says what the run may not read or touch, in FORBIDDEN. Its CONTEXT also carries every
-   capability the change drops, with who approves each loss:
-   the person who asked, or this verdict under the operator's grant, per check 2 in
-   `references/simplify.md` *(kstack, as that rule is)*. pstack draws its adversarial signal from
-   different model families (pstack, `skills/interrogate/SKILL.md`, ll. 9, 38–41). *(kstack: Claude
-   Code runs only Claude models, so the lanes use different Claude models, such as Opus and Sonnet,
-   and name which ran. That diversity is weaker than pstack's.)*
+   capability the change drops, with who approves each loss, the person who asked or this verdict
+   under the operator's grant, per check 2 in `references/simplify.md` *(kstack, as that rule is)*.
+   pstack draws its adversarial signal from different model families (pstack,
+   `skills/interrogate/SKILL.md`, ll. 9, 38–41). *(kstack: Claude Code runs only Claude models, so
+   the lanes use different Claude models, such as Opus and Sonnet, and name which ran. That
+   diversity is weaker than pstack's.)*
 4. **Regression: run the same load-bearing scenario on current trunk**, whenever the live lane ran.
    If trunk does not have the feature, record that, and gate the behaviour the diff adds plus the
    end state the user waits for. Do not pretend trunk can produce it (pstack,
@@ -161,9 +160,9 @@ writes no fix (A fresh agent writes the fix, below). *(kstack: interrogate's lea
 agent, but the root has already read every report, and separate lead agents cost tokens, per
 `references/evidence.md`, Run evidence behind the gate.)*
 
-**No bug is held back to save a round.** *(kstack: the person who asked said
-to fix a bug rather than defer it, per `references/evidence.md`, Run evidence behind the gate.)* A
-round whose findings are all nits is a clean verdict, and its nits go in the Reply.
+**No bug is held back to save a round.** *(kstack: the person who asked said to fix a bug rather
+than defer it, per `references/evidence.md`, Run evidence behind the gate.)* A round whose findings
+are all nits is a clean verdict, and its nits go in the Reply.
 
 **A clean verdict** means that, at the head that lands, no lane is BLOCKED or a gap, the gates lane
 passed at that head, the live lane passed or the change has no runtime surface, the regression lane
@@ -252,12 +251,12 @@ before merging, compare the recorded patch-id with the current one,
 - **They match.** Keep the code verdict, but re-run the checks at the current head. Never accept
   matching commit messages or a green check from an older SHA instead (pstack,
   `skills/poteto-mode/playbooks/shipping.md`, l. 9).
-- **They differ only in tests, docs, or lint config.** Build what each lane ran, twice at the
-  verdict SHA and once at the current head. A difference is noise if the two builds at the verdict
-  SHA also show it, or if it is an embedded commit SHA. Judge each difference, not each file, and
-  report each kind of noise with its files. If only noise differs, that lane's result stays valid,
-  and checks and a review of the change run fresh. Do not reuse a lane result from a dev server or
-  from anything else with no build output. Rerun that lane (pstack,
+- **They differ only in tests, docs, or lint config.** Build what each lane ran. Build it twice at
+  the verdict SHA and once at the current head. A difference is noise if the two builds at the
+  verdict SHA also show it, or if it is an embedded commit SHA. Judge each difference, not each
+  file, and report each kind of noise with its files. If only noise differs, that lane's result
+  stays valid, and checks and a review of the change run fresh. Do not reuse a lane result from a
+  dev server or from anything else with no build output. Rerun that lane (pstack,
   `skills/poteto-mode/playbooks/shipping.md`, l. 9). *(kstack, the translation: a lane with build
   output is a live or regression drive of a build, and it is kept by the noise test with
   `gate.py record lane <name> --kept-from <sha> --note <the noise found>`. A regression lane runs

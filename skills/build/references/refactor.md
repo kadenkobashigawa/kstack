@@ -37,14 +37,13 @@ code does is a redesign. Name it, and run it through `references/feature.md`.
    `skills/poteto-mode/playbooks/refactoring.md`, l. 8) The reshape must delete branches or invalid
    states, not add a layer (pstack, `skills/poteto-mode/playbooks/refactoring.md`, l. 8). Then state
    what the module layout and call graph would be if built today (pstack,
-   `skills/poteto-mode/playbooks/refactoring.md`, l. 9).
-   Carries out check 2 (simplify). The root names the shape. pstack's playbook runs architect when
-   "the target crosses a function boundary" (pstack, `skills/poteto-mode/playbooks/refactoring.md`,
-   l. 9). Here `references/design.md`, the sketch step, runs first. Its subagents sketch two
-   candidates *(kstack: `references/design.md`, Design it twice, says why it runs on Opus and
-   Sonnet)*, and it checks a shape new to the codebase against prior art
-   (`references/prior-art.md`). *(kstack: judgment. This step merges pstack's steps 2 and 3, which
-   name the missing structure and then the target shape.)*
+   `skills/poteto-mode/playbooks/refactoring.md`, l. 9). Carries out check 2 (simplify). The root
+   names the shape. pstack's playbook runs architect when "the target crosses a function boundary"
+   (pstack, `skills/poteto-mode/playbooks/refactoring.md`, l. 9). Here `references/design.md`, the
+   sketch step, runs first. Its subagents sketch two candidates *(kstack: `references/design.md`,
+   Design it twice, says why it runs on Opus and Sonnet)*, and it checks a shape new to the codebase
+   against prior art (`references/prior-art.md`). *(kstack: judgment. This step merges pstack's
+   steps 2 and 3, which name the missing structure and then the target shape.)*
 4. **Subtract before you add.** Delete dead code, collapse one-caller wrappers, drop redundant
    validators, remove orphaned references, then introduce the new shape (pstack,
    `skills/poteto-mode/playbooks/refactoring.md`, l. 10). The smallest change that reaches the

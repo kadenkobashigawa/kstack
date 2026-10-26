@@ -46,8 +46,8 @@ one first)*. Why each check exists is in `references/evidence.md`.
   pstack opens a PR, since build merges locally, `references/gate.md`, Merge preparation.)*
 - **Long or unattended work (`/loop`, or the user away) → `references/long-run.md`** around the
   routed playbook, with its decision trail per pstack's show-me-your-work skill (pstack,
-  `skills/poteto-mode/playbooks/autonomous-run.md`, l. 9;
-  `skills/poteto-mode/SKILL.md`, ll. 36, 139).
+  `skills/poteto-mode/playbooks/autonomous-run.md`, l. 9; pstack, `skills/poteto-mode/SKILL.md`,
+  ll. 36, 139).
 
 ## Playbooks
 

@@ -1,4 +1,4 @@
-## Check 4 (verify) counters unvalidated execution
+# Check 4 (verify) counters unvalidated execution
 
 Write the test before the code it checks, because a test written to fit flawed code checks for the
 flaw (pstack, `skills/tdd/SKILL.md`, ll. 17–18). Writing it first still isn't verification.
@@ -7,12 +7,12 @@ Verification is these steps:
 - **Run the risk list.** Run every test covering every reference you named, not only the new test.
 - **Mutate the changed lines.** Break each on purpose and confirm something fails. A passing suite
   doesn't prove the tests check what those lines do (Foster et al., 2025).
-- **Run the whole thing, the way it runs for real.** Run the full path, at real data volume, on
-  the real device, not the unit or a stand-in. The failure this check is named after is
-  "should work" (pstack, `skills/principle-prove-it-works/SKILL.md`, l. 9). When the
-  project has a verify skill (`verify-<app>`), use it to drive the app the way a user would. It
-  compares a baseline build with the changed build and returns VERIFIED, NOT VERIFIED or
-  INCONCLUSIVE. Never report INCONCLUSIVE as a pass.
+- **Run the whole thing, the way it runs for real.** Run the full path, at real data volume, on the
+  real device, not the unit or a stand-in. The failure this check is named after is "should work"
+  (pstack, `skills/principle-prove-it-works/SKILL.md`, l. 9). When the project has a verify skill
+  (`verify-<app>`), use it to drive the app the way a user would. It compares a baseline build with
+  the changed build and returns VERIFIED, NOT VERIFIED or INCONCLUSIVE. Never report INCONCLUSIVE as
+  a pass.
 - **Judge the result against the interpretation, not against the change's own tests.** Check 1
   wrote down what this change should mean. Passing the writer's own tests is a weaker claim than
   doing the thing that was asked. A change can be correct on its own terms and still not be the
@@ -33,9 +33,9 @@ came back. When a condition is out of reach, such as a deploy, production data v
 device, say so. The failure this check is named after is "I couldn't reach it" quietly turning into
 "it passed" *(kstack: judgment, not measurement)*.
 
-**Satisfied when** the risk list is green, every changed line has a mutant that something
-catches, the whole path ran for real, the result matches the written interpretation, and you
-have shown the evidence rather than summarized it. A passing suite is never the only evidence.
+**Satisfied when** the risk list is green, every changed line has a mutant that something catches,
+the whole path ran for real, the result matches the written interpretation, and you have shown the
+evidence rather than summarized it. A passing suite is never the only evidence.
 
 ## Verify a change in this order
 
@@ -43,8 +43,8 @@ These are check 4's mechanics, ordered by what each catches, not by cost.
 
 ### Run the risk list first
 
-Check 1 gave you the tests covering every reference you're disturbing. Run those, not just the
-new test.
+Check 1 gave you the tests covering every reference you're disturbing. Run those, not just the new
+test.
 
 A reference with no test covering it is a finding. Say so. Don't let an absent test read as a
 passing one.
@@ -57,21 +57,20 @@ suite had already run that line and passed (Foster et al., 2025).
 
 Scope it to the lines you changed. Don't chase a global mutation score.
 
-Practical forms: flip a comparison, swap a boundary, drop a clause, return a constant, skip
-a side effect. If nothing fails, the assertion is decorative.
+Practical forms: flip a comparison, swap a boundary, drop a clause, return a constant, skip a side
+effect. If nothing fails, the assertion is decorative.
 
-Mutation is one of the risky operations check 5 means, since it breaks working code on purpose
-and then restores it. Commit a checkpoint first.
+Mutation is one of the risky operations check 5 means, since it breaks working code on purpose and
+then restores it. Commit a checkpoint first.
 
 ### Run the whole thing, and judge it against the interpretation
 
-**Conditions.** Real data volume, the real path, the real device. A view that renders
-nothing at real scale is a failure to investigate, not a passing check. Ask of every check:
-*can this actually reach the thing that would break, under the conditions it really runs
-in?*
+**Conditions.** Real data volume, the real path, the real device. A view that renders nothing at
+real scale is a failure to investigate, not a passing check. Ask of every check: *can this actually
+reach the thing that would break, under the conditions it really runs in?*
 
-**Scope and acceptance.** Run the change the way it is actually reached, through the whole path
-a person or caller takes to get to it. Judge the result against the written interpretation from
+**Scope and acceptance.** Run the change the way it is actually reached, through the whole path a
+person or caller takes to get to it. Judge the result against the written interpretation from
 check 1, not against the change's own tests. Those tests share the writer's misunderstanding if it
 had one. The interpretation is what the change was supposed to mean.
 
