@@ -1,74 +1,33 @@
 #!/usr/bin/env python3
 """
 gate.py keeps a branch's gate verdict in a ledger, and lands the branch on main once the verdict
-is clean. Run it from inside the branch's linked worktree.
+is clean. Run it from inside the branch's linked worktree. references/gate.md holds the rules this
+script enforces: what a clean verdict needs, when a lane is kept from an earlier patch, when a
+finding is open, and when `land` merges past a moved main.
 
-  gate.py record lane <name> <PASS|ISSUES|BLOCKED|gap|NO-RUNTIME> --model M --at SHA [--note T]
-                          a gap names no commit, so it takes no --at
+  gate.py record lane <name> <RESULT> --model M --at SHA [--note T]
+                          RESULT is PASS, ISSUES, BLOCKED, NO-RUNTIME, or NO-TRUNK-FEATURE (the
+                          regression lane only, with --note); M is opus, sonnet, haiku or fable,
+                          or root on the gates lane
+  gate.py record lane <name> gap --model M [--note T]
   gate.py record lane <name> --kept-from SHA --note T
-                          keeps the lane's row at SHA, from an earlier patch, at this one; never
-                          gates or a review lane
   gate.py record finding <id> <act-on|consider|queue|dismissed|nit|fixed> [--cmd C] [--note T]
-                          fixed closes a finding left act-on at an earlier patch, once a later
-                          round's lanes found its sites clean
+                          --cmd C is required for act-on: the command that finds its sites
   gate.py record fix <agent> fixed --model M [--note T]
-  gate.py status          prints the current patch's lanes, whether its verdict is clean and why
-                          not, each open finding with the patch it was recorded at when that
-                          is an earlier one, and each finding's failed corrections, with STOP at
-                          two for a finding still open at the current patch. Exits 0 on a
-                          clean verdict and 1 otherwise
-  gate.py land FILE       refuses an empty patch or a verdict that is not clean. Otherwise it
-                          commits the head's tree on main with FILE's message and the verdict,
-                          deletes the ledger, and prints the commands that remove the worktree,
-                          then the branch. Past a main that moved since the merge base, it commits
-                          the merge of main and the head instead, when the checks below pass
+  gate.py status
+  gate.py land FILE       FILE holds the commit message; the verdict is appended to it
 
-A clean verdict for the current patch needs these lanes, by name:
+Exit codes: `record` exits 0, or 2 when it refuses. `status` exits 0 on a clean verdict and 1
+otherwise. `land` exits 0 once main holds the commit, and 1 when it refuses. A failing git exits
+with git's code. GATE_MAIN names the main branch (default `main`), and GATE_CHECK_PATHS holds the
+space-separated pathspecs, read from the repository's top, that decide which checks run.
 
-  gates                   PASS at the current head
-  live                    PASS, or NO-RUNTIME
-  regression              PASS, whenever live passed
-  review...               PASS or ISSUES, on two models, each recorded with --at at this patch
-
-No lane may be BLOCKED or a gap, and no finding may be open at the current patch.
-
---at names the commit a lane checked, and that commit must carry the current patch. A gap names
-none. When the patches differ only in tests, docs or lint config, the patch-id rule keeps a lane
-whose build output differs only in noise, and the root judges that from its builds. gate.py refuses
-to keep the gates lane, the checks, which run fresh at every head, and a review lane, which reads
-source and has no build output, so the review of the change runs fresh. It refuses to keep a
-regression lane once the merge base with main differs from the one the kept commit had, since that
-lane ran on a main that is no longer current. --kept-from names the commit the lane checked, at an
-earlier patch, and the latest row of that lane at that patch must have checked it. gate.py copies
-that row's result and model into a new row at this patch. Its note names the commit and, from
---note, the reason. A NO-RUNTIME row drove nothing, so it has no build output to keep, and you
-record it again with --at. An act-on finding keeps the command that finds its sites (--cmd).
-references/gate.md, A finding stays open until a later row closes it, says when a finding is open
-at a patch and how it is closed. Keep a finding's id across rounds, because an id recorded act-on
-again at a later patch is a failed correction, and one carried open is not. A fix names the fresh
-agent that wrote it, never `root`. GATE_MAIN names the main branch (default `main`).
-
-When main moved since the merge base, `land` refuses, naming the check, unless three checks pass.
-The gates row at the head must have recorded main's tip equal to the head's merge base, so the
-gates lane was recorded on a head rebased onto the main of its time. Then pstack's two merge checks:
-`git merge-tree --write-tree` of main and the head must be clean, and no path main changed since
-the merge base may be a path the patch changes, or a path that GATE_CHECK_PATHS names
-(space-separated git pathspecs, read from the repository's top, for the files that decide which
-checks run, default empty). The fix for a refusal is a rebase. When all pass, it commits the merged
-tree on main's tip, and the verdict line names the base and the tip main had moved to. It needs
-git 2.38 or later for `merge-tree --write-tree`. Main moving during the landing refuses it.
-
-The ledger is one TSV per branch, `kstack-gate/<branch>.tsv` with each `/` written as `__`, in the
-worktree's own git folder (`git rev-parse --absolute-git-dir`). It sits outside the work tree, so
-no commit picks it up, and removing the worktree removes it. The same branch name in a new worktree
-starts with an empty ledger, and `land` deletes the ledger once main holds the verdict. `record`
-refuses a detached HEAD. It also refuses the main worktree, whose git folder is the repository's
-own and outlives a deleted branch. git before 2.31 cannot tell the main worktree apart, so there
-`record` refuses everywhere. A lane row carries the commit it checked, and any other row carries
-the head. Every row carries main's tip when it was written, and the stable patch-id of the
-branch's diff from its merge base with main. A lane counts only at the patch its row carries, so a
-new patch needs its lanes again, while a finding's state at a patch is its latest row there, else
-its latest row at any patch. gate.py only appends rows, and a later row for a lane or a finding
+The ledger is one TSV per branch, `kstack-gate/<branch>.tsv` with the branch name percent-encoded,
+in the worktree's own git folder (`git rev-parse --absolute-git-dir`). It sits outside the work
+tree, so no commit picks it up, and removing the worktree removes it. Its columns are COLUMNS
+below. A lane row's head is the commit it checked, and any other row's head is the branch's head.
+patch is the stable patch-id of the branch's diff from its merge base with main, and main is main's
+tip when the row was written. gate.py only appends rows, and a later row for a lane or a finding
 supersedes the earlier ones.
 """
 
@@ -82,14 +41,16 @@ import os
 import shlex
 import subprocess
 import sys
+import urllib.parse
 
 
 COLUMNS = ['ts', 'head', 'patch', 'kind', 'name', 'model', 'result', 'cmd', 'note', 'main']
 RESULTS = {
-    'lane':    {'PASS', 'ISSUES', 'BLOCKED', 'gap', 'NO-RUNTIME'},
+    'lane':    {'PASS', 'ISSUES', 'BLOCKED', 'gap', 'NO-RUNTIME', 'NO-TRUNK-FEATURE'},
     'finding': {'act-on', 'consider', 'queue', 'dismissed', 'nit', 'fixed'},
     'fix':     {'fixed'},
 }
+MODELS = ('opus', 'sonnet', 'haiku', 'fable')
 
 
 def git_bytes(*args: str, cwd: str | None = None, stdin: bytes | None = None) -> bytes:
@@ -129,29 +90,43 @@ def where() -> dict:
     """The branch, its head, its merge base with main and its stable patch-id."""
     head        = git('rev-parse', 'HEAD')
     base, patch = patch_of(head)
-    return {'branch': git('rev-parse', '--abbrev-ref', 'HEAD'), 'head': head, 'base': base,
-            'patch': patch}
+    return {'branch': branch(), 'head': head, 'base': base, 'patch': patch}
+
+
+def branch() -> str:
+    """The checked-out branch's full name, or 'HEAD' when HEAD is detached."""
+
+    #read the full ref, since a short name is `heads/x` when a tag `x` exists...
+    p = subprocess.run(['git', 'symbolic-ref', '-q', 'HEAD'], capture_output=True)
+    ref = text(p.stdout).strip()
+    return ref[len('refs/heads/'):] if ref.startswith('refs/heads/') else 'HEAD'
 
 
 def ledger_path(branch: str) -> str:
     """`branch`'s ledger, in this worktree's own git folder, which goes when the worktree does."""
-    name = branch.replace('/', '__') + '.tsv'
-    return os.path.join(git('rev-parse', '--absolute-git-dir'), 'kstack-gate', name)
+
+    #percent-encode every byte but letters, digits and `_.-~`, so no two branches share a file...
+    name   = urllib.parse.quote(branch.encode('utf-8', 'surrogateescape'), safe='') + '.tsv'
+    folder = os.path.join(git('rev-parse', '--absolute-git-dir'), 'kstack-gate')
+    path   = os.path.join(folder, name)
+    stem   = branch.replace('/', '__')
+    old    = os.path.join(folder, stem + '.tsv')
+
+    #the old name is also branch `a__b`'s own, so a ledger moves only when no such branch lives...
+    ref  = ['git', 'show-ref', '--verify', '--quiet', f'refs/heads/{stem}']
+    live = subprocess.run(ref, capture_output=True).returncode == 0
+    if '/' in branch and not live and not os.path.exists(path) and os.path.exists(old):
+        os.replace(old, path)
+    return path
 
 
 def read_rows(path: str) -> list[dict]:
     """The ledger's rows. A ledger not yet written, or deleted by `land`, has none."""
     try:
         with open(path, newline='') as f:
-            rows = list(csv.DictReader(f, delimiter='\t', restkey='main'))
+            return list(csv.DictReader(f, delimiter='\t'))
     except FileNotFoundError:
         return []
-
-    #a ledger begun before the main column holds a later row's main as its one extra field...
-    for r in rows:
-        if isinstance(r.get('main'), list):
-            r['main'] = r['main'][0]
-    return rows
 
 
 def one_line(s: str) -> str:
@@ -197,10 +172,22 @@ def record(kind: str, name: str, result: str, model: str, cmd: str, note: str, s
         return refuse(f'a {kind} result is one of {sorted(RESULTS[kind])}')
     if kind in ('lane', 'fix') and not model:
         return refuse(f'a {kind} row names its model (--model)')
+    model = one_line(model).lower()
+    root = (kind, name, model) == ('lane', 'gates', 'root')
+    if kind in ('lane', 'fix') and model not in MODELS and not root:
+        return refuse(f'a {kind} row names its model family, one of {", ".join(MODELS)}; only the '
+                      'gates lane, which the root runs itself, is recorded as root')
+    if result == 'NO-TRUNK-FEATURE' and name != 'regression':
+        return refuse('NO-TRUNK-FEATURE says trunk lacks the feature, so only the regression lane '
+                      'records it')
+    if result == 'NO-TRUNK-FEATURE' and not note.strip():
+        return refuse('NO-TRUNK-FEATURE says what trunk lacks (--note)')
+    if kind == 'lane' and result == 'gap' and sha:
+        return refuse('a gap names no commit, since the lane reported none; record it without --at')
     if kind == 'lane' and not sha and result != 'gap':
         return refuse('a lane row names the commit it checked (--at); only a gap names none, and a '
                       'result kept from an earlier patch takes --kept-from')
-    if kind == 'finding' and result == 'act-on' and not cmd:
+    if kind == 'finding' and result == 'act-on' and not cmd.strip():
         return refuse('an act-on finding keeps the command that finds its sites (--cmd)')
     if kind == 'fix' and one_line(name).lower() == 'root':
         return refuse('the root never writes a fix; name the fresh agent that did')
@@ -232,7 +219,7 @@ def keep(kind: str, name: str, result: str, model: str, cmd: str, note: str, sha
                       'keep; the review of the change runs fresh, recorded with --at')
     if result or model or cmd or sha:
         return refuse('--kept-from takes only --note: the kept row gives the result and the model')
-    if not note:
+    if not note.strip():
         return refuse('a kept lane says why the patch-id rule keeps it (--note)')
     at   = branch_at()
     head = git('rev-parse', '--verify', f'{kept}^{{commit}}')
@@ -296,11 +283,16 @@ def verdict(rows: list[dict], patch: str, head: str) -> tuple[bool, list[str], d
     live = lanes.get('live', {}).get('result')
     if live not in ('PASS', 'NO-RUNTIME'):
         why.append('no live lane ran, and no NO-RUNTIME record says the change has no surface')
-    if live == 'PASS' and lanes.get('regression', {}).get('result') != 'PASS':
+    regression = lanes.get('regression', {}).get('result')
+    if live == 'PASS' and not regression:
         why.append('no regression lane ran the live scenario on main')
+    if regression in ('ISSUES', 'NO-RUNTIME'):
+        why.append(f'lane regression is {regression}, and only PASS or NO-TRUNK-FEATURE passes it')
     reviews = [r for n, r in lanes.items() if n.startswith('review')
                and r['result'] in ('PASS', 'ISSUES')]
-    if len({r['model'] for r in reviews}) < 2:
+
+    #count families here too, since a row written before record() checked them holds any text...
+    if len({r['model'].strip().lower() for r in reviews} & set(MODELS)) < 2:
         why.append('fewer than two review lanes on two models')
     for name, r in sorted(findings_at(rows, patch).items()):
         if r['result'] == 'act-on':
@@ -310,14 +302,12 @@ def verdict(rows: list[dict], patch: str, head: str) -> tuple[bool, list[str], d
 
 
 def failed_corrections(rows: list[dict]) -> dict[str, int]:
-    """For each finding, the patches after its first at which a row recorded it act-on again."""
-    patches = dict.fromkeys(r['patch'] for r in rows if r['kind'] == 'finding')
-    counts: dict[str, int] = {}
-    for patch in patches:
-        for name, r in latest(rows, 'finding', patch).items():
-            if r['result'] == 'act-on':
-                counts[name] = counts.get(name, 0) + 1
-    return {name: n - 1 for name, n in counts.items() if n > 1}
+    """For each finding, the patches after its first at which any row recorded it act-on."""
+    patches: dict[str, set[str]] = {}
+    for r in rows:
+        if r['kind'] == 'finding' and r['result'] == 'act-on':
+            patches.setdefault(r['name'], set()).add(r['patch'])
+    return {name: len(p) - 1 for name, p in patches.items() if len(p) > 1}
 
 
 def status() -> int:
