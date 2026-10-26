@@ -42,9 +42,10 @@ git clone https://github.com/kadenkobashigawa/kstack.git ~/kstack
 `install.sh` links each skill into `~/.claude/skills` and each agent into `~/.claude/agents`, so
 every project and every Claude Code surface picks them up, without the `kstack:` prefix. It also
 adds kstack's hooks to `~/.claude/settings.json`, after saving a backup beside it as
-`settings.json.kstack-backup`. It never
-overwrites an existing folder, and it's safe to run again. Keep the clone outside `~/.claude`,
-because Claude Code asks before every edit inside a `.claude` folder.
+`settings.json.kstack-backup`. It never overwrites an existing folder, and it's safe to run again.
+Each run also removes the hooks and dead links that a retired skill left behind. It removes only a
+dead link into the clone's `skills` or `agents` folder, so a dead link to anywhere else stays. Keep
+the clone outside `~/.claude`, because Claude Code asks before every edit inside a `.claude` folder.
 
 **Update** by pulling and running the installer again, then rebuilding Robovac if you use it:
 
@@ -53,8 +54,9 @@ git -C ~/kstack pull && ~/kstack/install.sh
 ```
 
 **Uninstall** by deleting the links in `~/.claude/skills` and `~/.claude/agents` that point into
-`~/kstack`, and removing the hooks that call `$HOME/.claude/skills/robovac` from
-`~/.claude/settings.json`. If you built Robovac, delete `~/Applications/Robovac.app` too.
+`~/kstack`, and removing kstack's hooks from `~/.claude/settings.json`. Each of those hooks runs a
+script under `$HOME/.claude/skills/<name>/`, where `<name>` is one of those links. If you built
+Robovac, delete `~/Applications/Robovac.app` too.
 
 ## Skills
 

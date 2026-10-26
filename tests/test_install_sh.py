@@ -15,10 +15,28 @@ the old target. I6 holds that the closing count names only links into the repo, 
 folder beside it whose path starts with the repo's. I7 runs a copy of install.sh in a throwaway repo
 whose skills folder holds one folder with no SKILL.md beside a real skill, and holds that it links
 only the real one and counts only that one.
+
+I8 runs install.sh on a HOME that installed vet before it was retired: vet's SessionStart hook in
+settings.json and dead links ~/.claude/skills/vet and ~/.claude/agents/vet-reviewer.md into the
+repo. It holds that the hook and both links are gone; I8b that the person's own hooks (one naming a
+~/.claude/skills/ folder that is not kstack's), a dead link to /nonexistent and a dead link into a
+folder beside the repo all stay as they were; I8c that the count names live links only; I8d that a
+second run changes nothing. I8e runs install.sh through a link to the repo, as ~/.claude/kstack is,
+and holds that dead vet links named by either path are still pruned and nothing else is.
+
+I9 runs install.sh on a HOME whose person linked ~/.claude/skills/myparked into the repo's
+upstream/, which install.sh never links, and runs a hook from it. It holds that the hook and the
+link stay; I9b that a dead link into upstream/ and a hook run from it stay too; I9c that the count
+leaves both links out.
+
+I10 runs a copy of install.sh in a throwaway repo whose retired skill polish left a folder holding
+only git-ignored files (.DS_Store, a __pycache__), so no SKILL.md, behind a live link and a hook on
+it. It holds that the hook goes and the person's own hook stays.
 """
 
 from __future__ import annotations
 
+import json
 import os
 import re
 import shutil
@@ -130,4 +148,119 @@ with tempfile.TemporaryDirectory() as t:
     check('I7 a skill folder with no SKILL.md is not linked, and the count leaves it out',
           code == 0 and links(home, 'skills') == {'real': str(fake / 'skills' / 'real')}
           and done(out) == (1, 1, str(fake)), f'{links(home, "skills")} {done(out)}')
+
+# I8: a HOME that installed vet before it was retired, beside things that are the person's own...
+VET = ('cd "${CLAUDE_PROJECT_DIR:-.}" 2>/dev/null && [ -x "$HOME/.claude/skills/vet/scripts/vet.sh" ]'
+       ' && "$HOME/.claude/skills/vet/scripts/vet.sh" status --hook 2>/dev/null || true')
+MINE = {'hooks': [{'type': 'command', 'command': 'echo my-own-session-hook', 'timeout': 5}]}
+MYSKILL = {'matcher': 'Edit',
+           'hooks': [{'type': 'command', 'command': '"$HOME/.claude/skills/myskill/x.sh" go'}]}
+def stale_home(h, real, alias=None):
+    """a HOME with vet's hook and dead vet links into `real` (the agent's via `alias` if given)."""
+    c = Path(h) / '.claude'
+    (c / 'skills' / 'myskill').mkdir(parents=True)
+    (c / 'skills' / 'myskill' / 'x.sh').write_text('echo mine\n')
+    (c / 'agents').mkdir()
+    (c / 'settings.json').write_text(json.dumps({'hooks': {
+        'SessionStart': [{'hooks': [{'type': 'command', 'command': VET, 'timeout': 10}]}, MINE],
+        'PostToolUse': [MYSKILL]}}, indent=2))
+    (c / 'skills' / 'vet').symlink_to(f'{real}/skills/vet')
+    (c / 'agents' / 'vet-reviewer.md').symlink_to(f'{alias or real}/agents/vet-reviewer.md')
+    (c / 'skills' / 'mine-dead').symlink_to('/nonexistent/x')
+    (c / 'skills' / 'zz').symlink_to(f'{real}-other/skills/foo')
+    return c
+def kept_mine(c):
+    """whether the person's two hooks and two dead links are there exactly as written."""
+    s = json.loads((c / 'settings.json').read_text())['hooks']
+    return (MINE in s.get('SessionStart', []) and MYSKILL in s.get('PostToolUse', [])
+            and os.readlink(c / 'skills' / 'mine-dead') == '/nonexistent/x'
+            and os.readlink(c / 'skills' / 'zz') == f'{repo}-other/skills/foo'
+            and (c / 'skills' / 'myskill' / 'x.sh').read_text() == 'echo mine\n')
+
+
+with tempfile.TemporaryDirectory() as h:
+    c = stale_home(h, repo)
+    code, out = run(h)
+    text = (c / 'settings.json').read_text()
+    check('I8 vet\'s hook and its two dead links into the repo are gone',
+          code == 0 and 'skills/vet/' not in text and not os.path.lexists(c / 'skills' / 'vet')
+          and not os.path.lexists(c / 'agents' / 'vet-reviewer.md'),
+          f'exit {code}, vet hook {"skills/vet/" in text}, '
+          f'skills/vet {os.path.lexists(c / "skills" / "vet")}, '
+          f'agents/vet-reviewer.md {os.path.lexists(c / "agents" / "vet-reviewer.md")}')
+    check('I8b my hooks, my myskill folder and the dead links not into the repo stay as written',
+          kept_mine(c), f'{text[:600]} {sorted(os.listdir(c / "skills"))}')
+    check('I8c the count names live links only',
+          done(out) == (len(skills), len(agents), str(repo)), done(out))
+    before, names = text.encode(), (links(h, 'skills'), links(h, 'agents'))
+    code, out = run(h)
+    check('I8d a second run changes nothing',
+          code == 0 and (c / 'settings.json').read_bytes() == before
+          and (links(h, 'skills'), links(h, 'agents')) == names,
+          out[-400:])
+
+with tempfile.TemporaryDirectory() as t:
+    # I8e: install.sh run through a link to the repo; one dead vet link names each path...
+    alias = Path(t) / 'kstack-alias'
+    alias.symlink_to(repo)
+    home = Path(t) / 'home'
+    home.mkdir()
+    c = stale_home(home, repo, alias)
+    code, out = run(home, alias)
+    check('I8e run through a link to the repo, the dead vet links by either path are pruned',
+          code == 0 and not os.path.lexists(c / 'skills' / 'vet')
+          and not os.path.lexists(c / 'agents' / 'vet-reviewer.md')
+          and 'skills/vet/' not in (c / 'settings.json').read_text(),
+          f'exit {code}, skills/vet {os.path.lexists(c / "skills" / "vet")}, '
+          f'agents/vet-reviewer.md {os.path.lexists(c / "agents" / "vet-reviewer.md")}')
+    check('I8f and nothing else is: my hooks and links stay, and every skill and agent is linked',
+          kept_mine(c) and set(links(home, 'skills')) == set(skills) | {'mine-dead', 'zz'}
+          and set(links(home, 'agents')) == set(agents),
+          f'{sorted(links(home, "skills"))} {sorted(links(home, "agents"))}')
+
+with tempfile.TemporaryDirectory() as h:
+    # I9: links the person made into the repo's upstream/, which install.sh never links...
+    c = Path(h) / '.claude'
+    (c / 'skills').mkdir(parents=True)
+    parked = repo / 'upstream' / 'continual-learning' / 'skills' / 'continual-learning'
+    (c / 'skills' / 'myparked').symlink_to(parked)
+    (c / 'skills' / 'parked-dead').symlink_to(repo / 'upstream' / 'gone')
+    PARKED = {'hooks': [{'type': 'command', 'command': '"$HOME/.claude/skills/myparked/run.sh"'}]}
+    DEAD = {'hooks': [{'type': 'command', 'command': '"$HOME/.claude/skills/parked-dead/run.sh"'}]}
+    (c / 'settings.json').write_text(json.dumps({'hooks': {'SessionStart': [PARKED, DEAD]}}))
+    code, out = run(h)
+    s = json.loads((c / 'settings.json').read_text())['hooks']
+    check('I9 a hook run from my link into upstream/ stays, and so does the link',
+          code == 0 and PARKED in s.get('SessionStart', [])
+          and os.readlink(c / 'skills' / 'myparked') == str(parked),
+          f'exit {code}, {s.get("SessionStart")}, {os.path.lexists(c / "skills" / "myparked")}')
+    check('I9b a dead link into upstream/ stays, and so does a hook run from it',
+          os.path.lexists(c / 'skills' / 'parked-dead') and DEAD in s.get('SessionStart', []),
+          f'{s.get("SessionStart")}, {os.path.lexists(c / "skills" / "parked-dead")}')
+    check('I9c the count leaves out links into upstream/',
+          done(out) == (len(skills), len(agents), str(repo)), done(out))
+
+with tempfile.TemporaryDirectory() as t:
+    # I10: git rm leaves a retired skill's ignored files, so its folder and live link survive...
+    fake = Path(t).resolve() / 'repo'
+    for name, text in (('skills/real/SKILL.md', '---\nname: real\n---\n'),
+                       ('skills/polish/.DS_Store', ''),
+                       ('skills/polish/scripts/__pycache__/x.pyc', ''),
+                       ('agents/a.md', 'an agent\n')):
+        (fake / name).parent.mkdir(parents=True, exist_ok=True)
+        (fake / name).write_text(text)
+    shutil.copy2(repo / 'install.sh', fake / 'install.sh')
+    shutil.copytree(repo / 'hooks', fake / 'hooks')
+    c = Path(t) / 'home' / '.claude'
+    (c / 'skills').mkdir(parents=True)
+    (c / 'skills' / 'polish').symlink_to(fake / 'skills' / 'polish')
+    OLD = {'hooks': [{'type': 'command',
+                      'command': '"$HOME/.claude/skills/polish/scripts/old.py"'}]}
+    (c / 'settings.json').write_text(json.dumps({'hooks': {'Stop': [OLD], 'SessionStart': [MINE]}}))
+    code, out = run(c.parent, fake)
+    s = json.loads((c / 'settings.json').read_text())['hooks']
+    check('I10 a retired skill\'s hook goes while ignored files keep its folder and live link',
+          code == 0 and 'skills/polish/' not in json.dumps(s) and MINE in s.get('SessionStart', []),
+          f'exit {code}, polish hook {"skills/polish/" in json.dumps(s)}, '
+          f'mine {MINE in s.get("SessionStart", [])}')
 sys.exit(1 if fails else 0)

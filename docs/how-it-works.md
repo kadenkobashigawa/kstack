@@ -92,8 +92,13 @@ you can type, and which turns the mistake into a hook, lint rule or test.
 - **`hooks/hooks.json`** holds robovac's run hooks for the app, and no other hooks. Each command
   runs its script from `${CLAUDE_PLUGIN_ROOT}/skills/`, which Claude Code fills in for the plugin.
   For a clone install, `hooks/install.py` merges them into `~/.claude/settings.json` with
-  `$HOME/.claude/skills/` in that place. It adds missing ones, removes hooks that run a current
-  kstack skill's script but are no longer in `hooks.json`, and leaves every other hook alone.
+  `$HOME/.claude/skills/` in that place. It adds missing ones, removes hooks that run a kstack
+  skill's script but are no longer in `hooks.json`, and leaves every other hook alone. A kstack
+  skill is one the checkout holds, or one whose `~/.claude/skills` link, live or dead, points into
+  the checkout's `skills/`, so a retired skill's hook goes too, even when git-ignored files keep its
+  folder there. It then removes each dead link in
+  `~/.claude/skills` that points into the checkout's `skills/`, and each in `~/.claude/agents` that
+  points into its `agents/`. A link into anywhere else, `upstream/` included, stays.
 - **`apps/<name>`** holds programs that are not skills, as pstack keeps benny under
   `automations/`. `apps/robovac-widget` is the Robovac app.
 - **`upstream/`** holds pstack, four of Cursor's plugins and part of Matt Pocock's skills exactly as

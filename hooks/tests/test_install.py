@@ -9,7 +9,11 @@ H1 fills a missing file. H2 takes out a stale kstack hook and leaves the person'
 skills' hooks and other settings alone, backing the file up first. H3 and H5 hold that a second run
 changes nothing and that only stale hooks go. H6 keeps one command wanted under two matchers. H7
 holds that hooks.json runs every script from the plugin root, and that the settings file gets the
-same commands with install.sh's link folder in its place.
+same commands with install.sh's link folder in its place. H8 takes out the hook of a retired skill
+whose ~/.claude/skills link, beside the settings file, is a dead link into the repo.
+H9 holds the order of a run: while the settings file can't be written, the run fails and the
+retired skill's dead link stays, so the next run, once the file is writable, still knows the name
+and takes out both the hook and the link.
 """
 
 from __future__ import annotations
@@ -104,4 +108,37 @@ with tempfile.TemporaryDirectory() as tmp:
     check('H7b the settings file gets each command with $HOME/.claude/skills/ and no plugin root',
           len(merged) == len(plugin) and all('$HOME/.claude/skills/' in c and 'CLAUDE_PLUGIN_ROOT' not in c
                                              for c in merged), merged)
+
+with tempfile.TemporaryDirectory() as tmp:
+    # H8: vet is retired, but its dead link beside the settings file still points into the repo...
+    claude = Path(tmp) / '.claude'
+    (claude / 'skills').mkdir(parents=True)
+    (claude / 'skills' / 'vet').symlink_to(repo.resolve() / 'skills' / 'vet')
+    vet = {'type': 'command', 'command': '[ -x "$HOME/.claude/skills/vet/scripts/vet.sh" ] && '
+                                         '"$HOME/.claude/skills/vet/scripts/vet.sh" status --hook || true'}
+    t = claude / 'settings.json'
+    t.write_text(json.dumps({'hooks': {'SessionStart': [{'hooks': [vet, mine]}]}}))
+    run(t)
+    flat = cmds(json.loads(t.read_text()))
+    check('H8 a dead-linked retired skill\'s hook is taken out, and mine stays',
+          all(c[2] != vet['command'] for c in flat) and ('SessionStart', '', 'echo mine') in flat, flat)
+
+with tempfile.TemporaryDirectory() as tmp:
+    # H9: a settings file that can't be written must not cost the retired skill's dead link...
+    claude = Path(tmp) / '.claude'
+    (claude / 'skills').mkdir(parents=True)
+    dead = claude / 'skills' / 'vet'
+    dead.symlink_to(repo.resolve() / 'skills' / 'vet')
+    t = claude / 'settings.json'
+    t.write_text(json.dumps({'hooks': {'SessionStart': [{'hooks': [vet, mine]}]}}))
+    t.chmod(0o444)
+    r = run(t)
+    check('H9 an unwritable settings file fails the run and leaves the dead link',
+          r.returncode != 0 and dead.is_symlink(), f'exit {r.returncode}, link {dead.is_symlink()}')
+    t.chmod(0o644)
+    r = run(t)
+    flat = cmds(json.loads(t.read_text()))
+    check('H9b once it is writable, the next run takes out the hook and the link',
+          r.returncode == 0 and all(c[2] != vet['command'] for c in flat) and not dead.is_symlink(),
+          f'exit {r.returncode}, {flat}, link {dead.is_symlink()}')
 sys.exit(1 if fails else 0)
