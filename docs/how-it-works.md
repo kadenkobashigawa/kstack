@@ -114,6 +114,7 @@ you can type, and which turns the mistake into a hook, lint rule or test.
 | `build` | Ours, plus pstack's poteto-mode (one playbook per change, its triggers, Autonomy and Subagents) and its feature, bug-fix, refactoring, perf-issue, autonomous-run and prototype playbooks. Also pstack's architect, interrogate, blast-radius, tdd, benchmark-checklist, technical-writing and show-me-your-work skills, and its principles, attack-the-premise among them. The gate comes from pstack's autopilot-full, shipping and swarm. The code rules come from interrogate's rubric, OWASP, the OpenSSF Scorecard and the Twelve-Factor App. |
 | `elon` | Ours. |
 | `teach` | Ours, plus the machine-written tells from pstack's unslop. |
+| `write-report` | kstack's own. Its layout's values trace to Sphinx's LaTeX output, DocBook XSL-FO, the PostgreSQL manual and the Read the Docs theme, and its prose step reads kstack's technical-writing and unslop. |
 | `robovac` | New, drawing on pstack's authoring-a-skill (delegation), autopilot-stack (the `/loop` cadence), autonomous-run and orchestrate (one task, the rest left for later), autopilot-full (the merge grant), and the stop rules of pause-safely and create-verification-skill. |
 | `clorox` | pstack's worktree-cleanup and build-the-lever, the CACHEDIR.TAG spec, PEP 3147 and Claude Code's trash rule. |
 | `stack-check` | pstack's reflect, its templates kept verbatim with Claude Code's names, plus two lines of kstack's own, and its tooling lens run on Sonnet. The 7-day window is pstack's recall default. |

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 120" width="520" height="120" font-family="Times, serif" font-size="15">
+  <rect x="10" y="35" width="120" height="50" fill="none" stroke="#000" stroke-width="1.2"/>
+  <text x="70" y="65" text-anchor="middle">report.md</text>
+  <rect x="200" y="35" width="120" height="50" fill="none" stroke="#000" stroke-width="1.2"/>
+  <text x="260" y="65" text-anchor="middle">marked pdfs</text>
+  <rect x="390" y="35" width="120" height="50" fill="none" stroke="#000" stroke-width="1.2"/>
+  <text x="450" y="65" text-anchor="middle">final pdf</text>
+  <path d="M130 60 H192 M184 54 L192 60 L184 66" fill="none" stroke="#000" stroke-width="1.2"/>
+  <path d="M320 60 H382 M374 54 L382 60 L374 66" fill="none" stroke="#000" stroke-width="1.2"/>
+  <text x="355" y="28" text-anchor="middle" font-size="12">page of each heading</text>
+</svg>
