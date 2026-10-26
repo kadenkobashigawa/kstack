@@ -149,14 +149,13 @@ l. 95). *(kstack: Claude Code runs only Claude models, so Opus is the strongest 
 one.)*
 
 **Run every subagent in the background**, so the root keeps working while it runs (pstack,
-`skills/poteto-mode/SKILL.md`, l. 95). **Run at most three agents at once** *(kstack: they share
-the session's usage limit)*. Set a subagent's effort only when the user or a skill asks
+`skills/poteto-mode/SKILL.md`, l. 95). Set a subagent's effort only when the user or a skill asks
 *(kstack: poteto-mode picks a model per role instead)*.
 
 **Only the root spawns agents.** A subagent owns its diff directly, with the same review separation
 (pstack, `skills/poteto-mode/playbooks/feature.md`, l. 12). *(kstack: pstack's single owner fans
-out after the blocking phase, l. 19. Here the root spawns every agent, so it holds the three-agent
-cap and sees all the work.)*
+out after the blocking phase, l. 19. Here the root spawns every agent, so it sees all the
+work.)*
 
 ## Every rule names its source or says it is reasoning
 

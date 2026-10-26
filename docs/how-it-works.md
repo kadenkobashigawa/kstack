@@ -60,7 +60,7 @@ for the files it touched. Then, for each change, fresh agents that did not write
 3. review the diff in two lanes on two models (Opus for correctness, Sonnet for structure), and
 4. compare the result with `main`.
 
-At most three agents run at once. `skills/build/scripts/gate.py` records each lane's result in the
+`skills/build/scripts/gate.py` records each lane's result in the
 branch's ledger. A clean verdict merges the change into local `main` under a standing grant, as in
 pstack's autopilot-full. `gate.py land` makes that merge as one commit whose message carries a
 `GATE VERDICT:` line, and it refuses without a clean verdict. A change you named, or asked to see

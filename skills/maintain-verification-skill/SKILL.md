@@ -48,15 +48,14 @@ docs).
 1. **Index hygiene.** Read the feature map README and glob its sibling files. Fix missing, extra,
    duplicate, or dead entries. Keep it light, with no generated inventory.
 
-2. **Source wave.** One read-only subagent per feature file, launched concurrently, at most three at
-   a time *(kstack: they share the session's usage limit)*. Each is a `general-purpose` subagent
-   told it may not edit, the way pstack's how spawns its readers (pstack, `skills/how/SKILL.md`,
-   ll. 26–28). Never use an `Explore` agent, whose Claude Code description says it "locates code; it
-   doesn't review or audit it" *(kstack: pstack names no agent type here, and flagging drift is a
-   review)*. Each explains "how does this user-facing feature work?" from source, flags likely doc
-   drift with citations, and returns one concise live-verification recipe. Children
-   never drive the app and never edit files. Return shape: feature summary, source entry points,
-   likely drift or none, one recipe.
+2. **Source wave.** One read-only subagent per feature file, launched concurrently. Each is a
+   `general-purpose` subagent told it may not edit, the way pstack's how spawns its readers (pstack,
+   `skills/how/SKILL.md`, ll. 26–28). Never use an `Explore` agent, whose Claude Code description
+   says it "locates code; it doesn't review or audit it" *(kstack: pstack names no agent type here,
+   and flagging drift is a review)*. Each explains "how does this user-facing feature work?" from
+   source, flags likely doc drift with citations, and returns one concise live-verification recipe.
+   Children never drive the app and never edit files. Return shape: feature summary, source entry
+   points, likely drift or none, one recipe.
 
 3. **Reconcile.** Every feature file has a returned summary. Merge overlapping recipes into as few
    app states as practical. Spot-check cited drift, and don't re-prove clean claims. Sweep recent

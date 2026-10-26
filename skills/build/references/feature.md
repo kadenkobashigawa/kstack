@@ -41,8 +41,7 @@ carries out and who does it.
      separate-before-serializing-shared-state principle. "Serialize only for real invariants."
      (pstack, `skills/poteto-mode/playbooks/feature.md`, l. 10)
    - **Smallest safe decomposition.** "If one worker is best, name why." (pstack,
-     `skills/poteto-mode/playbooks/feature.md`, l. 11) At most three agents run at once
-     (SKILL.md, Subagents).
+     `skills/poteto-mode/playbooks/feature.md`, l. 11)
 4. **Delegate the code to a fresh subagent.** pstack: "Delegate code-writing to a subagent ... with
    a specific scope (file paths, named data shape and its organizing structure ..., chosen before
    the delegate writes logic, and success criteria)." (pstack,
@@ -113,7 +112,7 @@ That owner fans out internally after the blocking phase. Parent-level fan-out is
 produce independent artifacts (audits, cross-subsystem investigations, competing experiments).
 Rewrite the checkpoint at phase boundaries. Spawn a fresh owner rather than chaining interrupts."
 (pstack, `skills/poteto-mode/playbooks/feature.md`, l. 19) *(kstack: the root does every fan-out,
-so it holds the three-agent cap and sees all the work, as SKILL.md, Subagents, says.)*
+so it sees all the work, as SKILL.md, Subagents, says.)*
 
 **Reply:** "what you built, what you chose and why, the throughput checkpoint, open decisions.
 Tables for design alternatives." (pstack, `skills/poteto-mode/playbooks/feature.md`, l. 21) Then
