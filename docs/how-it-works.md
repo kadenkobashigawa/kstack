@@ -53,18 +53,21 @@ The session you talk to leads, and fresh subagents write the code. Every playboo
 review, which build calls the gate (`skills/build/references/gate.md`). Each self-contained change
 is its own branch, in its own worktree, reviewed and merged alone. Only changes that touch the same
 files wait for each other. Before a round, the author runs the checks the project's own rules name
-for the files it touched. Then, for each change, fresh agents that did not write it:
+for the files it touched. Then, for each change, the session you talk to re-runs the tests and
+checks at the exact commit, and fresh agents that did not write the change, each in its own
+checkout of that commit:
 
-1. re-run the tests and checks at the exact commit,
-2. prove the main behavior live on the smallest real surface that could disprove it,
-3. review the diff in two lanes on two models (Opus for correctness, Sonnet for structure), and
-4. compare the result with `main`.
+1. prove the main behavior live on the smallest real surface that could disprove it,
+2. review the diff in two lanes on two models (Opus for correctness, Sonnet for structure), and
+3. compare the result with `main`.
 
 `skills/build/scripts/gate.py` records each lane's result in the
 branch's ledger. A clean verdict merges the change into local `main` under a standing grant, as in
 pstack's autopilot-full. `gate.py land` makes that merge as one commit whose message carries a
-`GATE VERDICT:` line, and it refuses without a clean verdict. A change you named, or asked to see
-first, stops at merge-ready. Pushing stays yours, and build never deploys.
+`GATE VERDICT:` line, and it refuses without a clean verdict. When `main` has moved since the
+branch's base, it lands only if the merge is clean and `main` changed no file the change touches.
+A change you named, or asked to see first, stops at merge-ready. Pushing stays yours, and build
+never deploys.
 
 ## What happens to findings
 

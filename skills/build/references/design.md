@@ -54,8 +54,9 @@ context, given this folder's `prior-art.md` path in its brief.
 
 Each of these is a reason to revise the shape, not a style note. The first eight are pstack's
 design-red-flags list (pstack, `skills/architect/references/design-red-flags.md`, ll. 5–57). The
-last three come from cursor-team-kit's strict code-quality review (cursor-team-kit,
-`skills/thermo-nuclear-code-quality-review/SKILL.md`, ll. 95–109).
+next three come from cursor-team-kit's strict code-quality review (cursor-team-kit,
+`skills/thermo-nuclear-code-quality-review/SKILL.md`, ll. 95–109), and the last from pstack's
+encode-lessons-in-structure principle.
 
 - **Shallow module.** A big interface hiding little: callers coordinate several calls for one
   operation, or options expose internal stages.
@@ -74,6 +75,15 @@ last three come from cursor-team-kit's strict code-quality review (cursor-team-k
 - **Feature logic in a shared path.** A special case or one-off flag inside general-purpose code.
 - **A file pushed past about 1,000 lines** by this change, when part of it could stand alone.
 - **Partial updates.** Related writes that can leave state half-applied.
+- **A source scan guarding a property of data flow.** A scan of the source is a lint. It fits a
+  mechanical rule, "a fixed syntactic pattern, a banned API, an import shape, a file-location rule"
+  (mattpocock-skills, `skills/engineering/retro/SKILL.md`, l. 19). A property of how data flows
+  gets a structural mechanism, in pstack's order: "an unrepresentable state that cannot compile,
+  then a lint or banned API that fails CI, then a canonical helper, then a runtime check" (pstack,
+  `skills/principle-encode-lessons-in-structure/SKILL.md`, l. 19). A database constraint or a type
+  is an unrepresentable state, and writers that all read one helper's value are a canonical helper.
+  *(kstack: scans extended round after round missed the reviewer's next mutant, and a structural
+  fix held in one round, per `references/evidence.md`, Run evidence behind the gate.)*
 
 ## Write the sketch
 

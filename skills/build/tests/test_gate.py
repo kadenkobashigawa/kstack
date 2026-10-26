@@ -25,16 +25,23 @@ G6d that status prints an open finding's command. G6e holds that a kept live lan
 are not clean until the reviews run fresh. G7 counts failed corrections and says STOP at two (G7a:
 not at one; G7b: not for a finding no longer act-on at the current patch, whose count stays).
 
-G8 and G9 refuse to land without a clean verdict or after main moved. G9b refuses after a rebase
-that keeps the patch until the gates lane runs again at the new head, and G9c refuses an empty
-patch. G10 lands one commit carrying the verdict, each lane with the commit it checked and each
-fixer with its model, from a subfolder of the branch's worktree, and updates main's worktree; G10b
-deletes the ledger once it has, G10c lands a kept live lane at the commit it checked, its note
-saying so, and G10d keeps the ledger of another branch the same worktree had checked out, and the
-folder they share. G10e prints the commands that remove the whole worktree, then delete the branch,
-which run from the subfolder it landed from. G11 lands the tree of the head the verdict was read
-at. G12 lands with no worktree on main, and G13 refuses when main moves during the landing, keeping
-both main's new commit and the ledger. G14 refuses to record on a detached HEAD. G15 prints git's
+G8 refuses to land without a clean verdict. G9 lands past a main that moved on paths the change
+does not touch, on main's new commit, and the verdict line names the move. G9b refuses a new head
+that keeps the patch until the gates lane runs again at it, and G9c refuses an empty patch. After
+main moved, G9d refuses when main changed a path the change touches, G9e when the merge of main and
+the head conflicts, and G9f when main changed a path that GATE_CHECK_PATHS names, which G9g reads
+from the repository top when landing from a subfolder. G9h refuses past a moved main when the gates
+lane ran on a base that was not main's tip, and G9i lands once it ran on the rebased head. G9j
+reads the main a row recorded in a ledger whose header predates that column.
+
+G10 lands one commit carrying the verdict, each lane with the commit it checked and each fixer with
+its model, from a subfolder of the branch's worktree, and updates main's worktree; G10b deletes the
+ledger once it has, G10c lands a kept live lane at the commit it checked, its note saying so, and
+G10d keeps the ledger of another branch the same worktree had checked out, and the folder they
+share. G10e prints the commands that remove the whole worktree, then delete the branch, which run
+from the subfolder it landed from. G11 lands the tree of the head the verdict was read at. G12
+lands with no worktree on main, and G13 refuses when main moves during the landing, keeping both
+main's new commit and the ledger. G14 refuses to record on a detached HEAD. G15 prints git's
 own message for a failing git, with no traceback, and G15b one that is not UTF-8. G16 gets the
 patch-id the shell pipe gets for a lone CR and a byte that is not UTF-8.
 
@@ -353,17 +360,28 @@ def g8_to_g9() -> None:
         r = gate('land', msg, cwd=feat)
         check('G8 no clean verdict, no landing', r.returncode == 1)
         clean_lanes(feat)
+        base  = sh('git', 'merge-base', 'main', 'feat', cwd=main).strip()
         commit(main, 'b.txt', 'main moved\n', 'elsewhere')
+        moved = head(main)
         r = gate('land', msg, cwd=feat)
-        check('G9 main moved since the merge base, no landing', r.returncode == 1
-              and 'moved' in r.stderr, r.stderr)
-        sh('git', 'rebase', '-q', 'main', cwd=feat)
-        early = gate('land', msg, cwd=feat)
+        body  = sh('git', 'log', '-1', '--format=%B', 'main', cwd=main)
+        first = sh('git', 'rev-parse', 'main^', cwd=main).strip()
+        both  = all(os.path.exists(os.path.join(main, n)) for n in ('a.txt', 'b.txt'))
+        check('G9 lands past a main that moved on paths the change does not touch, keeping main\'s '
+              'commit, and the verdict names the move', r.returncode == 0 and first == moved
+              and both and f'base {base[:8]}' in body and f'moved to {moved[:8]}' in body,
+              r.stderr + body)
+    with tempfile.TemporaryDirectory() as tmp:
+        _, feat = repo(tmp)
+        msg = message(tmp)
+        clean_lanes(feat)
+        sh('git', 'commit', '-q', '--allow-empty', '-m', 'same patch', cwd=feat)
+        held = gate('land', msg, cwd=feat)
         lane(feat, 'gates', 'PASS', 'sonnet')
         late = gate('land', msg, cwd=feat)
-        check('G9b after a rebase that keeps the patch, land waits for gates at the new head',
-              early.returncode == 1 and 'gates' in early.stderr and late.returncode == 0,
-              early.stderr + late.stderr)
+        check('G9b a new head that keeps the patch waits for gates at that head',
+              held.returncode == 1 and 'gates' in held.stderr and late.returncode == 0,
+              held.stderr + late.stderr)
     with tempfile.TemporaryDirectory() as tmp:
         main, _ = repo(tmp)
         none = os.path.join(tmp, 'none')
@@ -373,6 +391,71 @@ def g8_to_g9() -> None:
         count = sh('git', 'rev-list', '--count', 'main', cwd=main).strip()
         check('G9c an empty patch does not land', r.returncode == 1 and count == '1'
               and 'changes nothing' in r.stderr, r.stderr)
+    with tempfile.TemporaryDirectory() as tmp:
+        main, feat = repo(tmp)
+        commit(main, 'c.txt', '1\n2\n3\n4\n5\n6\n7\n', 'seven lines')
+        sh('git', 'rebase', '-q', 'main', cwd=feat)
+        commit(feat, 'c.txt', 'one\n2\n3\n4\n5\n6\n7\n', 'first line')
+        clean_lanes(feat)
+        commit(main, 'c.txt', '1\n2\n3\n4\n5\n6\nseven\n', 'last line')
+        tip = head(main)
+        r = gate('land', message(tmp), cwd=feat)
+        check('G9d a main that moved on a path the change touches refuses, naming the path, though '
+              'the merge is clean', r.returncode == 1 and head(main) == tip and 'c.txt' in r.stderr
+              and 'rebase' in r.stderr.lower(), r.stderr)
+    with tempfile.TemporaryDirectory() as tmp:
+        main, feat = repo(tmp)
+        os.makedirs(os.path.join(feat, 'd'))
+        commit(feat, os.path.join('d', 'f.txt'), 'f\n', 'a folder d')
+        clean_lanes(feat)
+        commit(main, 'd', 'a file\n', 'a file d')
+        tip = head(main)
+        r = gate('land', message(tmp), cwd=feat)
+        check('G9e a main whose merge with the head conflicts refuses, though no path is on both '
+              'sides', r.returncode == 1 and head(main) == tip and 'is not clean' in r.stderr
+              and 'rebase' in r.stderr.lower(), r.stderr)
+    with tempfile.TemporaryDirectory() as tmp:
+        main, feat = repo(tmp)
+        clean_lanes(feat)
+        commit(main, 'ci.yml', 'jobs\n', 'main changes the checks')
+        tip = head(main)
+        env = {**os.environ, 'GATE_CHECK_PATHS': 'docs ci.yml'}
+        sub = os.path.join(feat, 'sub')
+        os.makedirs(sub)
+        r = gate('land', message(tmp), cwd=feat, env=env)
+        check('G9f a main that moved on a path GATE_CHECK_PATHS names refuses, naming the path',
+              r.returncode == 1 and head(main) == tip and 'ci.yml' in r.stderr
+              and 'GATE_CHECK_PATHS' in r.stderr and 'rebase' in r.stderr.lower(), r.stderr)
+        low = gate('land', message(tmp), cwd=sub, env=env)
+        check('G9g GATE_CHECK_PATHS names paths from the repository top, so landing from a '
+              'subfolder refuses too', low.returncode == 1 and head(main) == tip
+              and 'ci.yml' in low.stderr, low.stderr)
+    with tempfile.TemporaryDirectory() as tmp:
+        main, feat = repo(tmp)
+        commit(main, 'b.txt', 'main moved\n', 'before the gates')
+        clean_lanes(feat)
+        tip = head(main)
+        r = gate('land', message(tmp), cwd=feat)
+        check('G9h past a main that moved, a gates lane that ran on a stale base refuses',
+              r.returncode == 1 and head(main) == tip and 'rebase onto' in r.stderr.lower()
+              and 'gates lane' in r.stderr, r.stderr)
+        sh('git', 'rebase', '-q', 'main', cwd=feat)
+        lane(feat, 'gates', 'PASS', 'sonnet')
+        commit(main, 'e.txt', 'main moved again\n', 'after the gates')
+        r = gate('land', message(tmp), cwd=feat)
+        check('G9i a gates lane that ran on the rebased head lands past a later main move',
+              r.returncode == 0, r.stderr)
+    with tempfile.TemporaryDirectory() as tmp:
+        main, feat = repo(tmp)
+        path = ledger(main, 'feat', 'feat')
+        os.makedirs(os.path.dirname(path))
+        with open(path, 'w') as f:
+            f.write('ts\thead\tpatch\tkind\tname\tmodel\tresult\tcmd\tnote\n')
+        clean_lanes(feat)
+        commit(main, 'b.txt', 'main moved\n', 'elsewhere')
+        r = gate('land', message(tmp), cwd=feat)
+        check('G9j a ledger begun before the main column keeps the main a later row records',
+              r.returncode == 0, r.stderr)
 
 
 def g10_to_g15() -> None:

@@ -106,13 +106,13 @@ the fix, so history reads red then green (pstack, `skills/poteto-mode/playbooks/
 
 ## 8. Run the gate (`references/gate.md`)
 
-The gate is the independent check that check 4 (verify) ends on. The root starts it, and fresh
-agents that did not write the change run it on the fix's own local branch. pstack: "Run **Opening a
-PR**." (pstack, `skills/poteto-mode/playbooks/bug-fix.md`, l. 13) A clean verdict merges into
-local main under the standing grant (SKILL.md, Autonomy). A change the operator named, or asked to
-see first, stops at merge-ready. *(kstack, the translation: kstack merges local branches, so
-Opening a PR, with its PR text and its forge, has no counterpart here. The gate is the step where a
-change leaves its author.)*
+The gate is the independent check that check 4 (verify) ends on. The root starts it and runs its
+checks, and fresh agents that did not write the change run its other lanes on the fix's own local
+branch. pstack: "Run **Opening a PR**." (pstack, `skills/poteto-mode/playbooks/bug-fix.md`, l. 13) A
+clean verdict merges into local main under the standing grant (SKILL.md, Autonomy). A change the
+operator named, or asked to see first, stops at merge-ready. *(kstack, the translation: kstack
+merges local branches, so Opening a PR, with its PR text and its forge, has no counterpart here. The
+gate is the step where a change leaves its author.)*
 
 **Reply:** what was broken, the root cause, the fix, and the failing-then-passing output verbatim.
 Then the branch and the gate's verdict, or the merge commit.

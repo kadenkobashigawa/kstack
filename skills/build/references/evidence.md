@@ -93,7 +93,8 @@ take the rule from there.
 ## Run evidence behind the gate
 
 Project history from kstack's own runs, not published measurement. Each entry backs a
-*(kstack: ...)* tag in `references/gate.md` or `references/judgment.md`.
+*(kstack: ...)* tag in `references/gate.md`, `references/judgment.md`, `references/design.md` or
+`references/when-a-fix-fails.md`, or a pstack rule the gate took up after the run it names.
 
 - **The root sorts, with no lead agent.** In the 2026-10-17 converge run, four lead agents used 17%
   of the run's 8.7M agent tokens, to sort reports the root had already read.
@@ -111,6 +112,23 @@ Project history from kstack's own runs, not published measurement. Each entry ba
   on one change: the gate-ledger build took six review rounds, and the architecture session's item
   took seven review rounds with six fix rounds. The last rounds held findings that broke a rule but
   would not block a real PR. Across the week's builds, 26 of 32 rounds re-reviewed a fix.
+- **A run's statistics, 2026-10-26.** One run took 45 items through the gate and merged 7, with
+  about 22.8M tokens and about 190 subagents. A clean item cost about 1.2M tokens, 11 agents and 2
+  rounds. The two longest took 11 rounds and 4.5M tokens, and 8 rounds and 3.75M tokens.
+  - **A doc finding deletes the claim.** On three items the code was proven correct in round 1,
+    and 2 to 3 more rounds went to doc and docstring prose: each fixer reworded a sentence, and the
+    next review proved the new sentence false. Deleting the claim ended the loop every time.
+  - **The fix-forward waits for every lane.** 14 gates lanes stopped mid-suite because a docs-only
+    fix commit moved the head while the round's lanes still ran. One suite run cost about 90k to
+    140k tokens and 4 to 13 minutes.
+  - **A data-flow property gets a structural guard.** Two items spent 3 to 4 rounds each extending
+    a source scan to catch the reviewer's next mutant. Both ended when the fix switched to a
+    constraint, writers reading one helper's value, or a runtime refusal, and each structural fix
+    landed in one round.
+  - **Each lane has its own checkout.** Lanes were voided when a rebase ran under a running lane.
+    Giving each lane its own detached checkout of the exact commit stopped that.
+  - **A later main move does not force a rebase.** Each rebase forced by main moving cost a
+    regression drive and an app boot, about 100k to 150k tokens.
 
 ## Where this skill came from
 

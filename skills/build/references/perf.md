@@ -65,13 +65,13 @@ translation: the commit message in place of pstack's PR)*.
 
 ## 7. Run the gate (`references/gate.md`)
 
-The gate is the independent check that check 4 (verify) ends on. The root starts it, and fresh
-agents that did not write the change run it on the change's own local branch. pstack: "Run
-**Opening a PR**." (pstack, `skills/poteto-mode/playbooks/perf-issue.md`, l. 21) A clean verdict
-merges into local main under the standing grant (SKILL.md, Autonomy). A change the operator named,
-or asked to see first, stops at merge-ready. *(kstack, the translation: kstack merges local
-branches, so Opening a PR, with its PR text and its forge, has no counterpart here. The gate is the
-step where a change leaves its author.)*
+The gate is the independent check that check 4 (verify) ends on. The root starts it and runs its
+checks, and fresh agents that did not write the change run its other lanes on the change's own local
+branch. pstack: "Run **Opening a PR**." (pstack, `skills/poteto-mode/playbooks/perf-issue.md`,
+l. 21) A clean verdict merges into local main under the standing grant (SKILL.md, Autonomy). A
+change the operator named, or asked to see first, stops at merge-ready. *(kstack, the translation:
+kstack merges local branches, so Opening a PR, with its PR text and its forge, has no counterpart
+here. The gate is the step where a change leaves its author.)*
 
 Sustained improvement of one number against a target, rather than a one-off fix, is pstack's
 Hillclimb playbook (pstack, `skills/poteto-mode/playbooks/perf-issue.md`, l. 23). *(kstack: build

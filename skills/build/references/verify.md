@@ -20,9 +20,9 @@ Verification is these steps:
 - **The writer never verifies its own change.** A fresh subagent writes the code, the root
   verifies it, and the gate checks it again (Sadowski et al., 2018).
 - **The gate is the independent check,** and every playbook ends on it (`references/gate.md`).
-  Fresh agents that wrote none of the change re-run the checks at the exact commit and drive the
-  real app. They review the diff against `references/rules.md` in two or more lanes, and run the
-  same scenario on main to compare.
+  The root re-runs the checks at the exact commit, and fresh agents that wrote none of the change
+  drive the real app. They review the diff against `references/rules.md` in two or more lanes, and
+  run the same scenario on main to compare.
 
 The root runs the change: it boots the app, drives it and reads the logs, or reads the captured
 evidence of a subagent that did. **Declaring it done is the gate's job, not the root's or the

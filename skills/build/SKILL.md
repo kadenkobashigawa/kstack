@@ -18,10 +18,10 @@ one first)*. Why each check exists is in `references/evidence.md`.
   Delegate investigation and the fix to subagents, stay in the lead." (pstack,
   `skills/poteto-mode/playbooks/bug-fix.md`, l. 3)
 - **Every change that merges passes the gate** (`references/gate.md`), whatever its playbook. The
-  gate is a review by fresh agents that did not write the change, against the code rules in
-  `references/rules.md`. Give each self-contained change its own branch, in its own linked worktree,
-  gated and merged alone. A change waits only for one it overlaps (`references/gate.md`, The unit of
-  work).
+  root runs the gate's checks, and fresh agents that did not write the change run its other lanes,
+  where the review lanes hold it to the code rules in `references/rules.md`. Give each
+  self-contained change its own branch, in its own linked worktree, gated and merged alone. A
+  change waits only for one it overlaps (`references/gate.md`, The unit of work).
 - **Read the project's specifics from the repo on each run**: its test commands, where findings
   go, and what counts as a reference in its language (imports, calls, config keys). Never write
   them into this file *(kstack: build serves any project)*.

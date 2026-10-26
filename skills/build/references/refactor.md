@@ -82,12 +82,12 @@ code does is a redesign. Name it, and run it through `references/feature.md`.
    concern per commit.
 9. **Run the gate (`references/gate.md`).** pstack: "Run **Opening a PR**." (pstack,
    `skills/poteto-mode/playbooks/refactoring.md`, l. 14) The gate is the independent check that
-   check 4 (verify) ends on. The root starts it, and fresh agents that did not write the change run
-   it on the refactor's own local branch. A clean verdict merges into local main under the standing
-   grant (SKILL.md, Autonomy). A change the operator named, or asked to see first, stops at
-   merge-ready. *(kstack, the translation: kstack merges local branches, so Opening a PR, with its
-   PR text and its forge, has no counterpart here. The gate is the step where a change leaves its
-   author.)*
+   check 4 (verify) ends on. The root starts it and runs its checks, and fresh agents that did not
+   write the change run its other lanes on the refactor's own local branch. A clean verdict merges
+   into local main under the standing grant (SKILL.md, Autonomy). A change the operator named, or
+   asked to see first, stops at merge-ready. *(kstack, the translation: kstack merges local
+   branches, so Opening a PR, with its PR text and its forge, has no counterpart here. The gate is
+   the step where a change leaves its author.)*
 
 **Reply:** the structure that changed, the pin, the equivalence proof, the reader-load change, what
 shipped and what was reverted, and "No new behavior." (pstack,

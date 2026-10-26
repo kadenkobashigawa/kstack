@@ -12,10 +12,11 @@ is clean. Run it from inside the branch's linked worktree.
   gate.py status          prints the current patch's lanes, whether its verdict is clean and why
                           not, and each finding's failed corrections, with STOP at two for a
                           finding still act-on. Exits 0 on a clean verdict and 1 otherwise
-  gate.py land FILE       refuses an empty patch, a verdict that is not clean, or a main that moved
-                          since the merge base. Otherwise it commits the head's tree on main with
-                          FILE's message and the verdict, deletes the ledger, and prints the
-                          commands that remove the worktree, then the branch
+  gate.py land FILE       refuses an empty patch or a verdict that is not clean. Otherwise it
+                          commits the head's tree on main with FILE's message and the verdict,
+                          deletes the ledger, and prints the commands that remove the worktree,
+                          then the branch. Past a main that moved since the merge base, it commits
+                          the merge of main and the head instead, when the checks below pass
 
 A clean verdict for the current patch needs these lanes, by name:
 
@@ -37,6 +38,16 @@ finding's id across rounds, because an id still act-on at a later patch is a fai
 fix names the fresh agent that wrote it, never `root`. GATE_MAIN names the main branch (default
 `main`).
 
+When main moved since the merge base, `land` refuses, naming the check, unless three checks pass.
+The gates row at the head must have recorded main's tip equal to the head's merge base, so the
+gates lane ran on a head rebased onto the main of its time. Then pstack's two merge checks:
+`git merge-tree --write-tree` of main and the head must be clean, and no path main changed since
+the merge base may be a path the patch changes, or a path that GATE_CHECK_PATHS names
+(space-separated git pathspecs, read from the repository's top, for the files that decide which
+checks run, default empty). The fix for a refusal is a rebase. When all pass, it commits the merged
+tree on main's tip, and the verdict line names the base and the tip main had moved to. It needs
+git 2.38 or later for `merge-tree --write-tree`. Main moving during the landing refuses it.
+
 The ledger is one TSV per branch, `kstack-gate/<branch>.tsv` with each `/` written as `__`, in the
 worktree's own git folder (`git rev-parse --absolute-git-dir`). It sits outside the work tree, so
 no commit picks it up, and removing the worktree removes it. The same branch name in a new worktree
@@ -44,10 +55,10 @@ starts with an empty ledger, and `land` deletes the ledger once main holds the v
 refuses a detached HEAD. It also refuses the main worktree, whose git folder is the repository's
 own and outlives a deleted branch. git before 2.31 cannot tell the main worktree apart, so there
 `record` refuses everywhere. A lane row carries the commit it checked, and any other row carries
-the head. Every row carries the stable patch-id of the branch's diff from its merge base with
-main, so a new patch starts a new verdict and an old patch's rows never count toward it. gate.py
-only appends rows. Within a patch, the latest row for a lane or a finding supersedes the earlier
-ones.
+the head. Every row carries main's tip when it was written, and the stable patch-id of the
+branch's diff from its merge base with main, so a new patch starts a new verdict and an old
+patch's rows never count toward it. gate.py only appends rows. Within a patch, the latest row for
+a lane or a finding supersedes the earlier ones.
 """
 
 from __future__ import annotations
@@ -62,7 +73,7 @@ import subprocess
 import sys
 
 
-COLUMNS = ['ts', 'head', 'patch', 'kind', 'name', 'model', 'result', 'cmd', 'note']
+COLUMNS = ['ts', 'head', 'patch', 'kind', 'name', 'model', 'result', 'cmd', 'note', 'main']
 RESULTS = {
     'lane':    {'PASS', 'ISSUES', 'BLOCKED', 'gap', 'NO-RUNTIME'},
     'finding': {'act-on', 'consider', 'queue', 'dismissed', 'nit'},
@@ -121,9 +132,15 @@ def read_rows(path: str) -> list[dict]:
     """The ledger's rows; a ledger not yet written, or deleted by `land`, has none."""
     try:
         with open(path, newline='') as f:
-            return list(csv.DictReader(f, delimiter='\t'))
+            rows = list(csv.DictReader(f, delimiter='\t', restkey='main'))
     except FileNotFoundError:
         return []
+
+    #a ledger begun before the main column holds a later row's main as its one extra field...
+    for r in rows:
+        if isinstance(r.get('main'), list):
+            r['main'] = r['main'][0]
+    return rows
 
 
 def one_line(s: str) -> str:
@@ -161,7 +178,7 @@ def append(path: str, row: list[str]) -> None:
         w = csv.writer(f, delimiter='\t', lineterminator='\n')
         if not os.fstat(f.fileno()).st_size:
             w.writerow(COLUMNS)
-        w.writerow([ts, *map(one_line, row)])
+        w.writerow([ts, *map(one_line, row), git('rev-parse', main_ref())])
 
 
 def record(kind: str, name: str, result: str, model: str, cmd: str, note: str, sha: str) -> int:
@@ -293,6 +310,34 @@ def main_worktree() -> str | None:
     return None
 
 
+def changed(base: str, rev: str, *spec: str) -> set[str]:
+    """The paths `rev` changes since `base`, both sides of a rename, within pathspecs `spec`."""
+
+    #run from the top, so a pathspec names the same paths from any folder of the worktree...
+    top = git('rev-parse', '--show-toplevel')
+    raw = git_bytes('diff', '--name-only', '--no-renames', '-z', base, rev, '--', *spec, cwd=top)
+    return {text(p) for p in raw.split(b'\0') if p}
+
+
+def merge_past(base: str, tip: str, head: str) -> tuple[str, str]:
+    """The tree merging `head` into `tip`, which moved past `base`, or why a merge check refuses."""
+    p = subprocess.run(['git', 'merge-tree', '--write-tree', '--name-only', tip, head],
+                       capture_output=True)
+    if p.returncode == 1:
+        return '', f'git merge-tree of it and the head is not clean:\n{text(p.stdout + p.stderr)}'
+    if p.returncode:
+        return '', (f'git merge-tree failed with exit {p.returncode}, so the merge went unchecked; '
+                    f'--write-tree needs git 2.38 or later:\n{text(p.stderr)}')
+    both = changed(base, tip) & changed(base, head)
+    if both:
+        return '', 'it changed paths the patch changes: ' + ', '.join(sorted(both))
+    spec = os.environ.get('GATE_CHECK_PATHS', '').split()
+    gates = changed(base, tip, *spec) if spec else set()
+    if gates:
+        return '', 'it changed paths GATE_CHECK_PATHS names: ' + ', '.join(sorted(gates))
+    return text(p.stdout).split('\n', 1)[0].strip(), ''
+
+
 def land(message_file: str) -> int:
     at   = where()
     rows = read_rows(ledger_path(at['branch']))
@@ -306,15 +351,27 @@ def land(message_file: str) -> int:
         for w in why:
             print(f'  - {w}', file=sys.stderr)
         return 1
-    tip = git('rev-parse', main_ref())
-    if at['base'] != tip:
-        print(f'gate: not landing, {main_ref()} moved since the merge base. Rebase onto it, rerun '
-              'the checks and record the lanes the patch-id rule does not keep.', file=sys.stderr)
+    tip  = git('rev-parse', main_ref())
+    tree = git('rev-parse', f"{at['head']}^{{tree}}")
+    if at['base'] != tip and lanes['gates'].get('main') != at['base']:
+        print(f"gate: not landing, {main_ref()} moved since the merge base, and the gates lane at "
+              f"this head ran while {main_ref()} was not that base. Rebase onto {main_ref()}, "
+              'rerun the gates lane, then land.', file=sys.stderr)
         return 1
+    if at['base'] != tip:
+        tree, why = merge_past(at['base'], tip, at['head'])
+        if why:
+            print(f'gate: not landing, {main_ref()} moved since the merge base and {why}. Rebase '
+                  'onto it, rerun the checks and record the lanes the patch-id rule does not '
+                  'keep.', file=sys.stderr)
+            return 1
     with open(message_file) as f:
         message = f.read().rstrip()
     lines = [f"GATE VERDICT: clean at {at['head'][:8]}, patch-id {at['patch'][:12]} "
              f"(base {at['base'][:8]})."]
+    if at['base'] != tip:
+        lines[0] += (f' {main_ref()} had moved to {tip[:8]}; the merge with it was clean and '
+                     'touched no path the patch changes.')
     for name, r in sorted(lanes.items()):
         note = f" ({r['note']})" if r['note'] else ''
         lines.append(f"- {name}: {r['result']}, {r['model']}, at {r['head'][:8]}{note}")
@@ -322,7 +379,6 @@ def land(message_file: str) -> int:
         if r['kind'] == 'fix':
             lines.append(f"- fix: {r['name']}, {r['model']}")
     body   = message + '\n\n' + '\n'.join(lines) + '\n'
-    tree   = git('rev-parse', f"{at['head']}^{{tree}}")
 
     #build the cleanup commands before main moves, -D since main gets a new commit, not the head...
     repo   = ['git', '-C', git('rev-parse', '--path-format=absolute', '--git-common-dir')]

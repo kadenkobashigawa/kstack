@@ -9,7 +9,8 @@ These folders are imported unmodified, each with its own MIT license:
   at commit `5beb35b` (2026-10-19). Only part of that repository is here, at its original paths: the
   improve-codebase-architecture skill, the codebase-design, grilling and domain-modeling skills it
   calls, grill-me (a one-line wrapper around grilling), their docs pages, the two out-of-scope notes
-  on how grilling asks its questions, and the repository's README and LICENSE.
+  on how grilling asks its questions, the retro skill, the code-review docs page, and the
+  repository's README and LICENSE.
 
 kstack's skills adapt parts of them, and each adapted skill names its source in its own files. They
 are kept here so every adaptation can be compared with the original, and so a part set aside for

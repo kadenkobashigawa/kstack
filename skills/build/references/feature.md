@@ -100,12 +100,12 @@ carries out and who does it.
    into the gate's buckets (`references/judgment.md`).
 8. **Run the gate (`references/gate.md`).** pstack: "Run **Opening a PR**." (pstack,
    `skills/poteto-mode/playbooks/feature.md`, l. 17) The gate is the independent check that check 4
-   (verify) ends on, run on the feature's own local branch. The root starts it, and fresh agents
-   that did not write the change run it. A clean verdict merges into local main under the standing
-   grant (SKILL.md, Autonomy). A change the operator named, or asked to see first, stops at
-   merge-ready. *(kstack, the translation: kstack merges local branches, so Opening a PR, with its
-   PR text and its forge, has no counterpart here. The gate is the step where a change leaves its
-   author.)*
+   (verify) ends on, run on the feature's own local branch. The root starts it and runs its checks,
+   and fresh agents that did not write the change run its other lanes. A clean verdict merges into
+   local main under the standing grant (SKILL.md, Autonomy). A change the operator named, or asked
+   to see first, stops at merge-ready. *(kstack, the translation: kstack merges local branches, so
+   Opening a PR, with its PR text and its forge, has no counterpart here. The gate is the step where
+   a change leaves its author.)*
 
 "Code-coupled work (one feature, one migration) goes to a single owner with the checkpoint inline.
 That owner fans out internally after the blocking phase. Parent-level fan-out is for slices that

@@ -35,8 +35,23 @@ l. 9).
 ## A round
 
 A round starts at the commit the author calls code-ready, and again at every later commit that
-changes the patch. At that exact commit, fresh agents that did not write the code run four lanes,
-and each lane names the exact commit it checked.
+changes the patch. At that exact commit four lanes run: the root runs the gates lane itself, and
+fresh agents that did not write the code run the other three. Each lane names the exact commit it
+checked. The round ends when every lane has returned (pstack,
+`skills/poteto-mode/playbooks/autopilot-full.md`, l. 8). No commit moves the branch's head before
+then *(kstack: fix commits that moved the head stopped a round's gates lanes mid-suite, per
+`references/evidence.md`, Run evidence behind the gate)*.
+
+**Each lane works in its own detached checkout of the exact commit it checks**, never in the
+branch's worktree, so a fix commit or a rebase there cannot change the files under a running lane.
+"When workers verify or measure commits, each brief names the exact SHAs." and "Give each worker
+its own writable output when it writes." (pstack, `skills/swarm/SKILL.md`, l. 26) pstack's live
+lane checks out the head SHA on its own machine (pstack,
+`skills/poteto-mode/playbooks/multi-phase-plan.md`, ll. 71, 73). Make the checkout with
+`git worktree add --detach <path> <sha>`, and remove it by that exact path,
+`git worktree remove <path>`, once the lane returns. The root keeps recording from the branch's
+worktree, since `gate.py record` refuses a detached HEAD. *(kstack, the translation: a linked
+worktree is the lane's own machine.)*
 
 Before a commit starts a round, its author runs the checks that the project's own rules name for the
 touched paths, on the commit itself (pstack, `skills/poteto-mode/playbooks/autopilot-full.md`,
@@ -45,12 +60,16 @@ or `AGENTS.md` files and its rules, such as `.claude/rules/` or a contributing g
 checks. kstack's `CONTRIBUTING.md` names `claude plugin validate .` for changes under `skills/`. A
 round starts at a commit, not a push.)*
 
-1. **Gates: re-run every check at the commit.** The lane runs the risk list from check 1
-   (understand), the project's pre-merge checks (tests, lint, type checks), and every site command
-   from the previous round's fix briefs (Otherwise, fix forward). It reports each command's count.
-   It checks the commit as committed, because "A hook pass is not proof." (pstack,
+1. **Gates: the root re-runs every check at the commit.** The root runs the commands itself, in the
+   background, and records each command's count. No agent is spawned for it, because "A verifier
+   agent whose entire product would be rerunning one command is ceremony, not verification."
+   (pstack, `skills/poteto-mode/playbooks/orchestrate.md`, l. 87) and "A deterministic lever beats
+   fan-out." (pstack, `skills/principle-build-the-lever/SKILL.md`, l. 16) The commands are the risk
+   list from check 1 (understand), the project's pre-merge checks (tests, lint, type checks), and
+   every site command from the previous round's fix briefs (Otherwise, fix forward). The lane
+   checks the commit as committed, because "A hook pass is not proof." (pstack,
    `skills/poteto-mode/playbooks/autopilot-full.md`, l. 6) A check that cannot run, because its tool
-   is missing or its access is refused, makes the lane BLOCKED, never PASS, and the lane names what
+   is missing or its access is refused, makes the lane BLOCKED, never PASS, and its row names what
    was missing (pstack, `automations/benny/skills/reproduce-and-fix-issues/SKILL.md`, l. 183).
 2. **Live: prove the load-bearing behaviour on the real surface the change touches** (pstack,
    `skills/poteto-mode/playbooks/autopilot-full.md`, l. 8), through the project's verify skill
@@ -99,15 +118,17 @@ adds which model runs each lane.
   the fast model (pstack, `skills/swarm/SKILL.md`, l. 25), and that is Sonnet here *(kstack: Claude
   Code runs only Claude models)*. Correctness takes Opus because a miss there ships a wrong result
   *(kstack: reasoning, not measurement)*.
-- **The gates, live and regression lanes are mechanical work, so they run on Sonnet** (SKILL.md,
-  Subagents).
+- **The live and regression lanes are mechanical work, so they run on Sonnet** (SKILL.md,
+  Subagents). The gates lane is no agent, since the root runs its commands (lane 1), so its row
+  records `--model root`.
 
 ## The verdict
 
 Each lane returns `PASS`, `ISSUES` or `BLOCKED` with evidence. A lane that can prove a defect
 reports `ISSUES` and lists every issue it can prove, not only the first (pstack,
-`skills/swarm/SKILL.md`, l. 34). A lane that doesn't record the commit it checked is re-run once,
-and after that it is a gap. A gap does not count as a pass (pstack, `skills/swarm/SKILL.md`, l. 40).
+`skills/swarm/SKILL.md`, l. 34). A lane agent that doesn't report the commit it checked is re-run
+once, and after that it is a gap. A gap does not count as a pass (pstack, `skills/swarm/SKILL.md`,
+l. 40).
 
 **The ledger records the verdict.** The root writes each lane result, finding and fix to the
 branch's ledger with `scripts/gate.py record`, run as
@@ -131,19 +152,24 @@ agent, but the root has already read every report, and separate lead agents cost
 to fix a bug rather than defer it, per `references/evidence.md`, Run evidence behind the gate.)* A
 round whose findings are all nits is a clean verdict, and its nits go in the Reply.
 
-**A clean verdict** means that, at the commit that will merge, no lane is BLOCKED or a gap, the
-gates lane passed at that commit, the live lane passed or the change has no runtime surface, the
+**A clean verdict** means that, at the head that lands, no lane is BLOCKED or a gap, the
+gates lane passed at that head, the live lane passed or the change has no runtime surface, the
 regression lane passed whenever the live lane did, two review lanes on different models read the
 round's diff, a fresh agent wrote every fix in the round, and the root left nothing in act on. Nits
 in the Reply do not count against it. `gate.py status` checks the lane and finding parts of this
 from the ledger.
 
-**Otherwise, fix forward.** Every act-on finding goes back in one fix-forward. For each behaviour
+**Otherwise, fix forward.** "When the lanes return, send every proven finding against the PR to
+the owner in one fix-forward." (pstack, `skills/poteto-mode/playbooks/autopilot-full.md`, l. 8)
+So the fix-forward starts only when every lane of the round has returned. For each behaviour
 finding, ask for a red test that covers every site with the same defect, or a repro receipt where no
 test can show the defect. Add that defect to the next round's review brief (pstack,
 `skills/poteto-mode/playbooks/autopilot-full.md`, l. 8). Before the fix is written, its brief lists
 the sites, since a fix covers the pattern, not just the instance (pstack,
-`skills/principle-fix-root-causes/SKILL.md`, l. 18).
+`skills/principle-fix-root-causes/SKILL.md`, l. 18). A guard the fix adds is a source scan only
+when the defect is a fixed syntactic pattern, and a property of how data flows gets a structural
+mechanism instead, in the order `references/design.md` gives under Screen for red flags (pstack,
+`skills/principle-encode-lessons-in-structure/SKILL.md`, l. 19).
 
 The site list is a command and its output, for a code defect and a doc defect alike. The brief
 carries the command that lists the sites, such as a `git grep`, a script, or a red test over every
@@ -151,16 +177,24 @@ input shape, and the output it gave. A count is true at the commit that lands it
 that regenerates it (pstack, `skills/technical-writing/SKILL.md`, l. 96), and a census is a
 rerunnable script (pstack, `skills/principle-attack-the-premise/SKILL.md`, l. 15). The fixer reruns
 the command after the fix and reports the new output. The next round's gates lane reruns it at the
-new head and reports the count.
+new head and records the count.
 
 - **A behaviour that depends on order**, such as hook events, retries or concurrent writers, has a
   site for every order the inputs can arrive in. The brief names each order with the test that
   covers it *(kstack: fixes introduced bugs on orders their authors had not traced,
   per `references/evidence.md`, Run evidence behind the gate)*.
-- **A false claim in a doc or a comment** has a site at every place the claim reaches. The command
-  finds those places, or the fix rewrites the sentence to state the mechanism, so that it holds
-  without a list. *(kstack: the red-test rule, carried over to docs, after failed doc fixes missed
-  places, per `references/evidence.md`, Run evidence behind the gate.)*
+- **A false or unsupported claim in a doc or a comment** has a site at every place the claim
+  reaches, and the command finds those places *(kstack: the red-test rule, carried over to docs,
+  after failed doc fixes missed places, per `references/evidence.md`, Run evidence behind the
+  gate)*. At each site the fix deletes the sentence, by default. unslop: "If you can't restate it
+  as a concrete instruction, fact, or number, cut it." (pstack, `skills/unslop/SKILL.md`, l. 61),
+  and of an unsourced claim, "Name the source or delete." (pstack, `skills/unslop/SKILL.md`,
+  l. 23) Rewrite it only when the reader needs it and it can carry its source or the command that
+  regenerates it (pstack, `skills/technical-writing/SKILL.md`, l. 96). A rewrite is new prose to
+  review: "Each fix adds new code to review" (mattpocock-skills,
+  `docs/engineering/code-review.md`, l. 77). *(kstack: rewording kept doc findings open for rounds
+  after the code was proven, and deleting the claim closed them, per `references/evidence.md`, Run
+  evidence behind the gate.)*
 
 **A fresh agent writes the fix.** Give new work to a fresh subagent with consolidated scope: the
 original brief, every later directive, and the prior agent's report and branch. That holds for a fix
@@ -209,21 +243,29 @@ a README, a product or design record, and comments.)*
 These steps are autopilot-full step 5, with local merges in place of PRs *(kstack, the translation:
 kstack merges a local branch into local main, where pstack merges a PR on a forge)*.
 
-1. **Rebase.** Merge only from a head freshly rebased onto trunk (pstack,
-   `skills/poteto-mode/playbooks/autopilot-full.md`, l. 9). Rebase onto current main right before
-   merging, then re-run the project's checks on that head.
+1. **Rebase once, when the branch is merge-ready.** Merge only from a head freshly rebased onto
+   trunk, and merge prep never comes before a round's lanes start (pstack,
+   `skills/poteto-mode/playbooks/autopilot-full.md`, l. 9). Rebase onto current main, then re-run
+   the project's checks on that head (lane 1).
 2. **Re-check the verdict** with the patch-id rule. A new patch voids the verdict, except the lane
    results that rule keeps.
-3. **Dry-run the merge.** Check that `git merge-tree` of the head against local main is clean. Check
-   that no file main changed since the merge base is one the change touches, or one that decides
-   which checks run (CI config). If either check fails, rebase again and repeat from step 1.
+3. **Check the merge.** Once that head is green and its patch-id matches the verdict's, a later move
+   of main does not force another rebase (pstack, `skills/poteto-mode/playbooks/autopilot-full.md`,
+   l. 9). Right before the merge, check that `git merge-tree` of the head against local main is
+   clean, and that no file main changed since the merge base is one the change touches, or one that
+   decides which checks run. If either check fails, rebase again and repeat from step 1. Whenever
+   main has moved since the merge base, `gate.py land` first refuses unless the gates row at the
+   head recorded main's tip equal to the head's merge base, which is step 1's rebase. Then it runs
+   both checks, and refuses, naming the check, when one fails. *(kstack, the translation: pstack's
+   CI config paths are the pathspecs a project lists in `GATE_CHECK_PATHS`, empty by default.)*
 4. **Merge as one commit** on main, as pstack squash-merges (pstack,
    `skills/poteto-mode/playbooks/autopilot-full.md`, l. 9). The commit message carries the verdict,
    the Reply below, after a line that reads `GATE VERDICT:`. A merge without that verdict, or with a
    verdict that is not clean, does not land.
-   `gate.py land <message-file>` makes this commit, and refuses unless the ledger holds a clean
-   verdict for the current patch, on main's latest commit. It then prints the commands that remove
-   the worktree, then the branch.
+   `gate.py land <message-file>` makes this commit on main's latest commit, and refuses unless the
+   ledger holds a clean verdict for the current patch. The commit holds the head's tree, or the
+   merged tree when main had moved, and then its verdict line names the move. It then prints the
+   commands that remove the worktree, then the branch.
 
 **Who may merge** is SKILL.md's "## Autonomy" rule. The grant to merge into local main is standing,
 so a clean verdict merges. A change the operator named, or asked to see first, ends at merge-ready,

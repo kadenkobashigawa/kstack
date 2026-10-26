@@ -53,6 +53,15 @@ reaches. Then go to check 2 (`references/simplify.md`) and ask whether the chang
 layer *(kstack: the three-day build in `references/evidence.md`, Where this skill came from, where
 every fix spawned new bugs because the user and the agent held different architectures)*.
 
+## A scan that keeps growing points at the mechanism
+
+When each fix extends a source scan to catch the reviewer's next case, the premise both fixes
+shared is that a scan can guard the property. A scan fits only a fixed syntactic pattern. Replace
+it with the strongest structural mechanism the situation allows, in the order
+`references/design.md` quotes under Screen for red flags (pstack,
+`skills/principle-encode-lessons-in-structure/SKILL.md`, l. 19). *(kstack: per
+`references/evidence.md`, Run evidence behind the gate.)*
+
 ## How the count is kept
 
 The count belongs to the issue, not to the agent, so a fresh subagent inherits it through the
