@@ -71,12 +71,8 @@ Taking only the blocking ones keeps both rules true.)*
 
 ## When no task is handed over
 
-One task per run. When the project's instruction file names a backlog for findings, it goes first:
-the run takes its worst item that still holds at current main, proved again there, and its fix's
-change deletes that line. A fresh owner "picks up the next self-contained item from the queue"
-(pstack, `skills/poteto-mode/playbooks/autopilot-full.md`, l. 9). With no backlog, or no item that
-still holds, the code rules choose the task. The run checks a slice against `references/rules.md` in
-the rules' order (built well, works, written true), then takes the worst broken rule and nothing
+One task per run, and the code rules choose it. The run checks a slice against `references/rules.md`
+in the rules' order (built well, works, written true), then takes the worst broken rule and nothing
 else. orchestrate holds the same line for a large run: "Mid-run discoveries fix only what blocks the
 frontier. Everything else parks in follow-ups." (pstack,
 `skills/poteto-mode/playbooks/orchestrate.md`, l. 109) *(kstack: this is robovac's build step, which
