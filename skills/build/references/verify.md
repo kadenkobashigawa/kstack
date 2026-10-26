@@ -122,8 +122,8 @@ Over-testing is over-complication. Each of these costs upkeep and catches little
 - snapshots of anything nondeterministic
 - known-failing tests left red, which get quarantined with a deadline or deleted *(kstack:
   judgment)*
-- flaky tests treated as noise, since a flake is a bug, so never normalize "just re-run it"
-  *(kstack: judgment)*
+- flaky tests treated as noise: a failing check gets one fresh run, and one that passes on it is
+  still named in the Reply (`references/gate.md`, lane 1)
 
 ### When the change touches an LLM call
 

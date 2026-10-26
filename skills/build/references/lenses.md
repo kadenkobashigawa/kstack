@@ -7,9 +7,9 @@ or data and config safety." (pstack, `skills/poteto-mode/playbooks/autopilot-ful
 lanes hold the change to the same rubric, all 18 of build's code rules in `references/rules.md`,
 beside this file. Each reports a finding by its rule number. A lane's lens is its main focus.
 It says where the lane looks hardest, never which rules it may skip. Each lane gets the change
-pinned to exact SHAs, the stated intent and the rest of its brief, which build's
-`references/gate.md` (A round) lists. It reports findings in the shape at the bottom, or "no
-findings".
+pinned to exact SHAs, the stated intent and the rest of its brief, in the fields of build's
+SKILL.md (The brief), which `references/gate.md` (A round, lane 3) fills. It reports findings in
+the shape at the bottom, or "no findings".
 
 The ways to look come from pstack's interrogate rubric and code-quality lens (pstack,
 `skills/interrogate/references/rubric.md` and

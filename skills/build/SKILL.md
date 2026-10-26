@@ -135,9 +135,6 @@ retries and the next queue item included. Hand it the original brief, every late
 the prior agent's report and branch. Reuse an agent only when the work needs its checkout, its
 uncommitted changes, or a process it still runs (pstack, `skills/poteto-mode/SKILL.md`, l. 99).
 
-**Brief each subagent with a scope, file pointers, the data shape and success criteria** (pstack,
-`skills/poteto-mode/playbooks/feature.md`, l. 12; `skills/poteto-mode/SKILL.md`, l. 95).
-
 **The root owns the result.** Review each diff and write your own summary. A second opinion is
 the same prompt against a different model, which is how the gate runs its two review lanes
 (pstack, `skills/poteto-mode/SKILL.md`, l. 97).
@@ -156,6 +153,46 @@ one.)*
 (pstack, `skills/poteto-mode/playbooks/feature.md`, l. 12). *(kstack: pstack's single owner fans
 out after the blocking phase, l. 19. Here the root spawns every agent, so it sees all the
 work.)*
+
+### The brief
+
+**Every brief build writes, for a writer, a fixer or a gate lane, has these fields.** "A field you
+cannot fill is a unit you have not scoped yet." (pstack,
+`skills/poteto-mode/playbooks/orchestrate.md`, l. 36) The fields are pstack's (pstack,
+`skills/poteto-mode/playbooks/orchestrate.md`, ll. 38–49):
+
+```
+GOAL         one sentence, the outcome, executable by a stranger with no chat access
+SCOPE        paths this unit may write; paths it may not; its own linked worktree and branch,
+             or for a lane the detached checkout of the exact commit it checks; for code, the
+             named data shape and its organizing structure
+CONTEXT      file pointers, not inlined context; reports this unit depends on pasted in full,
+             because workers cannot see siblings
+ACCEPTANCE   checkable criteria, one per line
+VERIFY       exact commands the project's rules name for the touched paths, plus known gotchas
+TIMEBOX      rough cap on runtime; on expiry, return partial findings and stop rather than run on
+FORBIDDEN    no merge, no push, no rebase, no force-push, no fixes outside scope, plus
+             unit-specific bans
+REPORT       status, branch, head SHA, verdict, what you actually ran, deviations,
+             suggested follow-ups
+```
+
+- **SCOPE** names the data shape because pstack's feature step delegates "with a specific scope
+  (file paths, named data shape and its organizing structure ...)" (pstack,
+  `skills/poteto-mode/playbooks/feature.md`, l. 12).
+- **CONTEXT** gives pointers, not pasted files (pstack, `skills/poteto-mode/SKILL.md`, l. 95), so
+  commits and paths go as pointers and the agent reads them itself. A report is a reply, not a
+  file, so it is the one thing pasted.
+- **VERIFY** carries the commands because the author runs them on the committed head before a
+  round (`references/gate.md`, A round).
+- *(kstack, the translation: pstack's PRs become the local branch and its head commit, and the
+  ban on `gt` becomes a ban on merging and pushing, which the root alone does. pstack's STANDING
+  field is dropped, because Claude Code loads the project's `CLAUDE.md` files into every subagent,
+  which carries the standing orders.)*
+
+"Size the brief to the unit. A one-command unit gets the template collapsed to a paragraph that
+still names goal, scope, the verify command, and the report shape." (pstack,
+`skills/poteto-mode/playbooks/orchestrate.md`, l. 52)
 
 ## Every rule names its source or says it is reasoning
 

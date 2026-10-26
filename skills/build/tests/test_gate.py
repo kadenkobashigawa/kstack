@@ -11,19 +11,22 @@ G1 to G5 hold what a clean verdict needs: a passing gates lane, a live lane or a
 (G4b), two review lanes on two models, and no BLOCKED lane or gap. G2 holds what a fresh lane row
 needs: a known result, its model and the commit it checked, at the current patch. G2b holds that a
 fix row names its model and never the root, and that an act-on finding keeps its command. G2c keeps
-a lane's commit given short or by name as its full sha. G2d keeps only the live lane from an older
-patch, with a note and no result or model of its own, and records a gap with no commit. G2e takes
---kept-from only at a commit where the ledger holds a live lane row from an earlier patch, and
+a lane's commit given short or by name as its full sha. G2d keeps a lane with build output from an
+older patch, with a note and no result or model of its own, never gates or a review lane, and
+records a gap with no commit. G2e takes
+--kept-from only at a commit where the ledger holds a row of that lane from an earlier patch, and
 copies the latest one's result and model, unless it is NO-RUNTIME, which has no build output to
 keep. G2f refuses a commit whose live row a later row at its patch, at another commit, replaced,
-and keeps that later one. G4c refuses a gap lane, G4d a live lane with ISSUES, and G5b a gates
-lane standing in for a review lane.
+and keeps that later one. G2g keeps a regression lane only while the merge base with main is the
+one it ran on, and a live lane across a moved main. G4c refuses a gap lane, G4d a live lane with
+ISSUES, and G5b a gates lane standing in for a review lane.
 
 G6 holds that a new patch starts a new verdict and an act-on finding blocks it, G6b that a finding
 at an older patch does not, G6c that a later row on a finding at the same patch supersedes it, and
-G6d that status prints an open finding's command. G6e holds that a kept live lane and fresh gates
-are not clean until the reviews run fresh. G7 counts failed corrections and says STOP at two (G7a:
-not at one; G7b: not for a finding no longer act-on at the current patch, whose count stays).
+G6d that status prints an open finding's command. G6e holds that after a tests-only patch change
+the review lanes are never kept, and the verdict needs two fresh review lanes on two models. G7
+counts failed corrections and says STOP at two (G7a: not at one; G7b: not for a finding no longer
+act-on at the current patch, whose count stays).
 
 G8 refuses to land without a clean verdict. G9 lands past a main that moved on paths the change
 does not touch, on main's new commit, and the verdict line names the move. G9b refuses a new head
@@ -214,10 +217,12 @@ def g1_to_g5() -> None:
         kept  = gate('record', 'lane', 'live', *keep, 'only a test changed', cwd=feat).returncode
         gap   = gate('record', 'lane', 'regression', 'gap', '--model', 'opus', cwd=feat).returncode
         hint  = lane(feat, 'gates', 'PASS', 'sonnet', at=old).stderr
-        check('G2d only the live lane is kept, with why and no result or model of its own; a gap '
-              'names no commit', (why, said, kept, gap) == (2, 2, 0, 0) and extra == [2, 2, 2]
-              and other == [2, 2, 2] and '--kept-from' in hint,
-              str((why, said, extra, other, kept, gap)) + hint)
+        review = gate('record', 'lane', 'review-a', *keep, 'n', cwd=feat).stderr
+        check('G2d a lane with build output is kept, with why and no result or model of its own, '
+              'never gates or a review lane; a gap names no commit',
+              (why, said, kept, gap) == (2, 2, 0, 0) and extra == [2, 2, 2]
+              and other == [2, 2, 0] and '--kept-from' in hint and 'no build output' in review,
+              str((why, said, extra, other, kept, gap)) + hint + review)
     with tempfile.TemporaryDirectory() as tmp:
         _, feat = repo(tmp)
         first = head(feat)
@@ -258,6 +263,21 @@ def g1_to_g5() -> None:
         check('G2f --kept-from refuses a commit whose live row a later one at its patch replaced, '
               'and keeps the later one', old.returncode == 2 and new.returncode == 0
               and live == [['live', 'ISSUES', 'opus']], f'{old.stderr} {new.stderr} {live}')
+    with tempfile.TemporaryDirectory() as tmp:
+        main, feat = repo(tmp)
+        old = head(feat)
+        lane(feat, 'live', 'PASS', 'sonnet')
+        lane(feat, 'regression', 'PASS', 'sonnet')
+        commit(feat, 'test_a.txt', 't\n', 'a test')
+        same = gate('record', 'lane', 'regression', '--kept-from', old, '--note', 'n', cwd=feat)
+        commit(main, 'b.txt', 'main\n', 'main moves')
+        sh('git', 'rebase', '-q', 'main', cwd=feat)
+        moved = gate('record', 'lane', 'regression', '--kept-from', old, '--note', 'n', cwd=feat)
+        live  = gate('record', 'lane', 'live', '--kept-from', old, '--note', 'n', cwd=feat)
+        check('G2g a regression lane is kept only while the merge base with main is the one it ran '
+              'on, and a live lane is kept across a moved main',
+              same.returncode == 0 and moved.returncode == 2 and 'merge base' in moved.stderr
+              and live.returncode == 0, same.stderr + moved.stderr + live.stderr)
     with tempfile.TemporaryDirectory() as tmp:
         _, feat = repo(tmp)
         lane(feat, 'gates', 'PASS', 'sonnet')
@@ -334,23 +354,27 @@ def g6_g7() -> None:
     with tempfile.TemporaryDirectory() as tmp:
         _, feat = repo(tmp)
         old = head(feat)
-        clean_lanes(feat)
+        lane(feat, 'gates', 'PASS', 'sonnet')
         lane(feat, 'live', 'PASS', 'sonnet')
+        lane(feat, 'regression', 'PASS', 'sonnet')
+        lane(feat, 'review-correctness', 'ISSUES', 'opus')
+        lane(feat, 'review-structure', 'PASS', 'sonnet')
+        gate('record', 'finding', 'F1', 'act-on', '--cmd', 'grep -n x', cwd=feat)
         commit(feat, 'test_a.txt', 't\n', 'a test')
         lane(feat, 'gates', 'PASS', 'sonnet')
-        gate('record', 'lane', 'live', '--kept-from', old, '--note', 'only a test changed',
-             cwd=feat)
         held  = [gate('record', 'lane', name, '--kept-from', old, '--note', 'only a test changed',
-                      cwd=feat).returncode for name in ('review-correctness', 'review-structure')]
-        stale = gate('status', cwd=feat)
+                      cwd=feat).returncode
+                 for name in ('gates', 'live', 'regression', 'review-correctness',
+                              'review-structure')]
         lane(feat, 'review-correctness', 'PASS', 'opus')
+        one   = gate('status', cwd=feat)
         lane(feat, 'review-structure', 'PASS', 'sonnet')
-        lane(feat, 'regression', 'PASS', 'sonnet')
-        fresh = gate('status', cwd=feat)
-        check('G6e a kept live lane and fresh gates are not clean until the reviews run fresh',
-              held == [2, 2] and stale.returncode == 1
-              and 'fewer than two review lanes' in stale.stdout and fresh.returncode == 0,
-              f'{held} {stale.stdout} {fresh.stdout}')
+        two   = gate('status', cwd=feat)
+        check('G6e after a tests-only patch change the review lanes are never kept, and the '
+              'verdict needs two fresh review lanes on two models',
+              held == [2, 0, 0, 2, 2] and one.returncode == 1
+              and 'fewer than two review lanes' in one.stdout and two.returncode == 0,
+              f'{held} {one.stdout} {two.stdout}')
 
 
 def g8_to_g9() -> None:

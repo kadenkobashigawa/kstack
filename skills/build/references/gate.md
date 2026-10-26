@@ -71,6 +71,17 @@ round starts at a commit, not a push.)*
    `skills/poteto-mode/playbooks/autopilot-full.md`, l. 6) A check that cannot run, because its tool
    is missing or its access is refused, makes the lane BLOCKED, never PASS, and its row names what
    was missing (pstack, `automations/benny/skills/reproduce-and-fix-issues/SKILL.md`, l. 183).
+   **A failing check that might be a flake is classified before any rerun.** "Flake or
+   infrastructure earns one fresh build, never a job retry. One retry only. An identical second
+   failure means it was never flake, so reclassify and read the child logs instead of retrying
+   blind. A failure in code the diff never touches means a stale base, so check with
+   `git merge-base --is-ancestor` before assuming flake. Report a stale base as needing a rebase
+   instead of burning retries. Only a failure in the diff's own code gets a commit." (pstack,
+   `skills/poteto-mode/playbooks/babysit.md`, l. 21) *(kstack, the translation: a fresh build is one
+   fresh run of the failing command at the same commit, the child logs are that command's full
+   output, and the stale-base check is `git merge-base --is-ancestor main <commit>`.)* A flake that
+   passes on its one fresh run is still named in the Reply, by test and command *(kstack: rule 15
+   in `references/rules.md` makes a flaky test a defect, so it is recorded rather than dropped)*.
 2. **Live: prove the load-bearing behaviour on the real surface the change touches** (pstack,
    `skills/poteto-mode/playbooks/autopilot-full.md`, l. 8), through the project's verify skill
    (`verify-<app>`). The live lane is the floor, and a verdict without it is not clean (pstack,
@@ -79,17 +90,19 @@ round starts at a commit, not a push.)*
    (cursor-team-kit, `skills/verify-this/SKILL.md`, l. 22), so a claim that a unit, a script or a
    fixture can disprove is a test in the gates lane. A round builds one test copy of the app per
    version under test, not one per claim *(kstack: a copy per claim adds builds and agents but no
-   evidence)*. A change with no runtime surface, such as docs only, records that fact instead
-   *(kstack: pstack has no docs-only case)*.
+   evidence)*. A change with no runtime surface records that fact instead
+   (`gate.py record lane live NO-RUNTIME`) *(kstack: pstack's lanes all drive a surface, so it has
+   no record for a change without one)*.
 3. **Review: two or more lanes audit the diff, distrusting the author's account of it.** Each lane
    gets the full brief and one main focus, such as consumer parity with trunk, lifetimes and races,
    or data and config safety (pstack, `skills/poteto-mode/playbooks/autopilot-full.md`, l. 8). Each
    lane holds the diff to `references/rules.md`, looks hardest where its lens in
    `references/lenses.md` says (structure or correctness), reports by rule number, and rates each
    finding `critical`, `warning` or `nit` (pstack,
-   `skills/interrogate/references/reviewer-prompt.md`, ll. 35–38). The full brief carries the
-   change's stated intent, the rules, and the run's never-list, which says what the run may not
-   read or touch. It also carries every capability the change drops, with who approves each loss:
+   `skills/interrogate/references/reviewer-prompt.md`, ll. 35–38). The full brief (SKILL.md, The
+   brief) carries the change's stated intent and the rules in CONTEXT, and the run's never-list,
+   which says what the run may not read or touch, in FORBIDDEN. Its CONTEXT also carries every
+   capability the change drops, with who approves each loss:
    the person who asked, or this verdict under the operator's grant, per check 2 in
    `references/simplify.md` *(kstack, as that rule is)*. pstack draws its adversarial signal from
    different model families (pstack, `skills/interrogate/SKILL.md`, ll. 9, 38–41). *(kstack: Claude
@@ -100,11 +113,8 @@ round starts at a commit, not a push.)*
    end state the user waits for. Do not pretend trunk can produce it (pstack,
    `skills/poteto-mode/playbooks/autopilot-full.md`, l. 8).
 
-**Every brief points at what it needs.** A brief for a lane or a fixer gives file pointers, not
-inlined context (pstack, `skills/poteto-mode/SKILL.md`, l. 95), so commits and paths go as pointers
-and the agent reads them itself. The exception is a report the brief depends on. A report is a
-reply, not a file, so it is pasted in full, because workers cannot see siblings (pstack,
-`skills/poteto-mode/playbooks/orchestrate.md`, ll. 41–42).
+**Every lane and fixer brief has the fields in SKILL.md, The brief.** A lane's SCOPE is its
+detached checkout of the exact commit, and its REPORT names that commit.
 
 ## Staffing
 
@@ -152,12 +162,11 @@ agent, but the root has already read every report, and separate lead agents cost
 to fix a bug rather than defer it, per `references/evidence.md`, Run evidence behind the gate.)* A
 round whose findings are all nits is a clean verdict, and its nits go in the Reply.
 
-**A clean verdict** means that, at the head that lands, no lane is BLOCKED or a gap, the
-gates lane passed at that head, the live lane passed or the change has no runtime surface, the
-regression lane passed whenever the live lane did, two review lanes on different models read the
-round's diff, a fresh agent wrote every fix in the round, and the root left nothing in act on. Nits
-in the Reply do not count against it. `gate.py status` checks the lane and finding parts of this
-from the ledger.
+**A clean verdict** means that, at the head that lands, no lane is BLOCKED or a gap, the gates lane
+passed at that head, the live lane passed or the change has no runtime surface, the regression lane
+passed whenever the live lane did, two review lanes on different models read the round's diff, a
+fresh agent wrote every fix in the round, and the root left nothing in act on. Nits in the Reply do
+not count against it. `gate.py status` checks the lane and finding parts of this from the ledger.
 
 **Otherwise, fix forward.** "When the lanes return, send every proven finding against the PR to
 the owner in one fix-forward." (pstack, `skills/poteto-mode/playbooks/autopilot-full.md`, l. 8)
@@ -171,13 +180,13 @@ when the defect is a fixed syntactic pattern, and a property of how data flows g
 mechanism instead, in the order `references/design.md` gives under Screen for red flags (pstack,
 `skills/principle-encode-lessons-in-structure/SKILL.md`, l. 19).
 
-The site list is a command and its output, for a code defect and a doc defect alike. The brief
-carries the command that lists the sites, such as a `git grep`, a script, or a red test over every
-input shape, and the output it gave. A count is true at the commit that lands it, with the command
-that regenerates it (pstack, `skills/technical-writing/SKILL.md`, l. 96), and a census is a
+The site list is a command and its output, for a code defect and a doc defect alike. The fix brief's
+CONTEXT carries the output, and its VERIFY the command that lists the sites, such as a `git grep`, a
+script, or a red test over every input shape. A count is true at the commit that lands it, with the
+command that regenerates it (pstack, `skills/technical-writing/SKILL.md`, l. 96), and a census is a
 rerunnable script (pstack, `skills/principle-attack-the-premise/SKILL.md`, l. 15). The fixer reruns
-the command after the fix and reports the new output. The next round's gates lane reruns it at the
-new head and records the count.
+the command after the fix and its REPORT gives the new output. The next round's gates lane reruns it
+at the new head and records the count.
 
 - **A behaviour that depends on order**, such as hook events, retries or concurrent writers, has a
   site for every order the inputs can arrive in. The brief names each order with the test that
@@ -224,19 +233,24 @@ before merging, compare the recorded patch-id with the current one,
   `skills/poteto-mode/playbooks/shipping.md`, l. 9).
 - **They differ only in tests, docs, or lint config.** Build what each lane ran, twice at the
   verdict SHA and once at the current head. A difference is noise if the two builds at the verdict
-  SHA also show it, or if it is an embedded commit SHA. If only noise differs, that lane's result
-  stays valid, and checks and a review of the change run fresh. A lane result from a dev server, or
-  from anything else with no build output, is never reused. Rerun that lane (pstack,
-  `skills/poteto-mode/playbooks/shipping.md`, l. 9). The ledger keeps only the live lane this way
-  (`gate.py record lane live --kept-from`), and the gates, regression and review lanes run again
-  *(kstack: judgment)*.
+  SHA also show it, or if it is an embedded commit SHA. Judge each difference, not each file, and
+  report each kind of noise with its files. If only noise differs, that lane's result stays valid,
+  and checks and a review of the change run fresh. Do not reuse a lane result from a dev server or
+  from anything else with no build output. Rerun that lane (pstack,
+  `skills/poteto-mode/playbooks/shipping.md`, l. 9). *(kstack, the translation: a lane with build
+  output is a live or regression drive of a build, and it is kept by the noise test with
+  `gate.py record lane <name> --kept-from <sha> --note <the noise found>`. A regression lane runs
+  "the same load-bearing scenario on current trunk" (pstack,
+  `skills/poteto-mode/playbooks/autopilot-full.md`, l. 8), so it is kept only while the merge base
+  with main is the one it ran on, and `gate.py` refuses it otherwise. A drive against a dev server
+  and every review lane, which reads source and builds nothing, rerun. "Checks" are the gates lane,
+  at the current head. "A review of the change" is the review lane 3 sets, two or more lanes, here
+  two on different models, that read the new commits with the earlier round's brief, recorded with
+  `--at`. In a skill set, a `SKILL.md`, a reference or an agent's definition is code, since an agent
+  runs it. Docs here are text no program or agent acts on, such as a README, a product or design
+  record, and comments.)*
 - **They differ in anything else.** Re-verify (pstack, `skills/poteto-mode/playbooks/shipping.md`,
   l. 9).
-
-In that case, the fresh review is two lanes on different models that read only the new commits, with
-the earlier round's brief. *(kstack: in a skill set, a `SKILL.md`, a reference or an agent's
-definition is code, since an agent runs it. Docs here are text no program or agent acts on, such as
-a README, a product or design record, and comments.)*
 
 ## Merge preparation
 
@@ -273,7 +287,8 @@ with a clean verdict recorded on its branch.
 
 **Reply:** each lane with its model, the commit it checked and its result (`PASS`, `ISSUES`,
 `BLOCKED` or gap). Each fix with the agent and the model that wrote it. The act-on findings with
-their IDs. The queue, with where each item was filed. The consider calls with their options. The
-nits. The recorded patch-id. The merge commit, or the branch at merge-ready. That is each verdict
-and who produced it (pstack, `skills/poteto-mode/playbooks/shipping.md`, l. 17; pstack,
+their IDs. Each flake that passed its fresh run (lane 1). The queue, with where each item was filed.
+The consider calls with their options. The nits. The recorded patch-id. The merge commit, or the
+branch at merge-ready. That is each verdict and who produced it (pstack,
+`skills/poteto-mode/playbooks/shipping.md`, l. 17; pstack,
 `skills/poteto-mode/playbooks/autopilot-full.md`, l. 13).

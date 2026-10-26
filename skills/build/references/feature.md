@@ -48,8 +48,8 @@ carries out and who does it.
    `skills/poteto-mode/playbooks/feature.md`, l. 12) Carries out check 2 (simplify) and check 3
    (contain) through that scope, and check 4 (verify) through its first rule, since the delegate
    writes the test before the code it checks. The subagent writes, and the root reviews.
-   - **The brief** points at files rather than pasting them, and carries the written
-     interpretation and the risk list from step 1 *(kstack: check 3 judges the diff against the
+   - **The brief** has the fields in SKILL.md, The brief, and carries the written interpretation in
+     CONTEXT and the risk list from step 1 in VERIFY *(kstack: check 3 judges the diff against the
      interpretation and check 4 runs the risk list, so the writer needs both)*.
    - **The model.** A change that alters behaviour goes to Opus, and a trivial mechanical edit to
      Sonnet. pstack's default feature model is `grok-4.7-xhigh-fast`, and poteto-mode sends

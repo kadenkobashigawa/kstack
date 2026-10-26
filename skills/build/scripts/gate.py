@@ -5,8 +5,9 @@ is clean. Run it from inside the branch's linked worktree.
 
   gate.py record lane <name> <PASS|ISSUES|BLOCKED|gap|NO-RUNTIME> --model M --at SHA [--note T]
                           a gap names no commit, so it takes no --at
-  gate.py record lane live --kept-from SHA --note T
-                          keeps the live row at SHA, from an earlier patch, at this one
+  gate.py record lane <name> --kept-from SHA --note T
+                          keeps the lane's row at SHA, from an earlier patch, at this one; never
+                          gates or a review lane
   gate.py record finding <id> <act-on|consider|queue|dismissed|nit> [--cmd C] [--note T]
   gate.py record fix <agent> fixed --model M [--note T]
   gate.py status          prints the current patch's lanes, whether its verdict is clean and why
@@ -23,20 +24,24 @@ A clean verdict for the current patch needs these lanes, by name:
   gates                   PASS at the current head
   live                    PASS, or NO-RUNTIME
   regression              PASS, whenever live passed
-  review...               PASS or ISSUES, on two models
+  review...               PASS or ISSUES, on two models, each recorded with --at at this patch
 
 No lane may be BLOCKED or a gap, and no finding may still be act-on.
 
 --at names the commit a lane checked, and that commit must carry the current patch. A gap names
-none. Only the live lane outlasts a patch change, because the patch-id rule keeps only a result
-with build output. Every other lane runs again. --kept-from names the commit the live drive
-checked, at an earlier patch, and the latest live row at that patch must have checked it. gate.py
-copies that row's result and model into a new row at this patch. Its note names the commit and,
-from --note, the reason. A NO-RUNTIME row drove nothing, so it has no build output to keep, and you
-record it again with --at. An act-on finding keeps the command that finds its sites (--cmd). Keep a
-finding's id across rounds, because an id still act-on at a later patch is a failed correction. A
-fix names the fresh agent that wrote it, never `root`. GATE_MAIN names the main branch (default
-`main`).
+none. When the patches differ only in tests, docs or lint config, the patch-id rule keeps a lane
+whose build output differs only in noise, and the root judges that from its builds. gate.py refuses
+to keep the gates lane, the checks, which run fresh at every head, and a review lane, which reads
+source and has no build output, so the review of the change runs fresh. It refuses to keep a
+regression lane once the merge base with main differs from the one the kept commit had, since that
+lane ran on a main that is no longer current. --kept-from names the commit the lane checked, at an
+earlier patch, and the latest row of that lane at that patch must have checked it. gate.py copies
+that row's result and model into a new row at this patch. Its note names the commit and, from
+--note, the reason. A NO-RUNTIME row drove nothing, so it has no build output to keep, and you
+record it again with --at. An act-on finding keeps the command that finds its sites
+(--cmd). Keep a finding's id across rounds, because an id still act-on at a later patch is a failed
+correction. A fix names the fresh agent that wrote it, never `root`. GATE_MAIN names the main branch
+(default `main`).
 
 When main moved since the merge base, `land` refuses, naming the check, unless three checks pass.
 The gates row at the head must have recorded main's tip equal to the head's merge base, so the
@@ -188,7 +193,7 @@ def record(kind: str, name: str, result: str, model: str, cmd: str, note: str, s
         return refuse(f'a {kind} row names its model (--model)')
     if kind == 'lane' and not sha and result != 'gap':
         return refuse('a lane row names the commit it checked (--at); only a gap names none, and a '
-                      'live result kept from an earlier patch takes --kept-from')
+                      'result kept from an earlier patch takes --kept-from')
     if kind == 'finding' and result == 'act-on' and not cmd:
         return refuse('an act-on finding keeps the command that finds its sites (--cmd)')
     if kind == 'fix' and one_line(name).lower() == 'root':
@@ -198,27 +203,34 @@ def record(kind: str, name: str, result: str, model: str, cmd: str, note: str, s
     if kind == 'lane' and sha:
         head = git('rev-parse', '--verify', f'{sha}^{{commit}}')
     if kind == 'lane' and sha and patch_of(head)[1] != at['patch']:
-        return refuse(f'{sha} does not carry the current patch; only the live lane is kept from an '
-                      'earlier patch (--kept-from with --note), and every other lane runs again')
+        return refuse(f'{sha} does not carry the current patch; a lane the patch-id rule keeps '
+                      'from an earlier patch takes --kept-from with --note, and gates runs again')
     append(ledger_path(at['branch']), [head, at['patch'], kind, name, model, result, cmd, note])
     return 0
 
 
 def keep(kind: str, name: str, result: str, model: str, cmd: str, note: str, sha: str,
          kept: str) -> int:
-    """Keep the latest live row at `kept`'s earlier patch, if it checked `kept`, at this patch."""
-    if (kind, name) != ('lane', 'live'):
-        return refuse('only the live lane is kept from an earlier patch; the gates and every other '
-                      'lane run again at this one')
+    """Keep the latest `name` lane row at `kept`'s earlier patch, if it checked `kept`, here."""
+    if kind != 'lane' or name == 'gates':
+        return refuse('only a lane with build output is kept from an earlier patch; gates is the '
+                      'checks, which run again at every head')
+    if name.startswith('review'):
+        return refuse(f'{name} is a review lane, which reads source and has no build output to '
+                      'keep; the review of the change runs fresh, recorded with --at')
     if result or model or cmd or sha:
         return refuse('--kept-from takes only --note: the kept row gives the result and the model')
     if not note:
         return refuse('a kept lane says why the patch-id rule keeps it (--note)')
     at   = branch_at()
     head = git('rev-parse', '--verify', f'{kept}^{{commit}}')
-    then = patch_of(head)[1]
+    base, then = patch_of(head)
     if then == at['patch']:
         return refuse(f'{kept} carries the current patch; record its lane with --at')
+    if name == 'regression' and base != at['base']:
+        return refuse(f"the merge base with {main_ref()} moved from {base[:8]} to "
+                      f"{at['base'][:8]}, so the regression lane at {kept} ran on a {main_ref()} "
+                      'that is no longer current; run it again with --at')
     path = ledger_path(at['branch'])
     src  = latest(read_rows(path), 'lane', then).get(name)
     if not src:

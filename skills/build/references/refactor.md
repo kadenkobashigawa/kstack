@@ -58,8 +58,8 @@ code does is a redesign. Name it, and run it through `references/feature.md`.
    rule holds when no external user depends on the old API (pstack,
    `skills/principle-migrate-callers-then-delete-legacy-apis/SKILL.md`, l. 18). Carries out check 3
    (contain): the diff moves structure and nothing else. A fresh subagent writes the edits from a
-   brief naming the file paths, the names being moved and the behaviour to hold, and the root
-   reviews the diff.
+   brief with the fields in SKILL.md, The brief, whose SCOPE names the file paths and the names
+   being moved and whose ACCEPTANCE names the behaviour to hold, and the root reviews the diff.
 6. **Prove behaviour unchanged on the real artifact.** For a larger reshape, run an equivalence
    check: diff old output against new, replay a recorded baseline against the new code, or make a
    smoke run on the matching surface (pstack, `skills/poteto-mode/playbooks/refactoring.md`,

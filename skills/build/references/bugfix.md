@@ -74,20 +74,21 @@ l. 24). "Prefer no new test over a bad test." (pstack, `skills/tdd/SKILL.md`, l.
 
 Carries out check 2 (simplify), since the fix sits in the layer where the defect lives, and check 3
 (contain), since the diff holds only what the interpretation named. The root plans the fix. A fresh
-subagent writes it from a brief that points at the files and carries the interpretation, the risk
-list and the failing test. The root reviews the diff. pstack: "Delegate implementation to a subagent
-... with a specific scope." (pstack, `skills/poteto-mode/playbooks/bug-fix.md`, l. 9)
+subagent writes it from a brief with the fields in SKILL.md, The brief, whose CONTEXT carries the
+interpretation and whose VERIFY carries the risk list and the failing test. The root reviews the
+diff. pstack: "Delegate implementation to a subagent ... with a specific scope." (pstack,
+`skills/poteto-mode/playbooks/bug-fix.md`, l. 9)
 
 The fix is the smallest change the evidence justifies, in the layer where the defect lives. A guard
 that silences the symptom (a null check, a retry, a broad except) is not a fix. Fix every place the
 same pattern appears, in the same change. The fix brief carries the command that lists those places,
-such as a `git grep`, with its output. The fixer reruns it after the fix (`references/gate.md`,
-The verdict). Record an instance that belongs to another owner in the project's findings
-queue instead. pstack's playbook says "If it crosses a function boundary, `architect` first"
-(pstack, `skills/poteto-mode/playbooks/bug-fix.md`, l. 9). Here `references/design.md`, the sketch
-step, runs first *(kstack: `references/design.md`, Design it twice, says why it runs on Opus and
-Sonnet)*. After two failed fixes for the same issue, stop and follow
-`references/when-a-fix-fails.md`.
+such as a `git grep`, in VERIFY and its output in CONTEXT. The fixer reruns it after the fix
+(`references/gate.md`, The verdict). Record an instance that belongs to another owner in the
+project's findings queue instead. pstack's playbook says "If it crosses a function boundary,
+`architect` first" (pstack, `skills/poteto-mode/playbooks/bug-fix.md`, l. 9). Here
+`references/design.md`, the sketch step, runs first *(kstack: `references/design.md`, Design it
+twice, says why it runs on Opus and Sonnet)*. After two failed fixes for the same issue, stop and
+follow `references/when-a-fix-fails.md`.
 
 ## 6. Prove it on the same surface
 
