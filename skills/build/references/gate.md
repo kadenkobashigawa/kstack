@@ -89,8 +89,8 @@ reply, not a file, so it is pasted in full, because workers cannot see siblings 
 
 ## Staffing
 
-SKILL.md's "## Subagents" holds the general rules, such as which model writes a fix and how many
-agents run at once. The gate adds which model runs each lane.
+SKILL.md's "## Subagents" holds the general rules, such as which model writes a fix. The gate
+adds which model runs each lane.
 
 - **Two review lanes on two models, every round**, one Opus and one Sonnet, as lane 3 says. The
   adversarial signal comes from model diversity, not assigned personas (pstack,
