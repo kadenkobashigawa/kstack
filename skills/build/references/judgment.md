@@ -66,7 +66,9 @@ and marks where its contents depart from interrogate.
   (rule 1) or a duplicate helper (rule 4), whether or not the change wrote it. A later change fixes
   it, not this round's fix-forward. This is interrogate's Noted, kept as work for later rather than
   dropped (pstack, `skills/interrogate/SKILL.md`, l. 78). It goes in the project's findings queue,
-  named in the Reply. A run that keeps no file, such as a robovac pass, records it in its reply.
+  one line with its place and the commit it was found at, added on the change's branch before the
+  merge and named in the Reply. kstack's queue is `QUEUE.md`; a project names its own in its
+  instruction file. A run that keeps no file, such as a robovac pass, records it in its reply.
   *(kstack: when every proven break went to a fix round, rounds ran to six or seven,
   per `references/evidence.md`, Run evidence behind the gate.)*
 
