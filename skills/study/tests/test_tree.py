@@ -36,6 +36,9 @@ DAC override capabilities dropped; when neither works they print a SKIP line. T5
 case-insensitive filesystem under the temporary folder, as macOS gives by default and TMPDIR can
 name elsewhere, and T45 and T55 to T58 a case-sensitive one; each prints a SKIP line on the other
 kind.
+T35 prints SKIP where the file system refuses a name that is not UTF-8, as APFS does with Errno 92.
+T43 drops only its shut scope, with a SKIP line, where getcwd() itself fails inside a folder
+that can be entered but not listed, as it does on macOS.
 '''
 
 from __future__ import annotations
@@ -519,14 +522,22 @@ def main() -> int:
 
         latin = tmp / 'latin'
         latin.mkdir()
-        with open(os.fsencode(latin) + b'/caf\xe9.py', 'w') as fh:
-            fh.write('def cafe():\n    pass\n')
+        try:
+            with open(os.fsencode(latin) + b'/caf\xe9.py', 'w') as fh:
+                fh.write('def cafe():\n    pass\n')
+            refused = None
+        except OSError as e:    # APFS keeps names UTF-8 and refuses this one (Errno 92)
+            refused = e
         write(latin, {'locked.py': 'def locked():\n    pass\n', 'open.py': 'def ok():\n    pass\n'})
         init(latin)
-        d, err = doc('caf\udce9.py', cwd=latin)
-        check('T35 a filename that is not UTF-8 is read and named',
-              (d['tree']['name'], [c['name'] for c in d['tree']['children']]) ==
-              ('caf\udce9.py', ['cafe']), f"{d['tree']['name']!r} {err}")
+        if refused:
+            print(f'SKIP  T35 a filename that is not UTF-8 is read and named (the file system '
+                  f'cannot hold the name: {refused.strerror})')
+        else:
+            d, err = doc('caf\udce9.py', cwd=latin)
+            check('T35 a filename that is not UTF-8 is read and named',
+                  (d['tree']['name'], [c['name'] for c in d['tree']['children']]) ==
+                  ('caf\udce9.py', ['cafe']), f"{d['tree']['name']!r} {err}")
         lockd = tmp / 'lockd'
         write(lockd, {'locked/l.py': 'def l():\n    pass\n', 'o.py': 'def o():\n    pass\n'})
         init(lockd)
@@ -637,8 +648,17 @@ def main() -> int:
             trav.chmod(0o311)
             runs = {a: tree(a, cwd=trav / 'repo', bound=True)
                     for a in ('.', 'pkg', 'shut', 'shut/sub', 'shut/sub/b.py:b')}
+            # macOS's getcwd() refuses (EACCES) in a folder that cannot be listed under a parent
+            # that cannot be listed either, so no process run there, git included, can name it
+            blind = subprocess.run([*bind, sys.executable, '-c', 'import os; os.getcwd()'],
+                                   cwd=trav / 'repo' / 'shut', capture_output=True, text=True,
+                                   check=False)
             trav.chmod(0o755)
             (trav / 'repo' / 'shut').chmod(0o755)
+            if blind.returncode:
+                print("SKIP  T43's scope shut (getcwd() cannot be called in it on this platform: "
+                      f"{blind.stderr.strip().splitlines()[-1]})")
+                del runs['shut']
             got = {a: (r.returncode, json.loads(r.stdout or '{}').get('scope'),
                        'warning' in r.stderr) for a, r in runs.items()}
             check('T43 a repository whose parent folder, and a folder inside it, can be entered '

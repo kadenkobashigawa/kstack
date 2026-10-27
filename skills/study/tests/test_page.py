@@ -20,7 +20,8 @@ libraries placed by name.
 B1 to B13 open a one-map page and drive it: plain click and Cmd or Ctrl-click on a branch and on
 the centre, hover cards, the hover lighting of the path and its links, a link's ends on its boxes
 across the two trees, a link folded into one box, the arrow that opens the way, the layout switch,
-no network, and Cmd-click on a Mac. B14 to B17 hold a card and names holding the template's slot
+no network, and Cmd-click on a Mac. B24 forces each platform and holds that only its own
+modifier opens everything. B14 to B17 hold a card and names holding the template's slot
 markers, ids that read as HTML or as `__proto__`, the centre of a map with one branch, and the
 arrow's spotlight cleared over empty canvas. B18 to B21 hold how a link is drawn (a path of
 triangles beneath the boxes), that folding never measures a path, reduced motion, and the bottom
@@ -392,7 +393,9 @@ def command_cases(tmp: Path, page) -> None:
         o = tmp / f'{copy.name}.html'
         q = subprocess.run([sys.executable, str(copy / 'scripts' / 'page.py'), str(tree), '-o',
                             str(o)], capture_output=True, text=True, check=False)
-        if not (q.returncode == 2 and q.stderr.startswith(f'page: {copy / gone}: cannot be read')
+        # page.py names the resolved path: on macOS the temp folder sits under /private
+        named = f'page: {copy.resolve() / gone}: cannot be read'
+        if not (q.returncode == 2 and q.stderr.startswith(named)
                 and 'Traceback' not in q.stderr and not o.exists()):
             missing.append((gone, q.returncode, q.stderr[-160:]))
     check('P20 a missing template, page script or vendored file is refused with page:, the file '
@@ -528,11 +531,12 @@ def on_box(point, box, pad: float = 3) -> bool:
     return box[0] - pad <= x <= box[2] + pad and box[1] - pad <= y <= box[3] + pad
 
 
-def open_page(browser, path: Path, mac: bool = False, wait: int = 30000):
+def open_page(browser, path: Path, mac: bool | None = None, wait: int = 30000):
+    '''mac None keeps the platform the browser reports; True or False forces a Mac or a non-Mac.'''
     ctx = browser.new_context(viewport={'width': 1400, 'height': 900})
-    if mac:
+    if mac is not None:
         ctx.add_init_script("Object.defineProperty(navigator, 'platform', "
-                            "{get: () => 'MacIntel'})")
+                            f"{{get: () => '{'MacIntel' if mac else 'Linux x86_64'}'}})")
     pg = ctx.new_page()
     pg.requests = []
     pg.on('request', lambda r: pg.requests.append(r.url))
@@ -549,7 +553,11 @@ def open_page(browser, path: Path, mac: bool = False, wait: int = 30000):
 
 def click(pg, id: str, mod: str | None = None, side: str = '') -> None:
     '''a real click at the node's box; force skips the actionability wait, so the event goes to
-    whatever the page has on top there, as a person's click does.'''
+    whatever the page has on top there, as a person's click does. mod 'all' presses the key that
+    means everything on the platform the page reports: Cmd on a Mac, Ctrl elsewhere.'''
+    if mod == 'all':
+        mod = ('Meta' if pg.evaluate('/Mac|iPhone|iPad/.test(navigator.platform)')
+               else 'Control')
     pg.click(node_sel(id, side) + ' foreignObject', modifiers=[mod] if mod else [], force=True)
     pg.wait_for_timeout(SETTLE)
 
@@ -605,8 +613,8 @@ def browser_cases(tmp: Path) -> None:
         check('B2 a plain click on a branch opens one level, and its children stay closed',
               visible(pg) == top | {'src/a.py', 'src/b.js'}, str(visible(pg)))
 
-        click(pg, 'tests', 'Control')
-        check('B3 Ctrl-click on a branch opens everything under it',
+        click(pg, 'tests', 'all')
+        check('B3 Cmd or Ctrl-click on a branch opens everything under it',
               visible(pg) == top | {'src/a.py', 'src/b.js', 'tests/t.py', 'tests/t.py/test_a',
                                     'tests/t.py/test_b'}, str(visible(pg)))
 
@@ -644,8 +652,8 @@ def browser_cases(tmp: Path) -> None:
 
         # tests is open all the way and src one level, so only test_a's link has its source shown
         some = drawn(pg)
-        click(pg, 'docs', 'Control')
-        click(pg, 'tools', 'Control')
+        click(pg, 'docs', 'all')
+        click(pg, 'tools', 'all')
         pg.click('#bFit')
         pg.wait_for_timeout(SETTLE)
         three = sorted(['tests/t.py/test_a>src/a.py/Cls/run', 'docs/d.py/build>src/b.js/main',
@@ -711,11 +719,11 @@ def browser_cases(tmp: Path) -> None:
 
         click(pg, '.', side='mmR')
         closed = visible(pg)
-        click(pg, '.', 'Control', side='mmR')
+        click(pg, '.', 'all', side='mmR')
         everything = visible(pg)
         click(pg, '.', side='mmR')
         click(pg, '.', side='mmR')
-        check('B11 the centre: a plain click closes it, Ctrl-click opens everything on both sides, '
+        check('B11 the centre: a plain click closes it, Cmd or Ctrl-click opens everything on both sides, '
               'and a plain click opens one level',
               closed == {'.'} and everything == SMALL_IDS and visible(pg) == top,
               f'{closed} {sorted(SMALL_IDS - everything)} {visible(pg)}')
@@ -730,6 +738,24 @@ def browser_cases(tmp: Path) -> None:
         check('B13 on a Mac, Cmd-click opens everything, on a branch and on the centre',
               visible(pg) == SMALL_IDS, str(sorted(SMALL_IDS - visible(pg))))
         ctx.close()
+
+        # the host turns a real Ctrl-click into a context menu on a Mac, so these clicks are
+        # events with the key's flag set, and either half of the rule is held on any host
+        held, key = {}, '''([sel, k]) => document.querySelector(sel).dispatchEvent(
+          new MouseEvent("click", {bubbles: true, [k]: true}))'''
+        for mac, own, other in ((True, 'metaKey', 'ctrlKey'), (False, 'ctrlKey', 'metaKey')):
+            ctx, pg = open_page(browser, small, mac=mac)
+            pg.evaluate(key, [node_sel('tests') + ' foreignObject', other])
+            pg.wait_for_timeout(SETTLE)
+            wrong = 'tests/t.py/test_a' in visible(pg)
+            click(pg, '.', side='mmR')
+            pg.evaluate(key, [node_sel('.', 'mmR') + ' foreignObject', own])
+            pg.wait_for_timeout(SETTLE)
+            held[own] = (wrong, visible(pg) == SMALL_IDS)
+            ctx.close()
+        check('B24 Cmd opens everything on a Mac and Ctrl does not; Ctrl opens everything '
+              'elsewhere and Cmd does not', held == {'metaKey': (False, True),
+                                                     'ctrlKey': (False, True)}, str(held))
 
         ctx, pg = open_page(browser, sets)
         shadow = pg.evaluate('''() => [getComputedStyle(document.querySelector(
@@ -893,7 +919,7 @@ def tricky_cases(browser, tmp: Path) -> None:
 
     # with everything open the arrow click moves no box, so the pointer stays on bare canvas
     click(pg, '.', side='mmR')
-    click(pg, '.', 'Control', side='mmR')
+    click(pg, '.', 'all', side='mmR')
     arrow = pg.evaluate(JS_BOX, '#mmX circle.xh[data-from="tests/t.py/test_a"]')
     x, y  = (arrow[0] + arrow[2]) / 2, (arrow[1] + arrow[3]) / 2
     pg.mouse.move(x, y)
@@ -934,7 +960,7 @@ def link_cases(browser, tmp: Path) -> None:
     pg.wait_for_selector(node_sel('.', 'mmR'))
     pg.wait_for_timeout(SETTLE)
     click(pg, '.', side='mmR')
-    click(pg, '.', 'Control', side='mmR')
+    click(pg, '.', 'all', side='mmR')
     sel   = link_sel('tests/t.py/test_a', 'src/a.py/Cls/run')
     paths = pg.evaluate('''() => [...document.querySelectorAll("path.xl")].map(p => [
       p.closest("svg").id, p.getAttribute("d") || "", p.getAttribute("marker-end"),
@@ -959,7 +985,7 @@ def link_cases(browser, tmp: Path) -> None:
 
     pg.evaluate('window.measured = 0')
     for _ in range(2):
-        click(pg, 'src', 'Control')
+        click(pg, 'src', 'all')
         click(pg, 'tests')
     js = (STUDY / 'assets' / 'page.js').read_text()
     check('B19 folding and opening branches never measures a path: no getTotalLength or '
@@ -979,7 +1005,7 @@ def link_cases(browser, tmp: Path) -> None:
     pg.goto((tmp / 'small.html').as_uri())
     pg.wait_for_selector(node_sel('.', 'mmR'))
     pg.wait_for_timeout(SETTLE)
-    click(pg, 'tests', 'Control')
+    click(pg, 'tests', 'all')
     pg.click('#bFit')
     pg.wait_for_timeout(SETTLE)
     pg.hover(node_sel('tests/t.py/test_a') + ' foreignObject', force=True)
@@ -1301,7 +1327,7 @@ def edge_cases(browser, tmp: Path) -> None:
         write_json(tmp / 'edge.cards.json', EDGE_CARDS), '-o', out)
     ctx, pg = open_page(browser, out)
     for id in ('src', 'tests', 'docs', 'tools'):
-        click(pg, id, 'Control')
+        click(pg, id, 'all')
     seen = []
     for win, zoom_out in EDGE:
         pg.set_viewport_size({'width': win[0], 'height': win[1]})
