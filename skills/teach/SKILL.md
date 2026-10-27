@@ -107,6 +107,12 @@ the mechanism) and let the analogy fall away. Where it stops being true is where
 An analogy left standing as the whole answer becomes the only picture the reader has (Spiro et al.,
 1989). Placing the handoff at the analogy's limit is judgment.
 
+## Files by path
+
+A file an explanation names goes in as a path the reader can open beside the chat: the absolute
+path or a clickable link, at its first mention in each reply that names it *(kstack: in one
+session the operator asked for a link five times, a turn spent each time, 2026-10-27)*.
+
 ## One thing, properly
 
 Answer the thing that was asked, all the way down. If the question holds three things, take the one
