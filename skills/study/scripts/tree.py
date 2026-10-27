@@ -58,14 +58,12 @@ Methods
     Definition :
         one tags.scm definition and its span.
     TreeError :
-        a scope or file the outline cannot be built from.
+        a scope or file the outline cannot be built from, the same error as where.py's ScopeError.
     node :
         one node, with its keys in output order.
-    repo_vars :
-        the environment variables git lists as naming a repository, read from git once.
     git :
-        a git command's output. It runs without the variables repo_vars lists and without any
-        GIT_*_PATHSPECS, and raises with git's stderr or with the reason it cannot enter cwd.
+        a git command's output, run as where.py runs it, so scope_of resolves a scope as
+        where.py does.
     scope_of :
         the repository root, the scope inside it, the symbol part and whether the scope is a file,
         from the argument.
@@ -110,7 +108,6 @@ import json
 import os
 import secrets
 import stat
-import subprocess
 import sys
 import unicodedata
 from dataclasses import dataclass
@@ -119,6 +116,7 @@ from typing import Literal, TypedDict
 
 from tree_sitter import Language, Parser, Query, QueryCursor
 from tree_sitter import Node as TSNode
+from where import ScopeError as TreeError, git, split_scope, work_tree
 
 
 # ── the data shape ────────────────────────────────────────────────────────────
@@ -181,10 +179,6 @@ WORDS = {'dir': ('folder', 'folders'), 'file': ('file', 'files'), 'class': ('cla
          'function': ('function', 'functions'), 'method': ('method', 'methods')}
 
 
-class TreeError(Exception):
-    '''a scope or file the outline cannot be built from. The message names it and the reason.'''
-
-
 def node(id: str, name: str, kind: Kind, children: list[Node], file: str | None = None,
          lines: list[int] | None = None) -> Node:
     '''one node, keys in output order, file and lines only when given.'''
@@ -196,45 +190,6 @@ def node(id: str, name: str, kind: Kind, children: list[Node], file: str | None 
 
 
 # ── repository and scope ──────────────────────────────────────────────────────
-
-@functools.cache
-def repo_vars() -> frozenset[str]:
-    '''
-    the environment variables that `git rev-parse --local-env-vars` lists (GIT_DIR,
-    GIT_OBJECT_DIRECTORY and the rest that name a repository or a part of one), read once.
-    Raises TreeError when git cannot be run.
-    '''
-    try:
-        out = subprocess.run(['git', 'rev-parse', '--local-env-vars'], capture_output=True,
-                             check=True)
-    except OSError as e:
-        raise TreeError(f'git rev-parse: {e.strerror}') from None
-    except subprocess.CalledProcessError as e:
-        raise TreeError(f"git rev-parse: {e.stderr.decode(errors='replace').strip()}") from None
-    return frozenset(os.fsdecode(out.stdout).split())
-
-
-def git(*args: str, cwd: Path) -> str:
-    '''
-    a git command's output as it printed it, decoded as filenames are (os.fsdecode), so a name
-    that is not UTF-8 survives. Raises TreeError with git's stderr when the command fails, and
-    with the reason when it cannot enter cwd. git runs without the variables of the caller's
-    environment that repo_vars lists, so the repository is always the one git finds from cwd.
-    It also runs without every GIT_ variable whose name ends in _PATHSPECS. With
-    --literal-pathspecs, GIT_ICASE_PATHSPECS and GIT_GLOB_PATHSPECS make git fail, and
-    GIT_LITERAL_PATHSPECS adds nothing.
-    '''
-    env = {k: v for k, v in os.environ.items()
-           if k not in repo_vars() and not (k.startswith('GIT_') and k.endswith('_PATHSPECS'))}
-    try:
-        out = subprocess.run(['git', '--literal-pathspecs', *args], cwd=cwd, env=env,
-                             capture_output=True, check=False)
-    except OSError as e:
-        raise TreeError(f'{cwd}: git {args[0]}: {e.strerror}') from None
-    if out.returncode != 0:
-        raise TreeError(f"{cwd}: git {args[0]}: {out.stderr.decode(errors='replace').strip()}")
-    return os.fsdecode(out.stdout)
-
 
 def scope_of(arg: str) -> tuple[Path, str, str, bool]:
     '''
@@ -269,30 +224,9 @@ def scope_of(arg: str) -> tuple[Path, str, str, bool]:
     also raises when the resolved path is not under the work tree git reports, and the message
     names both paths.
     '''
-    path, symbol, mode = arg, '', None
-    head, sep, tail = arg.rpartition(':')
-    try:
-        if sep and tail:
-            try:
-                st = os.stat(head)
-            except (FileNotFoundError, NotADirectoryError):
-                st = None
-            if st is not None and stat.S_ISREG(st.st_mode):
-                path, symbol, mode = head, tail, st.st_mode
-        if mode is None:
-            try:
-                mode = os.stat(path).st_mode
-            except (FileNotFoundError, NotADirectoryError):
-                raise TreeError(f'{path}: no such file or folder') from None
-        p      = Path(path).resolve(strict=True)
-        folder = stat.S_ISDIR(mode)
-    except OSError as e:
-        raise TreeError(f'{e.filename or path}: {e.strerror}') from None
-    top = Path(git('rev-parse', '--show-toplevel', cwd=p if folder else p.parent)
-               .removesuffix('\n')).resolve()
-    if not p.is_relative_to(top):
-        raise TreeError(f'{path}: resolves to {p}, not under the work tree git reports, {top}')
-    return top, p.relative_to(top).as_posix(), symbol, not folder
+    path, symbol, p, folder = split_scope(arg)
+    top, rel = work_tree(path, p, folder)
+    return top, rel, symbol, not folder
 
 
 def tracked(repo: Path, rel: str) -> dict[str, str]:

@@ -41,7 +41,7 @@ because the card helps the person read the code itself.
 
 ## Save cards and reuse them
 
-All the maps of a set share one cards file, `$W/cards.json` in the folder that SKILL.md names. The
+All the maps of a set share one cards file, `<W>/cards.json` in the folder that SKILL.md names. The
 file is one JSON object of node id to card text, and no two nodes in a set share an id *(kstack:
 the operator's rule)*. A card's id is its node's id:
 
