@@ -35,6 +35,9 @@ the spread of portals along the rim, the overfull rim and end clusters meeting a
 among them (the wrap guard then merges every portal into one block), and S19 the rim point of a
 ray of no length. B22 and B23 hover every carded tip in a small window and a zoomed-out large
 one, two-sided and one-sided: each card stays inside the window, where page.js's rule puts it.
+B25 opens every branch and presses Fit in a small, a middle and a large window, in both layouts:
+each box is the topmost element at its centre, never the bottom bar or the breadcrumb. B26 does
+the same on the four-map page, where the breadcrumb shows: each box also sits 14 px below it.
 '''
 
 from __future__ import annotations
@@ -592,6 +595,7 @@ def browser_cases(tmp: Path) -> None:
     top = {'.', 'src', 'tests', 'docs', 'tools'}
     with sync_playwright() as p:
         browser = p.chromium.launch()
+        fit_cases(browser, tmp)
         ctx, pg = open_page(browser, small)
         check('B1 the page opens with the centre and its branches shown, branches closed',
               visible(pg) == top, str(visible(pg)))
@@ -1332,6 +1336,81 @@ def edge_cases(browser, tmp: Path) -> None:
           'centred on the tip and held 12 px inside; and some card falls under each rule',
           whole and not wrong and {p[3] for p in placed} == {'out', 'across', 'held'},
           f'{wrong} {sorted({p[3] for p in placed})}')
+
+# the branches to open one level at a time, parents first, so no case needs Cmd or Ctrl
+OPEN_ALL = ['src', 'src/a.py', 'src/a.py/Cls', 'src/b.js', 'tests', 'tests/t.py', 'docs',
+            'docs/d.py', 'tools', 'tools/x.py']
+FIT_WINDOWS = [(480, 360), (800, 500), (1400, 900)]
+# each shown box whose centre is not its own topmost element: [id, centre y, what is on top]; the
+# left tree's centre is skipped, as split() hides its name and the right centre sits over it
+JS_HIDDEN = '''() => [...document.querySelectorAll('#mmR g.markmap-node, #mmL g.markmap-node')]
+  .filter(g => !(g.dataset.id === '.' && g.closest('svg').id === 'mmL'))
+  .map(g => [g, g.querySelector(':scope > foreignObject')]).filter(([g, fo]) => fo
+  && fo.getBoundingClientRect().width && g.closest('svg').style.display !== 'none')
+  .map(([g, fo]) => { const r = fo.getBoundingClientRect(), x = (r.left + r.right) / 2,
+    y = (r.top + r.bottom) / 2, e = document.elementFromPoint(x, y);
+    return [g.dataset.id, Math.round(y), e && e.closest('g.markmap-node') === g ? null
+      : e ? (e.closest('#bar, #crumbs') || e).id || e.tagName : 'outside']; })
+  .filter(r => r[2])'''
+
+
+def fitted(browser, out: Path, opens: list, windows: list, js: str = '[]') -> list:
+    '''Open each branch, then Fit at each window in both layouts: [window, mmL display, shown
+    boxes, JS_HIDDEN, js] per fit.'''
+    ctx, pg = open_page(browser, out)
+    for id in opens:            # a fit first, so the next branch is on screen to click
+        pg.click('#bFit')
+        pg.wait_for_timeout(SETTLE)
+        click(pg, id)
+    seen = []
+    for w, h in windows:
+        pg.set_viewport_size({'width': w, 'height': h})
+        for _ in ('one-sided', 'two-sided'):
+            pg.click('#bLayout')
+            pg.wait_for_timeout(SETTLE)
+            pg.click('#bFit')
+            pg.wait_for_timeout(SETTLE)
+            seen.append(((w, h), pg.evaluate('document.getElementById("mmL").style.display'),
+                         pg.evaluate(f'({JS_VISIBLE})().length'), pg.evaluate(JS_HIDDEN),
+                         pg.evaluate(js)))
+    ctx.close()
+    return seen
+
+
+# each shown box whose top is above the breadcrumb's bottom plus its 14 px gap: [id, top, limit]
+JS_HIGH = '''() => { const c = document.getElementById('crumbs'), lim = c.hidden ? -1
+  : c.getBoundingClientRect().bottom + 14;
+  return [...document.querySelectorAll('#mmR g.markmap-node, #mmL g.markmap-node')]
+  .filter(g => g.closest('svg').style.display !== 'none')
+  .map(g => [g.dataset.id, g.querySelector(':scope > foreignObject')]).filter(([, fo]) => fo
+  && fo.getBoundingClientRect().width).map(([id, fo]) => [id, fo.getBoundingClientRect().top, lim])
+  .filter(r => r[1] < r[2] - 0.5); }'''
+
+
+def fit_cases(browser, tmp: Path) -> None:
+    '''B25 and B26: Fit leaves every box clear of the bars, in both layouts, on one map and four.'''
+    out = tmp / 'fit.html'
+    run(write_json(tmp / 'fit.json', document(SMALL, SMALL_LINKS)), '-o', out)
+    seen = fitted(browser, out, OPEN_ALL, FIT_WINDOWS)
+    whole = len(seen) == 6 and {s[1] for s in seen} == {'', 'none'} and \
+        all(s[2] == len(SMALL_IDS) for s in seen)
+    hidden = [(win, lay, bad) for win, lay, _, bad, _ in seen if bad]
+    check('B25 after Fit with every branch open, at 480 by 360, 800 by 500 and 1400 by 900, '
+          'one-sided and two-sided, each box is the topmost element at its centre, never under '
+          'the bottom bar or the breadcrumb',
+          whole and not hidden, f'{[s[:3] for s in seen]} {hidden}')
+
+    out = tmp / 'fit-set.html'
+    run(write_json(tmp / 'fit-set.json', document(SET, SET_LINKS)), '-o', out)
+    seen = fitted(browser, out, [], FIT_WINDOWS[:2], JS_HIGH)    # its branches are all portals
+    whole = len(seen) == 4 and {s[1] for s in seen} == {'', 'none'} and \
+        all(s[2] == 4 for s in seen)
+    bad = [(win, lay, hid, high) for win, lay, _, hid, high in seen if hid or high]
+    check('B26 on the four-map page, after Fit with every branch open, at 480 by 360 and 800 by '
+          '500, one-sided and two-sided, each box is the topmost element at its centre and its top '
+          'is 14 px or more below the breadcrumb',
+          whole and not bad, f'{[s[:3] for s in seen]} {bad}')
+
 
 def main() -> int:
     page = load_page()

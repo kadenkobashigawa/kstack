@@ -176,13 +176,22 @@ function bounds(){
   }
   return b;
 }
+// the band of the svg that no fixed bar covers: below the breadcrumb when it shows, above the
+// bottom bar, each with the bars' own 14 px gap (kstack: Fit put a tip under #bar at 480 by 360)
+function clearBand(){
+  const r = svgR.getBoundingClientRect(), bar = document.getElementById('bar');
+  const top = crumbsEl.hidden ? 0 : crumbsEl.getBoundingClientRect().bottom - r.top + 14;
+  const bottom = Math.min(r.height, bar.getBoundingClientRect().top - r.top - 14);
+  return {W: r.width, top, H: Math.max(1, bottom - top)};
+}
 function fit(animate = true){
-  const {width: W, height: H} = svgR.getBoundingClientRect(), b = bounds();
+  const {W, top, H} = clearBand(), b = bounds();
 
   // boxes sit half a box below their layout slot
   b.y1 -= 10; b.y2 += 34; b.x1 -= 10; b.x2 += 10;
   const s = Math.min(W / (b.x2 - b.x1) * 0.92, H / (b.y2 - b.y1) * 0.92, 2);
-  const x = (W - (b.x2 - b.x1) * s) / 2 - b.x1 * s, y = (H - (b.y2 - b.y1) * s) / 2 - b.y1 * s;
+  const x = (W - (b.x2 - b.x1) * s) / 2 - b.x1 * s;
+  const y = top + (H - (b.y2 - b.y1) * s) / 2 - b.y1 * s;
   zoomTo(d3.zoomIdentity.translate(x, y).scale(s), animate ? 500 : 0);
 }
 
