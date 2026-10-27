@@ -14,3 +14,10 @@ skills/unslop and skills/technical-writing are verbatim copies of upstream/pstac
 upstream/pstack/skills/technical-writing. Each other skill under skills/ that adapts that work names
 its source in its own files. The MIT permission notice in each upstream LICENSE applies to those
 portions.
+
+skills/study/vendor/ holds two JavaScript libraries that study's map pages inline, each copied
+unmodified from its npm release with its LICENSE file. skills/study/scripts/page.py records each
+file's version and sha256.
+
+  skills/study/vendor/d3            d3 7.9.0             Copyright 2010-2023 Mike Bostock  ISC
+  skills/study/vendor/markmap-view  markmap-view 0.18.12  Copyright (c) 2020 Gerald         MIT

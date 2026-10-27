@@ -1,0 +1,196 @@
+<!doctype html>
+<!-- page.html is the study map page's template. page.py fills its slots in one pass: the title,
+     d3, markmap-view, the page's data as JSON and page.js. everything the page needs is inline. -->
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>__TITLE__</title>
+<style>
+/* the page's style: theme tokens, the boxes, the links and portals, the two bars and the hover
+   card */
+
+/* ── tokens ─────────────────────────────────────────────────────────────────── */
+
+:root{
+  --bg:#fbfaf7;--fg:#24272b;--muted:#7a8796;--link:#4f5d6e;
+  --bar-bg:rgba(255,255,255,.94);--bar-border:#ddd8cd;--btn-hover:#efebe3;
+  --root-bg:#262c36;--root-fg:#f4f2ee;
+  --field:linear-gradient(0deg,#fbfaf7 0%,#f3f2ee 34%,#ebeae6 100%);--solid:#f4f4f2;
+  --top-line:rgba(0,0,0,.20);--floor-line:rgba(0,0,0,.22);
+  --bevel:inset .5px 0 0 rgba(0,0,0,.05),inset -.5px 0 0 rgba(0,0,0,.05),
+    inset 0 .5px 0 rgba(255,255,255,.95);
+  --card-raise:0 8px 20px rgba(0,0,0,.08),0 2px 5px rgba(0,0,0,.06);--tint:10%;
+  --glass-fill:rgba(255,255,255,.52);--glass-border:rgba(255,255,255,.75);
+  --glass-high:rgba(255,255,255,.95);--glass-lift:0 6px 18px rgba(0,0,0,.07)
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#1c1d1f;--fg:#e8e5df;--muted:#8d97a3;--link:#aeb8c4;
+  --bar-bg:rgba(38,39,42,.94);--bar-border:#3a3b3f;--btn-hover:#323337;
+  --root-bg:#2b313c;--root-fg:#f4f2ee;
+  --field:linear-gradient(0deg,#181818 0%,#111314 34%,#0d0e0f 100%);--solid:#26272a;
+  --top-line:rgba(255,255,255,.22);--floor-line:rgba(255,255,255,.42);
+  --bevel:inset .5px 0 0 rgba(255,255,255,.10),inset -.5px 0 0 rgba(255,255,255,.10),
+    inset 0 -.5px 0 rgba(255,255,255,.12);
+  --card-raise:0 8px 20px rgba(0,0,0,.26),0 2px 5px rgba(0,0,0,.19);--tint:14%;
+  --glass-fill:rgba(38,39,42,.48);--glass-border:rgba(255,255,255,.13);
+  --glass-high:rgba(255,255,255,.20);--glass-lift:0 6px 18px rgba(0,0,0,.30);
+  color-scheme:dark
+}}
+:root[data-theme="dark"]{
+  --bg:#1c1d1f;--fg:#e8e5df;--muted:#8d97a3;--link:#aeb8c4;
+  --bar-bg:rgba(38,39,42,.94);--bar-border:#3a3b3f;--btn-hover:#323337;
+  --root-bg:#2b313c;--root-fg:#f4f2ee;
+  --field:linear-gradient(0deg,#181818 0%,#111314 34%,#0d0e0f 100%);--solid:#26272a;
+  --top-line:rgba(255,255,255,.22);--floor-line:rgba(255,255,255,.42);
+  --bevel:inset .5px 0 0 rgba(255,255,255,.10),inset -.5px 0 0 rgba(255,255,255,.10),
+    inset 0 -.5px 0 rgba(255,255,255,.12);
+  --card-raise:0 8px 20px rgba(0,0,0,.26),0 2px 5px rgba(0,0,0,.19);--tint:14%;
+  --glass-fill:rgba(38,39,42,.48);--glass-border:rgba(255,255,255,.13);
+  --glass-high:rgba(255,255,255,.20);--glass-lift:0 6px 18px rgba(0,0,0,.30);
+  color-scheme:dark
+}
+
+/* ── the field and the two trees ────────────────────────────────────────────── */
+
+html,body{margin:0;height:100%;overflow:hidden}
+body{background:var(--bg);background-image:var(--field);color:var(--fg)}
+#wrap{position:fixed;inset:0}
+#wrap svg{position:absolute;inset:0;width:100%;height:100%}
+
+/* the mirrored left tree takes input on its boxes only, and never on its hidden centre */
+#mmL{pointer-events:none}
+#mmL g.markmap-node{pointer-events:auto}
+#mmL g.markmap-node.sm-mirror{pointer-events:none}
+svg.markmap{--markmap-text-color:var(--fg);--markmap-circle-open-bg:var(--bg);color:var(--fg)}
+
+/* ── boxes ──────────────────────────────────────────────────────────────────── */
+
+/* the box lives in the node text, so markmap measures it */
+g.markmap-node>line,g.markmap-node>circle{display:none}
+g.markmap-node>foreignObject{transform-box:fill-box;transform-origin:center;
+  transform:translateY(50%);cursor:pointer}
+#mmL g.markmap-node>foreignObject{transform:translateY(50%) scaleX(-1)}
+.sm-root,.sm-branch,.sm-node{display:inline-block;white-space:nowrap;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+
+/* a solid box: a branch-tinted fill, a short top rim and floor light, a thin bevel ring */
+.sm-root{padding:10px 20px;border-radius:14px;background:var(--root-bg);color:var(--root-fg);
+  font-size:22px;line-height:26px;font-weight:600;
+  box-shadow:inset 0 .5px 0 rgba(255,255,255,.22),inset 0 -.5px 0 rgba(255,255,255,.28)}
+.sm-branch{padding:9px 16px;border-radius:12px;
+  color:color-mix(in srgb,var(--c,var(--fg)) 72%,var(--fg));
+  font-size:18px;line-height:22px;font-weight:650}
+.sm-node{padding:5px 11px;border-radius:9px;color:var(--fg);font-size:14px;line-height:18px;
+  font-weight:500}
+.sm-leaf{font-weight:450}
+.sm-branch,.sm-node,#hc{
+  background:
+    linear-gradient(90deg,transparent 12%,var(--top-line) 50%,transparent 88%)
+      top/100% 1px no-repeat,
+    linear-gradient(90deg,transparent 22%,var(--floor-line) 50%,transparent 78%)
+      bottom/100% 1px no-repeat,
+    color-mix(in srgb,var(--c,var(--solid)) var(--tint),var(--solid));
+  box-shadow:var(--bevel),inset 0 0 0 1px color-mix(in srgb,var(--c,transparent) 38%,transparent)}
+
+/* a portal is a stacked box: two offset layers in the branch's tint, inside the measured box */
+.sm-portal{margin:0 8px 8px 0;
+  box-shadow:var(--bevel),
+    inset 0 0 0 1px color-mix(in srgb,var(--c,transparent) 38%,transparent),
+    4px 4px 0 -1px color-mix(in srgb,var(--c,var(--solid)) var(--tint),var(--solid)),
+    4px 4px 0 0 color-mix(in srgb,var(--c,var(--muted)) 42%,transparent),
+    8px 8px 0 -1px color-mix(in srgb,var(--c,var(--solid)) var(--tint),var(--solid)),
+    8px 8px 0 0 color-mix(in srgb,var(--c,var(--muted)) 30%,transparent)}
+
+/* the spotlight: the hovered box and its path to the centre stay lit */
+g.markmap-node,path.markmap-link{transition:opacity .15s}
+#wrap.spot g.markmap-node:not(.lit),#wrap.spot path.markmap-link:not(.lit){opacity:.16 !important}
+
+/* ── cross-links ────────────────────────────────────────────────────────────── */
+
+/* a link is a row of small triangles beneath the boxes, faint at rest and full when lit */
+#mmA,#mmX{pointer-events:none}
+#mmA path.xl{fill:var(--link);stroke:none;opacity:.25;transition:opacity .15s}
+#mmA path.xl.hot{opacity:1}
+#mmX circle.xh{pointer-events:auto;fill:transparent;cursor:pointer}
+
+/* a portal: two dashed rings in the callers' branch colour around a dot, on a background disc,
+   its home's name beneath; page.js turns the rings */
+#mmX g.xp{pointer-events:auto;cursor:pointer}
+#mmX g.xp circle{fill:none;stroke:var(--pc);stroke-linecap:round}
+#mmX g.xp .po{stroke-width:1.5;stroke-dasharray:14 6;opacity:.45;fill:var(--bg)}
+#mmX g.xp .pi{stroke-width:2;stroke-dasharray:9 5;opacity:.7}
+#mmX g.xp .pd{fill:var(--pc);stroke:none}
+#mmX g.xp text{fill:var(--fg);font:600 12px system-ui,sans-serif;text-anchor:middle;
+  paint-order:stroke;stroke:var(--bg);stroke-width:4px}
+
+/* ── the two bars ───────────────────────────────────────────────────────────── */
+
+#bar,#crumbs{position:fixed;display:flex;gap:2px;padding:4px;border-radius:10px;
+  font:13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;z-index:5}
+#bar{right:calc(14px + env(safe-area-inset-right,0px));
+  bottom:calc(14px + env(safe-area-inset-bottom,0px));
+  background:var(--bar-bg);border:1px solid var(--bar-border)}
+#bar .sep{width:1px;background:var(--bar-border);margin:4px 3px}
+
+/* the breadcrumb is frosted glass: a translucent fill, a blur, a light rim and a top highlight */
+#crumbs{left:calc(14px + env(safe-area-inset-left,0px));
+  top:calc(14px + env(safe-area-inset-top,0px));
+  align-items:center;max-width:calc(100vw - 28px);overflow:hidden;
+  background:var(--glass-fill);border:1px solid var(--glass-border);
+  -webkit-backdrop-filter:blur(16px) saturate(170%);backdrop-filter:blur(16px) saturate(170%);
+  box-shadow:inset 0 1px 0 var(--glass-high),var(--glass-lift)}
+#crumbs[hidden]{display:none}
+#crumbs span{color:var(--fg);padding:7px 9px;white-space:nowrap}
+#crumbs .sep{flex:none;width:11px;height:11px;color:var(--muted)}
+#bar button,#crumbs button{all:unset;cursor:pointer;color:var(--fg);padding:7px 9px;
+  border-radius:7px;white-space:nowrap}
+#crumbs button{color:var(--muted)}
+#bar button:hover,#crumbs button:hover{background:var(--btn-hover)}
+#bar button:focus-visible,#crumbs button:focus-visible{outline:2px solid var(--muted);
+  outline-offset:1px}
+
+/* ── the hover card ─────────────────────────────────────────────────────────── */
+
+#hc{position:fixed;z-index:10;width:360px;box-sizing:border-box;padding:13px 15px;
+  border-radius:12px;color:var(--fg);border:none;
+  font:14.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;pointer-events:none;
+  opacity:0;transform:translateY(3px);transition:opacity .12s,transform .12s;
+  box-shadow:var(--bevel),var(--card-raise)}
+#hc.on{opacity:1;transform:none}
+#hc p{margin:0 0 7px}
+#hc p:last-child{margin:0}
+#hc b{font-weight:650}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <svg id="mmA"><g id="ag"></g></svg>
+  <svg id="mmR"></svg>
+  <svg id="mmL"></svg>
+  <svg id="mmX"><g id="xg"></g></svg>
+</div>
+<nav id="crumbs" hidden></nav>
+<template id="chevron">
+  <svg class="sep" viewBox="0 0 12 12" aria-hidden="true"><path d="M4.5 2.5 8 6l-3.5 3.5"
+    fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+    stroke-linejoin="round"></path></svg>
+</template>
+<div id="bar">
+  <button id="bLayout" title="Switch between one-sided and two-sided">Two-sided</button>
+  <span class="sep"></span>
+  <button id="bIn" title="Zoom in">+</button>
+  <button id="bOut" title="Zoom out">&minus;</button>
+  <button id="bFit" title="Fit to window">Fit</button>
+  <span class="sep"></span>
+  <button id="bDark" title="Switch light or dark">Theme</button>
+</div>
+<div id="hc"></div>
+<script>/*__D3__*/</script>
+<script>/*__MARKMAP__*/</script>
+<script type="application/json" id="sm-data">/*__DATA__*/</script>
+<script>
+/*__PAGE__*/
+</script>
+</body>
+</html>

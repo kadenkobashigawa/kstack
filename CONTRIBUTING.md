@@ -41,10 +41,20 @@ python3 hooks/tests/test_install.py
 python3 skills/clorox/tests/test_clorox.py
 ```
 
-The other skills follow the same pattern under `skills/<name>/tests/`. The Robovac app's tests are
-in `apps/robovac-widget/tests/`. The page and icon tests need a Python with Playwright and Pillow
-(see `apps/robovac-widget/requirements-dev.txt`), which they find through `$ROBOVAC_PY`. The page
-test loads the house images, so run `apps/robovac-widget/mac/images.sh fetch` once first:
+The other skills follow the same pattern under `skills/<name>/tests/`. Study's page test,
+`skills/study/tests/test_page.py`, builds map pages and drives them in headless Chromium. It
+imports the `playwright` package into the Python that runs it and uses the Chromium that
+Playwright has already installed. It never installs either, and it does not read `$ROBOVAC_PY`:
+
+```bash
+python3 -m pip install playwright && python3 -m playwright install chromium   # once
+python3 skills/study/tests/test_page.py
+```
+
+The Robovac app's tests are in `apps/robovac-widget/tests/`. The page and icon tests need a Python
+with Playwright and Pillow (see `apps/robovac-widget/requirements-dev.txt`), which they find
+through `$ROBOVAC_PY`. The page test loads the house images, so run
+`apps/robovac-widget/mac/images.sh fetch` once first:
 
 ```bash
 export ROBOVAC_PY=/path/to/venv/bin/python

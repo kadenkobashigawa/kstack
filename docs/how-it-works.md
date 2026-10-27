@@ -122,6 +122,9 @@ you can type, and which turns the mistake into a hook, lint rule or test.
 - `write-report`: kstack's own. Its layout's values trace to Sphinx's LaTeX output, DocBook XSL-FO,
   the PostgreSQL manual and the Read the Docs theme, and its prose step reads kstack's
   technical-writing and unslop.
+- `study`: kstack's own. Its split between scripts and judgment quotes pstack's
+  principle-build-the-lever, its quiz rules cite the retrieval papers in its evidence file, and
+  its map pages inline d3 and markmap-view, vendored unmodified (see `NOTICE`).
 - `robovac`: New, drawing on pstack's authoring-a-skill (delegation), autopilot-stack (the `/loop`
   cadence), autonomous-run and orchestrate (one task, the rest left for later), autopilot-full (the
   merge grant), and the stop rules of pause-safely and create-verification-skill.
