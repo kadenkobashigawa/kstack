@@ -1,6 +1,6 @@
 ---
 name: study
-description: "Builds an interactive mind map of one scope (a codebase or part of one, a skill, or notes), opens it beside the chat, and then walks the person through a branch, writes hover cards for it, or quizzes them on it. Use on /study, \"study X\", \"map X\", \"walk me through X\", \"quiz me on X\" or a request for cards on a map."
+description: "Use on /study, \"study X\", \"map X\" or a mind map request, and to walk through, write hover cards for or quiz on a map that exists or that the person asks to build. Builds an interactive mind map of one scope (code, a skill or notes) beside the chat. A walkthrough or quiz with no map is not study's."
 argument-hint: "[folder, file, skill or notes]"
 ---
 
