@@ -99,7 +99,7 @@ Claude writes the outline of prose, the cards, the walkthrough and the quiz ques
 ## A sample: kstack mapped by study
 
 This is the map study made of this repository, in dark mode. It shows Playbooks, the smaller map
-inside build, with every level open. Claude has not written cards for it yet.
+inside build, with every level open.
 
 ![The Playbooks map of kstack in dark mode, with every level open.](examples/kstack-playbooks.png)
 
