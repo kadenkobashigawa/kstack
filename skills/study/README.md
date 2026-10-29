@@ -11,16 +11,15 @@ on it.
 
 ## A sample: kstack mapped by study
 
-This is the map study built of this repository. It has nine top branches, and in these
-screenshots the build and study branches are open. The sample has no hover cards yet.
+This is the map study built of this repository. The screenshot shows Playbooks, a nested map
+under build, with every level open. The sample has no hover cards yet.
 
-![The kstack map in a desktop browser. The kstack root sits in the middle with nine top branches. The build branch is open on the left with 15 boxes, and the study branch is open on the right with 12 boxes.](examples/kstack-desktop.png)
-
-![The same map on a phone in dark mode, fitted to the screen, with the build branch open on the left and the study branch open on the right.](examples/kstack-phone.png)
+![The Playbooks map of the kstack sample in dark mode, with every level open. Each playbook lists its numbered steps, and rows of triangles run from the steps' boxes to round portals on the rim.](examples/kstack-playbooks.png)
 
 To try it, download [`examples/kstack-map.html`](examples/kstack-map.html) and open it in a
 browser. GitHub shows an HTML file as source, so the map does not run from GitHub's page. The
-page holds everything it needs in one file of about 0.8 MB.
+page holds everything it needs in one file of about 0.8 MB. To see the view above, click build,
+then the Playbooks portal, then Cmd-click the centre twice (Ctrl-click off a Mac).
 
 ## Run it
 
