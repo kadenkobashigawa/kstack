@@ -128,6 +128,19 @@ function paint(mm){
   mm.g.selectAll('g.markmap-node').attr('data-id', d => d.payload.id)
     .classed('sm-mirror', d => mm === L && d === L.state.data)
     .style('--c', d => d.payload.c >= 0 ? base.color(d) : null);
+  place(mm);
+}
+
+// each box sits half its height below its layout slot, centred on its line, and a left-tree box
+// flips back about its own middle. It goes on the foreignObject's transform attribute, from the
+// size markmap last gave it, since WebKit ignores a CSS transform on a foreignObject
+function place(mm){
+  mm.g.selectAll('g.markmap-node>foreignObject').attr('transform', function(){
+    const w = +this.getAttribute('width') || 0, h = +this.getAttribute('height') || 0;
+    const c = (+this.getAttribute('x') || 0) + w / 2;
+    return mm === L ? `translate(0,${h / 2}) translate(${c},0) scale(-1,1) translate(${-c},0)`
+                    : `translate(0,${h / 2})`;
+  });
 }
 for (const [mm, svg] of [[R, svgR], [L, svgL]]) {
   svg.addEventListener('click', e => {

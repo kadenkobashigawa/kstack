@@ -68,9 +68,9 @@ svg.markmap{--markmap-text-color:var(--fg);--markmap-circle-open-bg:var(--bg);co
 
 /* the box lives in the node text, so markmap measures it */
 g.markmap-node>line,g.markmap-node>circle{display:none}
-g.markmap-node>foreignObject{transform-box:fill-box;transform-origin:center;
-  transform:translateY(50%);cursor:pointer}
-#mmL g.markmap-node>foreignObject{transform:translateY(50%) scaleX(-1)}
+/* page.js sets each box's offset on its foreignObject's transform attribute, since WebKit ignores
+   a CSS transform there */
+g.markmap-node>foreignObject{cursor:pointer}
 .sm-root,.sm-branch,.sm-node{display:inline-block;white-space:nowrap;
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
 

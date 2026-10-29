@@ -15,7 +15,8 @@ P9 to P15, P22 and P23 hold the command: a page written and its stderr counts, a
 is no tip, each refusal, a card that names no node, --artifact, -o required, the over-cap note,
 labels and escaping. P16 and P17 hold the vendored files' hashes and the NOTICE rows. P19 to P21
 hold a Document of schema and tree alone, a missing template or vendored file refused, and the
-libraries placed by name.
+libraries placed by name. P24 holds that page.html sets no CSS transform on a foreignObject, which
+WebKit ignores; pytest collects it alone, as test_no_css_transform_on_foreign_object.
 
 B1 to B13 open a one-map page and drive it: plain click and Cmd or Ctrl-click on a branch and on
 the centre, hover cards, the hover lighting of the path and its links, a link's ends on its boxes
@@ -39,6 +40,8 @@ one, two-sided and one-sided: each card stays inside the window, where page.js's
 B25 opens every branch and presses Fit in a small, a middle and a large window, in both layouts:
 each box is the topmost element at its centre, never the bottom bar or the breadcrumb. B26 does
 the same on the four-map page, where the breadcrumb shows: each box also sits 14 px below it.
+B27 holds each box's offset on its foreignObject's transform attribute through a fold, an unfold
+and the layout switch: half its height down, and flipped back in the left tree.
 '''
 
 from __future__ import annotations
@@ -510,6 +513,30 @@ JS_ENDS = '''sel => { const t = (''' + JS_TRIS + ''')(sel); if (!t || !t.tris.le
 JS_BOX = '''sel => { const e = document.querySelector(sel); if (!e) return null;
   const r = e.getBoundingClientRect(); return [r.left, r.top, r.right, r.bottom]; }'''
 
+# the shown boxes in each tree, and each one whose foreignObject lacks the transform attribute
+# page.js sets from its size: [id, transform]. WebKit ignores a CSS transform on a foreignObject
+JS_OFFSET = '''() => { const fos = [...document.querySelectorAll(
+  '#wrap svg g.markmap-node>foreignObject')].filter(f => f.closest('svg').style.display !== 'none');
+  const bad = fos.filter(f => { const w = +f.getAttribute('width'), h = +f.getAttribute('height');
+    const c = +f.getAttribute('x') + w / 2, t = f.getAttribute('transform');
+    return t !== (f.closest('#mmL') ? `translate(0,${h / 2}) translate(${c},0) scale(-1,1) `
+      + `translate(${-c},0)` : `translate(0,${h / 2})`); });
+  return {R: fos.filter(f => f.closest('#mmR')).length, L: fos.filter(f => f.closest('#mmL')).length,
+          bad: bad.map(f => [f.parentNode.dataset.id, f.getAttribute('transform')])}; }'''
+
+
+def css_transforms_on_foreign_object() -> list[str]:
+    '''the rules in page.html's CSS that set a transform on a foreignObject.'''
+    css = re.sub(r'/\*.*?\*/', '', (STUDY / 'assets' / 'page.html').read_text(), flags=re.S)
+    return [r.strip() for r in re.findall(r'[^{}]*\{[^{}]*\}', css)
+            if 'foreignObject' in r.split('{')[0]
+            and re.search(r'(^|[{;\s])transform\s*:', r.split('{', 1)[1])]
+
+
+def test_no_css_transform_on_foreign_object() -> None:
+    '''P24, for pytest: page.html sets no CSS transform on a foreignObject.'''
+    assert not css_transforms_on_foreign_object()
+
 
 def node_sel(id: str, side: str = '') -> str:
     svg = f'#{side} ' if side else ''
@@ -628,6 +655,21 @@ def browser_cases(tmp: Path) -> None:
               one == before and visible(pg) == before
               and pg.evaluate('document.getElementById("mmL").style.display') == '',
               f'{sorted(before ^ one)} {sorted(before ^ visible(pg))}')
+
+        offsets, counts = [], []
+        for step in ('two-sided', 'folded', 'unfolded', 'one-sided', 'two-sided again'):
+            if step in ('folded', 'unfolded'):
+                click(pg, 'src')
+            elif step != 'two-sided':
+                pg.click('#bLayout')
+            pg.wait_for_timeout(SETTLE)
+            got = pg.evaluate(JS_OFFSET)
+            offsets += [[step] + bad for bad in got['bad']]
+            counts.append((step, got['R'], got['L']))
+        shown = all(r and (l == 0) == (s == 'one-sided') for s, r, l in counts)
+        check('B27 each box carries its offset on its foreignObject\'s transform attribute, half its '
+              'height down and, in the left tree, flipped back about its middle, after a fold, an '
+              'unfold and the layout switch', shown and not offsets, f'{counts} {offsets[:4]}')
 
         pg.hover(node_sel('tests/t.py/test_a') + ' foreignObject', force=True)
         pg.wait_for_timeout(250)
@@ -1445,6 +1487,9 @@ def main() -> int:
         tmp = Path(t)
         command_cases(tmp, page)
         vendored_cases(page)
+        rules = css_transforms_on_foreign_object()
+        check('P24 page.html sets no CSS transform on a foreignObject, which WebKit ignores',
+              not rules, str(rules))
         browser_cases(tmp)
     failed = RESULTS.count(False)
     print(f'{len(RESULTS) - failed}/{len(RESULTS)} passed')
