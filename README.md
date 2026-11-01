@@ -60,10 +60,11 @@ Robovac, delete `~/Applications/Robovac.app` too.
 
 ## Skills
 
-Every skill except the seven you type yourself loads a one-line description into every session, so
+Every skill except the eight you type yourself loads a one-line description into every session, so
 Claude can use it when it fits. `robovac`, `clorox` and `stack-check` stay visible this way so
 that a loop or a robovac pass can call them. `correct`, `polish`, `unslop`, `technical-writing`,
-`improve-codebase-architecture` and the two verification skills cost nothing until you run them.
+`improve-codebase-architecture`, `upstream-sync` and the two verification skills cost nothing until
+you run them.
 
 | Skill | What it does | Runs |
 |---|---|---|
@@ -82,6 +83,7 @@ that a loop or a robovac pass can call them. `correct`, `polish`, `unslop`, `tec
 | `improve-codebase-architecture` | Finds shallow modules worth deepening, draws them as a before-and-after HTML report, then interviews you about the one you pick. Never changes code. | `/improve-codebase-architecture` |
 | `create-verification-skill` | Generates a `verify-<app>` skill that launches, drives and checks your real app. | `/create-verification-skill` |
 | `maintain-verification-skill` | Keeps a `verify-<app>` skill accurate as the app changes. | `/maintain-verification-skill` |
+| `upstream-sync` | Compares kstack with the newest commits of the sources under `upstream/`. It checks every citation into them, finds where each cited passage sits now, and suggests edits, line remaps and new pins without applying them. | `/upstream-sync` |
 
 Two agents come with them:
 

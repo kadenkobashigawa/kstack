@@ -104,7 +104,8 @@ you can type, and which turns the mistake into a hook, lint rule or test.
 - **`apps/<name>`** holds programs that are not skills, as pstack keeps benny under
   `automations/`. `apps/robovac-widget` is the Robovac app.
 - **`upstream/`** holds pstack, four of Cursor's plugins and part of Matt Pocock's skills exactly as
-  imported (MIT, see `NOTICE`), so every adapted part can be compared with its source. See
+  imported (MIT, see `NOTICE`), with each folder's repository and pinned commit in
+  `upstream/sources.json`, so every adapted part can be compared with its source. See
   [upstream/README.md](../upstream/README.md).
 - A project needs no setup for robovac or `/correct`. Naming them in its own `CLAUDE.md` tells
   every session there how the project uses them.
@@ -143,3 +144,8 @@ you can type, and which turns the mistake into a hook, lint rule or test.
 - `improve-codebase-architecture`: Matt Pocock's, with the codebase-design, grilling and
   domain-modeling skills it calls carried as references, and grilling's rounds asked through
   AskUserQuestion.
+- `upstream-sync`: pstack's maintain-formal-verification-skill, with upstream's text read as the
+  code and each kstack citation as the verification, plus stack-check's reply, which suggests edits
+  and applies none. The prior-art check of 2026-10-31 gave it the rest: the quote-anchored remap of
+  the W3C Text Quote Selector and Hypothesis, a pin proved by blob ids as Go checks its vendor
+  folder, and one batched fetch from a blobless clone.

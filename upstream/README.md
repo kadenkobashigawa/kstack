@@ -11,6 +11,12 @@ These folders are imported unmodified, each with its own MIT license:
   calls, grill-me (a one-line wrapper around grilling), their docs pages, the two out-of-scope notes
   on how grilling asks its questions, the retro skill, the code-review docs page, and the
   repository's README and LICENSE.
+- `pstack/skills/maintain-formal-verification-skill` by Lauren Tan, from cursor/plugins at commit
+  `ae5650f` (2026-10-31), later than the rest of `pstack` because upstream-sync ports it and the
+  `ccb5507` copy predates it.
+
+`sources.json` holds each folder's repository and pinned commit, and `/upstream-sync` checks them
+against each repository's newest commit.
 
 kstack's skills adapt parts of them, and each adapted skill names its source in its own files. They
 are kept here so every adaptation can be compared with the original, and so a part set aside for

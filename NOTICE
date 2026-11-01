@@ -2,6 +2,8 @@ kstack is MIT-licensed; see LICENSE. It also adapts text from MIT-licensed work.
 kept unmodified under upstream/, each with its LICENSE file. The first five were imported from
 github.com/cursor/plugins at commit ccb5507 (2026-10-07), and mattpocock-skills from
 github.com/mattpocock/skills at commit 5beb35b (2026-10-19).
+upstream/pstack/skills/maintain-formal-verification-skill was imported later, from
+github.com/cursor/plugins at commit ae5650f (2026-10-31).
 
   upstream/pstack              Copyright (c) 2026 Lauren Tan        MIT
   upstream/cursor-team-kit     Copyright (c) 2026 Cursor            MIT

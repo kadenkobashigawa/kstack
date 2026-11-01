@@ -33,7 +33,9 @@ reads *(kstack, the translation: what changed)*.
 ## Tests
 
 Check the plugin and marketplace manifests with `claude plugin validate .` after changing
-`.claude-plugin/`, `skills/`, `agents/` or `hooks/`. Each other test is a script you run directly:
+`.claude-plugin/`, `skills/`, `agents/` or `hooks/`. Run `python3 skills/upstream-sync/scripts/sync.py check`
+after changing anything under `upstream/`, or any citation into it, and it must report no finding.
+Each other test is a script you run directly:
 
 ```bash
 python3 tests/test_install_sh.py
