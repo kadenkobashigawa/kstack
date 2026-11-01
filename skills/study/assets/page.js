@@ -662,6 +662,13 @@ window.addEventListener('popstate', e => {
 const hc = document.getElementById('hc');
 let cur = null, HOT = [];
 
+// the spotlight outlives the pointer leaving a box for bare canvas by 450 ms, so a sweep across
+// the gaps between tips moves it from tip to tip without the whole map flashing back on. A box
+// entered in that time cancels the release, and every other clearer clears at once
+const RELEASE = 450;
+let release;
+function cancelRelease(){ clearTimeout(release); }
+
 // an arrow click's spotlight stays until the pointer moves 6 px away, through markmap's
 // re-renders and the boxes moving under it. It ends on the first move away. Over a box, that
 // box's hover takes over. Over bare canvas, where no box fires, the spotlight clears here
@@ -676,6 +683,7 @@ function pinned(e){
 function respot(){ const el = pin && EL.get(pin.id); if (el) spotlight(el, NODE.get(pin.id).mm); }
 function hide(){ hc.classList.remove('on'); cur = null; }
 function spotlight(g, mm){
+  cancelRelease();
   const d = d3.select(g).datum(), path = new Set();
   for (let n = d; n; n = (NODE.get(n.payload.id) || {}).parent) path.add(n);
   for (const t of [R, L]) {
@@ -697,10 +705,15 @@ function lightLinks(path, root){
   }
   heat();
 }
+
+// the spotlight goes out and its links go cold at once. A portal still hovered keeps its own
+// links hot
 function clearSpot(){
+  cancelRelease();
   wrapEl.classList.remove('spot');
   for (const el of HOT) el.classList.remove('hot');
   HOT = [];
+  for (const h of PHOVER) portalHot(h, true);
   heat();
 }
 
@@ -813,7 +826,10 @@ function onOut(e){
   if (pinned(e)) return;
   const to = e.relatedTarget, g = e.target.closest && e.target.closest('g.markmap-node');
   const toG = to && to.closest ? to.closest('g.markmap-node') : null;
-  if (toG !== g) { hide(); if (!toG) clearSpot(); }
+  if (toG === g) return;
+  if (toG) { hide(); return; }
+  cancelRelease();
+  release = setTimeout(() => { hide(); clearSpot(); }, RELEASE);
 }
 svgR.addEventListener('mouseover', e => onOver(e, false)); svgR.addEventListener('mouseout', onOut);
 svgL.addEventListener('mouseover', e => onOver(e, true)); svgL.addEventListener('mouseout', onOut);

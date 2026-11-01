@@ -30,18 +30,22 @@ bar's buttons. S1 to S7 open a page of four maps: portals, the swap and the brea
 per map, the Back button, a link that ends at the round portal of its home, no network, and the
 breadcrumb's frosted bar and chevrons. S8 to S14 open a map whose links lead to two other maps:
 one portal per home, links only from sources on screen, portals outside the map and inside Fit,
-a pointer tip's card and the portal it turns, everything still once the hover ends, and a portal's
-click and what it leaves behind. S15 holds two portals that meet across the left ray, and S16 and
-S17 Back pressed with the pointer still after a portal click and after an arrow click. S18 holds
-the spread of portals along the rim, the overfull rim and end clusters meeting across the cut
-among them (the wrap guard then merges every portal into one block), and S19 the rim point of a
-ray of no length. B22 and B23 hover every carded tip in a small window and a zoomed-out large
-one, two-sided and one-sided: each card stays inside the window, where page.js's rule puts it.
+a pointer tip's card and the portal it turns, everything still once the spotlight lets go, and a
+portal's click and what it leaves behind. S15 holds two portals that meet across the left ray, and
+S16 and S17 Back pressed with the pointer still after a portal click and after an arrow click. S18
+holds the spread of portals along the rim, the overfull rim and end clusters meeting across the cut
+among them (the wrap guard then merges every portal into one block), and S19 the rim point of a ray
+of no length. S20 holds a portal's links hot while the pointer rests on it, reached from a tip
+across bare canvas or straight on. B22 and B23 hover every carded tip in a small window and a
+zoomed-out large one, two-sided and one-sided: each card stays inside the window, where page.js's
+rule puts it.
 B25 opens every branch and presses Fit in a small, a middle and a large window, in both layouts:
 each box is the topmost element at its centre, never the bottom bar or the breadcrumb. B26 does
 the same on the four-map page, where the breadcrumb shows: each box also sits 14 px below it.
 B27 holds each box's offset on its foreignObject's transform attribute through a fold, an unfold
-and the layout switch: half its height down, and flipped back in the left tree.
+and the layout switch: half its height down, and flipped back in the left tree. B28 holds the
+spotlight on through a sweep from one tip across the bare gap to the next and a rest there past
+the 450 ms release, and cleared once the pointer has rested on bare canvas past that release.
 '''
 
 from __future__ import annotations
@@ -727,19 +731,20 @@ def browser_cases(tmp: Path) -> None:
         lit = light('docs/d.py/build')
         pg.wait_for_timeout(300)
         pg.mouse.move(5, 5)
-        pg.wait_for_timeout(100)
+        pg.wait_for_timeout(550)        # past the 450 ms release, so the links have gone cold
         coast = links_now(pg)
         pg.wait_for_timeout(200)
         drift = links_now(pg)
-        pg.wait_for_timeout(2700)       # a link coasts to a stop in under 3 s
+        pg.wait_for_timeout(2700)       # the release, then a coast to a stop in under 3 s
         rest = links_now(pg)
         pg.wait_for_timeout(300)
         still = links_now(pg)
-        check('B8 a link lights from either end, coasts on for a moment once the hover ends, and '
-              'at rest every link is faint and still',
+        check('B8 a link lights from either end, coasts on for a moment once the spotlight lets '
+              'go, and at rest every link is faint and still',
               lit.get('docs/d.py/build', [0])[0] == 1 and lit.get('tools/x.py/go', [0])[0] == 1
               and lit.get('tests/t.py/test_a', [1])[0] < .5
-              and coast.get('docs/d.py/build') != drift.get('docs/d.py/build')
+              and coast.get('docs/d.py/build', [0, None])[1]
+              != drift.get('docs/d.py/build', [0, None])[1]
               and rest and rest == still and all(o < .5 for o, _ in rest.values()), f'{lit} {rest}')
 
         ends = pg.evaluate(JS_ENDS, link_sel('tests/t.py/test_a', 'src/a.py/Cls/run'))
@@ -870,6 +875,7 @@ def browser_cases(tmp: Path) -> None:
         tricky_cases(browser, tmp)
         link_cases(browser, tmp)
         portal_cases(browser, tmp)
+        portal_hover_cases(browser, tmp)
         back_cases(browser, tmp)
         rim_cases(browser)
         edge_cases(browser, tmp)
@@ -877,7 +883,8 @@ def browser_cases(tmp: Path) -> None:
 
 
 def tricky_cases(browser, tmp: Path) -> None:
-    '''B14 to B17: pages built from inputs that once broke the page, and the arrow's spotlight.'''
+    '''B14 to B17 and B28: pages built from inputs that once broke the page, the arrow's
+    spotlight, and the spotlight through a sweep across tips.'''
     marks = '/*__PAGE__*/ /*__DATA__*/ /*__D3__*/ /*__MARKMAP__*/ __TITLE__'
     slots = node('.', 'root', name=f'demo {marks}', children=[
         node('a', 'dir', [node('a/x.py', 'file', [node('a/x.py/f', 'function')])]),
@@ -981,6 +988,33 @@ def tricky_cases(browser, tmp: Path) -> None:
           lit and bare is not None
           and not pg.evaluate('document.getElementById("wrap").classList.contains("spot")'),
           f'{lit} {bare}')
+
+    # two stacked tips and the bare canvas between them, at the first tip's centre line
+    a = pg.evaluate(JS_BOX, node_sel('src/a.py/Cls/run', 'mmR') + ' foreignObject')
+    b = pg.evaluate(JS_BOX, node_sel('src/a.py/Cls/stop', 'mmR') + ' foreignObject')
+    mid = lambda r: ((r[0] + r[2]) / 2, (r[1] + r[3]) / 2)
+    gap = ((a[0] + a[2]) / 2, (a[3] + b[1]) / 2)
+    bare = pg.evaluate('([x, y]) => document.elementFromPoint(x, y).id', list(gap))
+    pg.mouse.move(*mid(a))
+    pg.wait_for_timeout(250)
+    pg.evaluate('''() => { const w = document.getElementById('wrap'); window.spots = [];
+      new MutationObserver(() => spots.push(w.classList.contains('spot')))
+        .observe(w, {attributes: true, attributeFilter: ['class']}); }''')
+    pg.mouse.move(*gap)
+    pg.wait_for_timeout(100)
+    pg.mouse.move(*mid(b))
+    pg.wait_for_timeout(700)        # past the 450 ms release the gap set off
+    sweep = pg.evaluate('spots')
+    spot = lambda: pg.evaluate('document.getElementById("wrap").classList.contains("spot")')
+    rest = spot()
+    pg.mouse.move(*gap)
+    pg.wait_for_timeout(700)
+    after = spot()
+    check('B28 a sweep from one tip across the bare gap to the next within 100 ms keeps the '
+          'spotlight on throughout and 700 ms at rest on the next, and 700 ms on bare canvas '
+          'clears it',
+          bare == 'mmR' and sweep and False not in sweep and rest and not after,
+          f'{bare} {sweep} {rest} {after}')
     ctx.close()
 
 
@@ -1162,17 +1196,17 @@ def portal_cases(browser, tmp: Path) -> None:
           f'{card} {a1} {a2} {b1} {b2}')
 
     pg.mouse.move(5, 450)
-    pg.wait_for_timeout(100)
+    pg.wait_for_timeout(550)        # past the 450 ms release, so the portal has gone cold
     c1 = turn('big/m1.py/f2')
     pg.wait_for_timeout(200)
     c2 = turn('big/m1.py/f2')
-    pg.wait_for_timeout(3700)       # a portal and a link coast to a stop in under 3 s
+    pg.wait_for_timeout(3250)       # the release, then a portal and a link coast to a stop in 3 s
     metric = lambda: {m['name']: m['value'] for m in cdp.send('Performance.getMetrics')['metrics']}
     before, at, asked = metric(), turn('big/m1.py/f2'), frames()
     pg.wait_for_timeout(2000)
     after = metric()
-    check('S12 once the hover ends everything coasts to a stop: the portal still turns just after, '
-          'and then no layout and no animation frame in 2 s of idle',
+    check('S12 once the spotlight lets go everything coasts to a stop: the portal still turns '
+          'just after, and then no layout and no animation frame in 2 s of idle',
           a1 != a2 and c1 != c2 and after['LayoutCount'] == before['LayoutCount']
           and turn('big/m1.py/f2') == at and frames() == asked,
           f"{after['LayoutCount'] - before['LayoutCount']} layouts, {frames() - asked} frames")
@@ -1200,6 +1234,53 @@ def portal_cases(browser, tmp: Path) -> None:
           "home's map, and back on the first map its portal is still",
           idle == 0 and crumbs(pg) == ['port', 'sep', 'a'] and turn('big/m1.py/f2') == at,
           f'{idle} frames, {crumbs(pg)} {at}')
+    ctx.close()
+
+
+def portal_hover_cases(browser, tmp: Path) -> None:
+    '''S20: a hovered portal keeps its links hot after the pointer leaves a box for it.'''
+    out = tmp / 'port-hover.html'
+    q   = run(write_json(tmp / 'port-hover.json', document(PORT, PORT_LINKS)), '--cards',
+              write_json(tmp / 'port-hover.cards.json', PORT_CARDS), '-o', out)
+    if q.returncode != 0:
+        check(f'S20 (the portal page was not built: {q.stderr.strip()})', False)
+        return
+    ctx, pg = open_page(browser, out)
+    pg.set_viewport_size({'width': 1400, 'height': 900})
+    pg.click('#bFit')
+    pg.wait_for_timeout(SETTLE)
+    click(pg, 'a')
+    click(pg, 'a/p.md')
+    pg.click('#bFit')
+    pg.wait_for_timeout(SETTLE)
+    home = 'big/m1.py/f2'
+    hot = lambda: pg.evaluate(f'''() => [...document.querySelectorAll('#mmA path.xl')]
+      .filter(p => p.dataset.home === '{home}').map(p => p.classList.contains('hot'))''')
+    mid = lambda r: ((r[0] + r[2]) / 2, (r[1] + r[3]) / 2)
+    box = mid(pg.evaluate(JS_BOX, node_sel('a/p.md', 'mmR') + ' foreignObject'))
+    port = mid(pg.evaluate(JS_BOX, portal_sel(home) + ' circle.pd'))
+    gap = (box[0] + 130, box[1])
+    bare = pg.evaluate('([x, y]) => document.elementFromPoint(x, y).id', list(gap))
+
+    # the pointer rests on the tip, which heats one of the portal's two links, then reaches the
+    # portal across bare canvas or straight on, which heats both
+    seen = []
+    for via in ([gap], []):
+        pg.mouse.move(5, 5)
+        pg.wait_for_timeout(800)
+        pg.mouse.move(*box)
+        pg.wait_for_timeout(300)
+        on_tip = hot()
+        for at in via:
+            pg.mouse.move(*at)
+            pg.wait_for_timeout(100)
+        pg.mouse.move(*port)
+        pg.wait_for_timeout(900)
+        seen.append([on_tip, hot()])
+    check('S20 a portal reached from a tip, across bare canvas or straight on, keeps the links that '
+          'end at it hot while the pointer rests on it, past the tip\'s 450 ms release',
+          bare == 'mmR' and len(seen) == 2
+          and all(any(a) and b == [True, True] for a, b in seen), f'{bare} {seen}')
     ctx.close()
 
 

@@ -102,8 +102,10 @@ g.markmap-node>foreignObject{cursor:pointer}
     8px 8px 0 -1px color-mix(in srgb,var(--c,var(--solid)) var(--tint),var(--solid)),
     8px 8px 0 0 color-mix(in srgb,var(--c,var(--muted)) 30%,transparent)}
 
-/* the spotlight: the hovered box and its path to the centre stay lit */
-g.markmap-node,path.markmap-link{transition:opacity .15s}
+/* the spotlight: the hovered box and its path to the centre stay lit. Dimming and switching are
+   quick, and the map brightens back slowly once the spotlight lets go */
+g.markmap-node,path.markmap-link{transition:opacity .4s}
+#wrap.spot g.markmap-node,#wrap.spot path.markmap-link{transition:opacity .12s}
 #wrap.spot g.markmap-node:not(.lit),#wrap.spot path.markmap-link:not(.lit){opacity:.16 !important}
 
 /* ── cross-links ────────────────────────────────────────────────────────────── */
