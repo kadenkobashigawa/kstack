@@ -250,7 +250,9 @@ async function setLayout(two, animate = true){
   }
   side = two;
   store.set('sm-layout', two ? 'side' : 'right');
-  document.getElementById('bLayout').textContent = two ? 'Two-sided' : 'One-sided';
+  const button = document.getElementById('bLayout');
+  button.setAttribute('aria-pressed', two);
+  button.dataset.tip = two ? 'Two-sided' : 'One-sided';
   await mount(two, kept, null);
   if (animate) {
     await sleep(20);
@@ -263,11 +265,27 @@ document.getElementById('bLayout').onclick = () => setLayout(!side);
 document.getElementById('bIn').onclick = () => scaleBy(1.25);
 document.getElementById('bOut').onclick = () => scaleBy(0.8);
 document.getElementById('bFit').onclick = () => fit(true);
+// the theme the last press asked for. A view transition sets data-theme a frame or more after its
+// press, so a second press inside that frame flips this and not the theme still on the page
+let theme = null;
 document.getElementById('bDark').onclick = () => {
-  const root = document.documentElement, attr = root.getAttribute('data-theme');
-  const isDark = attr ? attr === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
-  const next = isDark ? 'light' : 'dark';
-  root.setAttribute('data-theme', next);
+  const root = document.documentElement;
+  const was = theme ?? root.getAttribute('data-theme')
+    ?? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  const next = theme = was === 'dark' ? 'light' : 'dark';
+  // the switch lands in one frame: .theming stops every element's own transition, and the
+  // browser crossfades a snapshot of the old theme into the new one, blurred bars included
+  const apply = () => {
+    root.classList.add('theming');
+    root.setAttribute('data-theme', next);
+    getComputedStyle(root).color;     // style the new theme while .theming is set
+    requestAnimationFrame(() => requestAnimationFrame(() => root.classList.remove('theming')));
+  };
+  // a press inside the last transition's frame skips that transition, which still sets its
+  // theme but rejects its ready promise; the catch keeps that from raising a page error
+  if (document.startViewTransition && !reduce.matches) {
+    document.startViewTransition(apply).ready.catch(() => {});
+  } else apply();
   store.set('sm-theme', next);
 };
 

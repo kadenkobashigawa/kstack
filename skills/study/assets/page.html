@@ -14,39 +14,45 @@
 
 :root{
   --bg:#fbfaf7;--fg:#24272b;--muted:#7a8796;--link:#4f5d6e;
-  --bar-bg:rgba(255,255,255,.94);--bar-border:#ddd8cd;--btn-hover:#efebe3;
+  --bar-bg:rgba(255,255,255,.94);--bar-border:#ddd8cd;
   --root-bg:#262c36;--root-fg:#f4f2ee;
   --field:linear-gradient(0deg,#fbfaf7 0%,#f3f2ee 34%,#ebeae6 100%);--solid:#f4f4f2;
   --top-line:rgba(0,0,0,.20);--floor-line:rgba(0,0,0,.22);
   --bevel:inset .5px 0 0 rgba(0,0,0,.05),inset -.5px 0 0 rgba(0,0,0,.05),
     inset 0 .5px 0 rgba(255,255,255,.95);
   --card-raise:0 8px 20px rgba(0,0,0,.08),0 2px 5px rgba(0,0,0,.06);--tint:10%;
-  --glass-fill:rgba(255,255,255,.52);--glass-border:rgba(255,255,255,.75);
+  --glass-fill:rgba(250,249,246,.66);--glass-border:rgba(255,255,255,.75);
+  --press:rgba(0,0,0,.09);--hover-glass:rgba(0,0,0,.055);--hair:rgba(0,0,0,.10);
+  --tip-bg:rgba(36,39,43,.92);--tip-fg:#f4f2ee;
   --glass-high:rgba(255,255,255,.95);--glass-lift:0 6px 18px rgba(0,0,0,.07)
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#1c1d1f;--fg:#e8e5df;--muted:#8d97a3;--link:#aeb8c4;
-  --bar-bg:rgba(38,39,42,.94);--bar-border:#3a3b3f;--btn-hover:#323337;
+  --bar-bg:rgba(38,39,42,.94);--bar-border:#3a3b3f;
   --root-bg:#2b313c;--root-fg:#f4f2ee;
   --field:linear-gradient(0deg,#181818 0%,#111314 34%,#0d0e0f 100%);--solid:#26272a;
   --top-line:rgba(255,255,255,.22);--floor-line:rgba(255,255,255,.42);
   --bevel:inset .5px 0 0 rgba(255,255,255,.10),inset -.5px 0 0 rgba(255,255,255,.10),
     inset 0 -.5px 0 rgba(255,255,255,.12);
   --card-raise:0 8px 20px rgba(0,0,0,.26),0 2px 5px rgba(0,0,0,.19);--tint:14%;
-  --glass-fill:rgba(38,39,42,.48);--glass-border:rgba(255,255,255,.13);
+  --glass-fill:rgba(40,41,44,.62);--glass-border:rgba(255,255,255,.13);
+  --press:rgba(255,255,255,.16);--hover-glass:rgba(255,255,255,.09);--hair:rgba(255,255,255,.12);
+  --tip-bg:rgba(240,238,233,.94);--tip-fg:#1c1d1f;
   --glass-high:rgba(255,255,255,.20);--glass-lift:0 6px 18px rgba(0,0,0,.30);
   color-scheme:dark
 }}
 :root[data-theme="dark"]{
   --bg:#1c1d1f;--fg:#e8e5df;--muted:#8d97a3;--link:#aeb8c4;
-  --bar-bg:rgba(38,39,42,.94);--bar-border:#3a3b3f;--btn-hover:#323337;
+  --bar-bg:rgba(38,39,42,.94);--bar-border:#3a3b3f;
   --root-bg:#2b313c;--root-fg:#f4f2ee;
   --field:linear-gradient(0deg,#181818 0%,#111314 34%,#0d0e0f 100%);--solid:#26272a;
   --top-line:rgba(255,255,255,.22);--floor-line:rgba(255,255,255,.42);
   --bevel:inset .5px 0 0 rgba(255,255,255,.10),inset -.5px 0 0 rgba(255,255,255,.10),
     inset 0 -.5px 0 rgba(255,255,255,.12);
   --card-raise:0 8px 20px rgba(0,0,0,.26),0 2px 5px rgba(0,0,0,.19);--tint:14%;
-  --glass-fill:rgba(38,39,42,.48);--glass-border:rgba(255,255,255,.13);
+  --glass-fill:rgba(40,41,44,.62);--glass-border:rgba(255,255,255,.13);
+  --press:rgba(255,255,255,.16);--hover-glass:rgba(255,255,255,.09);--hair:rgba(255,255,255,.12);
+  --tip-bg:rgba(240,238,233,.94);--tip-fg:#1c1d1f;
   --glass-high:rgba(255,255,255,.20);--glass-lift:0 6px 18px rgba(0,0,0,.30);
   color-scheme:dark
 }
@@ -75,13 +81,13 @@ g.markmap-node>foreignObject{cursor:pointer}
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
 
 /* a solid box: a branch-tinted fill, a short top rim and floor light, a thin bevel ring */
-.sm-root{padding:10px 20px;border-radius:14px;background:var(--root-bg);color:var(--root-fg);
+.sm-root{padding:10px 22px;border-radius:999px;background:var(--root-bg);color:var(--root-fg);
   font-size:22px;line-height:26px;font-weight:600;
   box-shadow:inset 0 .5px 0 rgba(255,255,255,.22),inset 0 -.5px 0 rgba(255,255,255,.28)}
-.sm-branch{padding:9px 16px;border-radius:12px;
+.sm-branch{padding:9px 18px;border-radius:999px;
   color:color-mix(in srgb,var(--c,var(--fg)) 72%,var(--fg));
   font-size:18px;line-height:22px;font-weight:650}
-.sm-node{padding:5px 11px;border-radius:9px;color:var(--fg);font-size:14px;line-height:18px;
+.sm-node{padding:5px 13px;border-radius:999px;color:var(--fg);font-size:14px;line-height:18px;
   font-weight:500}
 .sm-leaf{font-weight:450}
 .sm-branch,.sm-node,#hc{
@@ -128,34 +134,77 @@ g.markmap-node,path.markmap-link{transition:opacity .4s}
 
 /* ── the two bars ───────────────────────────────────────────────────────────── */
 
-#bar,#crumbs{position:fixed;display:flex;gap:2px;padding:4px;border-radius:10px;
-  font:13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;z-index:5}
+/* both bars are Liquid-Glass-style capsules floating over the map: a translucent fill dense
+   enough to read over coloured branches, a blur that lifts the colour behind, a light rim, a top
+   highlight and a soft lift. Without backdrop-filter, or when the viewer asks for less
+   transparency or more contrast, they turn solid */
+#bar,#crumbs{position:fixed;display:flex;align-items:center;gap:2px;padding:4px;border-radius:999px;
+  font:13px/1 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;z-index:5;
+  background:var(--glass-fill);border:1px solid var(--glass-border);
+  -webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%);
+  box-shadow:inset 0 1px 0 var(--glass-high),var(--glass-lift)}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  #bar,#crumbs{background:var(--bar-bg)}}
+@media (prefers-reduced-transparency:reduce),(prefers-contrast:more){
+  #bar,#crumbs{background:var(--bar-bg);border-color:var(--bar-border);
+    -webkit-backdrop-filter:none;backdrop-filter:none}}
 #bar{right:calc(14px + env(safe-area-inset-right,0px));
-  bottom:calc(14px + env(safe-area-inset-bottom,0px));
-  background:var(--bar-bg);border:1px solid var(--bar-border)}
-#bar .sep{width:1px;background:var(--bar-border);margin:4px 3px}
+  bottom:calc(14px + env(safe-area-inset-bottom,0px))}
+#bar .sep{flex:none;width:1px;height:18px;background:var(--hair);margin:0 4px}
 
-/* the breadcrumb is frosted glass: a translucent fill, a blur, a light rim and a top highlight */
+/* round icon buttons: 36 px circles, 44 px under a finger. each names itself to a screen reader
+   and, with a pointer that can hover, shows its name in a small tip above it on hover or
+   keyboard focus. hover lights a button only where the pointer can hover, so a tapped button on a
+   phone does not stay lit */
+#bar button{all:unset;position:relative;box-sizing:border-box;width:36px;height:36px;
+  display:grid;place-items:center;border-radius:50%;cursor:pointer;color:var(--fg);
+  transition:background-color .15s,transform .18s cubic-bezier(.2,.8,.2,1)}
+#bar button svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.9;
+  stroke-linecap:round;stroke-linejoin:round}
+#bar button svg .fill{fill:currentColor;stroke:none}
+@media (hover:hover){#bar button:hover{background:var(--hover-glass)}}
+#bar button:active{background:var(--press);transform:scale(.9)}
+@media (pointer:coarse){#bar button{width:44px;height:44px}#bar button svg{width:20px;height:20px}}
+#bar button::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 12px);left:50%;
+  translate:-50% 4px;padding:6px 10px;border-radius:999px;white-space:nowrap;pointer-events:none;
+  background:var(--tip-bg);color:var(--tip-fg);font:500 12px/1 -apple-system,BlinkMacSystemFont,
+  "Segoe UI",sans-serif;opacity:0;transition:opacity .12s,translate .16s cubic-bezier(.2,.8,.2,1)}
+#bar button:last-child::after{left:auto;right:0;translate:0 4px}
+@media (hover:hover){
+  #bar button:hover::after,#bar button:focus-visible::after{opacity:1;translate:-50% 0;
+    transition-delay:.35s}
+  #bar button:last-child:hover::after,#bar button:last-child:focus-visible::after{translate:0 0}}
+/* the layout button shows the layout in use */
+#bLayout .one,#bLayout[aria-pressed="false"] .two{display:none}
+#bLayout[aria-pressed="false"] .one{display:block}
+
+/* the breadcrumb: a capsule of capsules */
 #crumbs{left:calc(14px + env(safe-area-inset-left,0px));
   top:calc(14px + env(safe-area-inset-top,0px));
-  align-items:center;max-width:calc(100vw - 28px);overflow:hidden;
-  background:var(--glass-fill);border:1px solid var(--glass-border);
-  -webkit-backdrop-filter:blur(16px) saturate(170%);backdrop-filter:blur(16px) saturate(170%);
-  box-shadow:inset 0 1px 0 var(--glass-high),var(--glass-lift)}
+  max-width:calc(100vw - 28px);overflow:hidden}
 #crumbs[hidden]{display:none}
-#crumbs span{color:var(--fg);padding:7px 9px;white-space:nowrap}
+#crumbs span{color:var(--fg);font-weight:590;padding:8px 12px;white-space:nowrap}
 #crumbs .sep{flex:none;width:11px;height:11px;color:var(--muted)}
-#bar button,#crumbs button{all:unset;cursor:pointer;color:var(--fg);padding:7px 9px;
-  border-radius:7px;white-space:nowrap}
-#crumbs button{color:var(--muted)}
-#bar button:hover,#crumbs button:hover{background:var(--btn-hover)}
+#crumbs button{all:unset;cursor:pointer;color:var(--muted);padding:8px 12px;border-radius:999px;
+  white-space:nowrap;transition:background-color .15s,color .15s}
+@media (hover:hover){#crumbs button:hover{background:var(--hover-glass);color:var(--fg)}}
+#crumbs button:active{background:var(--press)}
+/* under a finger each crumb is 44 px tall, as the bar's buttons are */
+@media (pointer:coarse){#crumbs button,#crumbs span{box-sizing:border-box;min-height:44px;
+  display:inline-flex;align-items:center}}
 #bar button:focus-visible,#crumbs button:focus-visible{outline:2px solid var(--muted);
-  outline-offset:1px}
+  outline-offset:2px}
+
+/* page.js sets .theming for the frame the theme changes in, so every element takes its new
+   colours at once, and the browser crossfades the whole page from the old theme to the new */
+.theming *,.theming *::before,.theming *::after{transition:none !important}
+::view-transition-old(root),::view-transition-new(root){animation-duration:.28s;
+  animation-timing-function:cubic-bezier(.2,.8,.2,1)}
 
 /* ── the hover card ─────────────────────────────────────────────────────────── */
 
 #hc{position:fixed;z-index:10;width:360px;box-sizing:border-box;padding:13px 15px;
-  border-radius:12px;color:var(--fg);border:none;
+  border-radius:18px;color:var(--fg);border:none;
   font:14.5px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;pointer-events:none;
   opacity:0;transform:translateY(3px);transition:opacity .12s,transform .12s;
   box-shadow:var(--bevel),var(--card-raise)}
@@ -178,14 +227,27 @@ g.markmap-node,path.markmap-link{transition:opacity .4s}
     fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
     stroke-linejoin="round"></path></svg>
 </template>
-<div id="bar">
-  <button id="bLayout" title="Switch between one-sided and two-sided">Two-sided</button>
+<div id="bar" role="group" aria-label="Map controls">
+  <button id="bLayout" aria-label="Two-sided layout" aria-pressed="true" data-tip="Two-sided">
+    <svg class="two" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="2.4"/>
+      <path d="M14.4 12c3 0 3-6 6.6-6M14.4 12c3 0 3 6 6.6 6
+        M9.6 12c-3 0-3-6-6.6-6M9.6 12c-3 0-3 6-6.6 6"/></svg>
+    <svg class="one" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="2.4"/>
+      <path d="M7.4 12c4.5 0 4.5-7 13.6-7M7.4 12H21M7.4 12c4.5 0 4.5 7 13.6 7"/></svg>
+  </button>
   <span class="sep"></span>
-  <button id="bIn" title="Zoom in">+</button>
-  <button id="bOut" title="Zoom out">&minus;</button>
-  <button id="bFit" title="Fit to window">Fit</button>
+  <button id="bIn" aria-label="Zoom in" data-tip="Zoom in">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+  <button id="bOut" aria-label="Zoom out" data-tip="Zoom out">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/></svg></button>
+  <button id="bFit" aria-label="Fit to window" data-tip="Fit">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M4 9V6a2 2 0 0 1 2-2h3M15 4h3a2 2 0 0 1 2 2v3
+        M20 15v3a2 2 0 0 1-2 2h-3M9 20H6a2 2 0 0 1-2-2v-3"/></svg></button>
   <span class="sep"></span>
-  <button id="bDark" title="Switch light or dark">Theme</button>
+  <button id="bDark" aria-label="Switch light or dark" data-tip="Light or dark">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/>
+      <path class="fill" d="M12 3.5a8.5 8.5 0 0 1 0 17z"/></svg></button>
 </div>
 <div id="hc"></div>
 <script>/*__D3__*/</script>

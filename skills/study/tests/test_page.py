@@ -21,16 +21,21 @@ WebKit ignores; pytest collects it alone, as test_no_css_transform_on_foreign_ob
 B1 to B13 open a one-map page and drive it: plain click and Cmd or Ctrl-click on a branch and on
 the centre, hover cards, the hover lighting of the path and its links, a link's ends on its boxes
 across the two trees, a link folded into one box, the arrow that opens the way, the layout switch,
-no network, and Cmd-click on a Mac. B24 forces each platform and holds that only its own
-modifier opens everything. B14 to B17 hold a card and names holding the template's slot
-markers, ids that read as HTML or as `__proto__`, the centre of a map with one branch, and the
-arrow's spotlight cleared over empty canvas. B18 to B21 hold how a link is drawn (a path of
-triangles beneath the boxes), that folding never measures a path, reduced motion, and the bottom
-bar's buttons. S1 to S7 open a page of four maps: portals, the swap and the breadcrumb, folds kept
-per map, the Back button, a link that ends at the round portal of its home, no network, and the
-breadcrumb's frosted bar and chevrons. S8 to S14 open a map whose links lead to two other maps:
-one portal per home, links only from sources on screen, portals outside the map and inside Fit,
-a pointer tip's card and the portal it turns, everything still once the spotlight lets go, and a
+no network, and Cmd-click on a Mac. B24 forces each platform and holds that only its own modifier
+opens everything. B14 to B17 hold a card and names holding the template's slot markers, ids that
+read as HTML or as `__proto__`, the centre of a map with one branch, and the arrow's spotlight
+cleared over empty canvas. B18 to B21 hold how a link is drawn (a path of triangles beneath the
+boxes), that folding never measures a path, reduced motion, and the bottom bar's five named icon
+buttons, the layout button's pressed state following the switch and a stored layout. B29 holds the
+theme button: dark and back to light through a view transition, none under reduced motion, presses
+faster than a frame each counted, no .theming class left behind and no page error. S1 to S7 open a
+page of four maps: portals, the swap and the breadcrumb, folds kept per map, the Back button, a
+link that ends at the round portal of its home, no network, and both bars as glass capsules in both
+themes, with the breadcrumb's svg chevrons. S21 holds both bars solid when the viewer asks for less
+transparency or more contrast. S22 and S23 open it on a touch screen: each breadcrumb 44 px tall,
+and no hover left on a tapped button. S8 to S14 open a map whose links lead to two other maps: one
+portal per home, links only from sources on screen, portals outside the map and inside Fit, a
+pointer tip's card and the portal it turns, everything still once the spotlight lets go, and a
 portal's click and what it leaves behind. S15 holds two portals that meet across the left ray, and
 S16 and S17 Back pressed with the pointer still after a portal click and after an arrow click. S18
 holds the spread of portals along the rim, the overfull rim and end clusters meeting across the cut
@@ -618,6 +623,30 @@ def visible(pg) -> set:
     return set(pg.evaluate(JS_VISIBLE))
 
 
+# each bar's id, backdrop filter, fill colour and corner radius
+JS_BARS = '''() => ['bar', 'crumbs'].map(id => { const s = getComputedStyle(
+  document.getElementById(id)); return [id, s.backdropFilter, s.backgroundColor,
+  s.borderTopLeftRadius]; })'''
+
+
+def alpha(color: str) -> float:
+    '''the alpha of a computed rgb() or rgba() colour.'''
+    parts = re.findall(r'[\d.]+', color)
+    return float(parts[3]) if len(parts) == 4 else 1.0
+
+
+def glass_bar(bar) -> bool:
+    '''a bar read by JS_BARS is a glass capsule: blurred, saturated, see-through and round.'''
+    _, blur, fill, radius = bar
+    return 'blur' in blur and 'saturate' in blur and alpha(fill) < .9 and radius == '999px'
+
+
+def solid_bar(bar) -> bool:
+    '''a bar read by JS_BARS is solid: no blur and a fill 94% opaque or more.'''
+    _, blur, fill, _ = bar
+    return blur == 'none' and alpha(fill) >= .94
+
+
 def browser_cases(tmp: Path) -> None:
     try:
         from playwright.sync_api import sync_playwright
@@ -860,16 +889,31 @@ def browser_cases(tmp: Path) -> None:
         glass = []
         for theme in ('light', 'dark'):
             pg.evaluate(f'document.documentElement.setAttribute("data-theme", "{theme}")')
-            glass.append(pg.evaluate('''() => { const c = document.getElementById('crumbs'),
-              s = getComputedStyle(c), b = getComputedStyle(document.getElementById('bar'));
-              return [s.backdropFilter, s.backgroundColor, b.backdropFilter,
-                [...c.querySelectorAll('.sep')].map(e => e.tagName.toLowerCase()).join(),
-                c.textContent.includes('\u203a')]; }'''))
-        check('S7 the breadcrumb bar is frosted glass in both themes, the button bar is not, and '
-              'each separator is an svg chevron with no › left',
-              all('blur' in f and 'saturate' in f and 'rgba' in bg and bf == 'none'
-                  and seps == 'svg' and not arrow for f, bg, bf, seps, arrow in glass),
-              str(glass))
+            glass.append(pg.evaluate(JS_BARS))
+        seps = pg.evaluate('''() => { const c = document.getElementById('crumbs');
+          return [[...c.querySelectorAll('.sep')].map(e => e.tagName.toLowerCase()).join(),
+            c.textContent.includes('›')]; }''')
+        check('S7 both bars are glass capsules in both themes, blurred, saturated and see-through, '
+              'and each breadcrumb separator is an svg chevron with no › left',
+              all(glass_bar(b) for bars in glass for b in bars) and seps == ['svg', False],
+              f'{glass} {seps}')
+
+        # Playwright's emulate_media has no switch for reduced transparency, so the DevTools
+        # protocol sets that media feature; more contrast goes through emulate_media
+        solid = {}
+        cdp = ctx.new_cdp_session(pg)
+        for theme in ('light', 'dark'):
+            pg.evaluate(f'document.documentElement.setAttribute("data-theme", "{theme}")')
+            cdp.send('Emulation.setEmulatedMedia', {'features': [
+                {'name': 'prefers-reduced-transparency', 'value': 'reduce'}]})
+            solid[f'{theme}, less transparency'] = pg.evaluate(JS_BARS)
+            cdp.send('Emulation.setEmulatedMedia', {'features': []})
+            pg.emulate_media(contrast='more')
+            solid[f'{theme}, more contrast'] = pg.evaluate(JS_BARS)
+            pg.emulate_media(contrast='no-preference')
+        check('S21 both bars turn solid in both themes when the viewer asks for less transparency '
+              'or more contrast: no blur and a fill 94% opaque or more',
+              all(solid_bar(b) for bars in solid.values() for b in bars), str(solid))
         ctx.close()
 
         tricky_cases(browser, tmp)
@@ -879,7 +923,35 @@ def browser_cases(tmp: Path) -> None:
         back_cases(browser, tmp)
         rim_cases(browser)
         edge_cases(browser, tmp)
+        touch_cases(browser, tmp)
         browser.close()
+
+
+def touch_cases(browser, tmp: Path) -> None:
+    '''S22 and S23: the four-map page on a touch screen, where the pointer is coarse and cannot
+    hover.'''
+    ctx = browser.new_context(viewport={'width': 800, 'height': 700}, has_touch=True,
+                              is_mobile=True)
+    pg  = ctx.new_page()
+    pg.goto((tmp / 'set.html').as_uri())
+    pg.wait_for_selector(node_sel('.', 'mmR'))
+    pg.wait_for_timeout(SETTLE)
+    js_bg = 'getComputedStyle(document.getElementById("bIn")).backgroundColor'
+    rest  = pg.evaluate(js_bg)
+    pg.tap('#bIn')
+    pg.wait_for_timeout(500)
+    tapped = pg.evaluate(js_bg)
+    check('S23 a tapped bar button goes back to its resting background: no hover sticks to it',
+          tapped == rest, f'{rest} {tapped}')
+
+    coarse = pg.evaluate('matchMedia("(pointer: coarse)").matches')
+    click(pg, 'app')
+    tall = pg.evaluate('''[...document.querySelectorAll("#crumbs button, #crumbs span")].map(e =>
+      [e.tagName.toLowerCase(), e.getBoundingClientRect().height])''')
+    check('S22 under a finger each breadcrumb button and the current map\'s name are 44 px tall '
+          'or more', coarse and [t for t, _ in tall] == ['button', 'span']
+          and all(h >= 44 for _, h in tall), f'{coarse} {tall}')
+    ctx.close()
 
 
 def tricky_cases(browser, tmp: Path) -> None:
@@ -1021,8 +1093,51 @@ def tricky_cases(browser, tmp: Path) -> None:
 TRIANGLES = re.compile(r'(M-?[\d.]+,-?[\d.]+(L-?[\d.]+,-?[\d.]+){2}Z)+')
 
 
+# counts the page's calls to document.startViewTransition, when the browser has it
+JS_COUNT_TRANSITIONS = '''window.transitions = 0;
+  if (document.startViewTransition) {
+    const f = document.startViewTransition;
+    document.startViewTransition = function(...a){
+      window.transitions++; return f.apply(this, a); };
+  }'''
+
+
+def theme_presses(pg) -> list:
+    '''presses the theme button twice, from light; after each press, once the switch has had
+    time to land: the theme, whether .theming is still set and the view transitions so far. the
+    page errors raised come last.'''
+    seen = []
+    for _ in range(2):
+        pg.click('#bDark')
+        pg.wait_for_timeout(600)
+        seen.append(pg.evaluate('[document.documentElement.getAttribute("data-theme"), '
+                                'document.documentElement.classList.contains("theming"), '
+                                'window.transitions]'))
+    return seen + [list(pg.errors)]
+
+
+def fast_presses(pg) -> list:
+    '''presses the theme button two and then three times in one task, faster than a view
+    transition sets the theme; after each burst, once the switches have had time to land: the
+    theme and whether .theming is still set. the page errors raised come last. a double-click is
+    not one of the bursts: Chromium sends a click inside a running view transition to the root, so
+    its second press never reaches the button.'''
+    seen = []
+    for n in (2, 3):
+        pg.evaluate(f'() => {{ const b = document.getElementById("bDark"); '
+                    f'for (let i = 0; i < {n}; i++) b.click(); }}')
+        pg.wait_for_timeout(800)
+        seen.append(pg.evaluate(JS_THEME))
+    return seen + [list(pg.errors)]
+
+
+JS_THEME = ('[document.documentElement.getAttribute("data-theme"), '
+            'document.documentElement.classList.contains("theming")]')
+
+
 def link_cases(browser, tmp: Path) -> None:
-    '''B18 to B21: how links are drawn, what folding costs, reduced motion and the bottom bar.'''
+    '''B18 to B21 and B29: how links are drawn, what folding costs, reduced motion, the bottom bar
+    and the theme switch.'''
     ctx = browser.new_context(viewport={'width': 1400, 'height': 900})
     # every call to the page-measuring path methods is counted, wherever the page makes it
     ctx.add_init_script('''window.measured = 0;
@@ -1031,7 +1146,10 @@ def link_cases(browser, tmp: Path) -> None:
         SVGGeometryElement.prototype[k] = function(...a){
           window.measured++; return f.apply(this, a); };
       }''')
+    ctx.add_init_script(JS_COUNT_TRANSITIONS)
     pg = ctx.new_page()
+    pg.errors = []
+    pg.on('pageerror', lambda e: pg.errors.append(str(e)))
     pg.goto((tmp / 'small.html').as_uri())
     pg.wait_for_selector(node_sel('.', 'mmR'))
     pg.wait_for_timeout(SETTLE)
@@ -1069,15 +1187,49 @@ def link_cases(browser, tmp: Path) -> None:
           pg.evaluate('window.measured') == 0 and 'getTotalLength' not in js
           and 'getPointAtLength' not in js, str(pg.evaluate('window.measured')))
 
-    buttons = pg.evaluate('[...document.querySelectorAll("#bar button")].map(b => b.textContent)')
-    check('B21 the bottom bar holds exactly Two-sided, +, \u2212, Fit and Theme, and no test '
-          'button is in the page',
-          buttons == ['Two-sided', '+', '\u2212', 'Fit', 'Theme']
-          and not pg.evaluate('!!document.querySelector("#bPortal, #bArrow")'), str(buttons))
+    # each bar button's id, name, tip and pressed state, and which layout icon shows
+    js_bar = '''() => [...document.querySelectorAll("#bar button")].map(b => [b.id,
+      b.getAttribute("aria-label"), b.dataset.tip, b.getAttribute("aria-pressed"),
+      [...b.querySelectorAll("svg")].filter(s => getComputedStyle(s).display !== "none")
+        .map(s => s.getAttribute("class") || "icon").join()])'''
+    states = [pg.evaluate(js_bar)]
+    for _ in range(2):
+        pg.click('#bLayout')
+        pg.wait_for_timeout(SETTLE)
+        states.append(pg.evaluate(js_bar))
+    first = states[0]
+    layout = [s[0][2:] for s in states]
+    # a page stored one-sided opens with the layout button showing it
+    one = browser.new_context(viewport={'width': 1400, 'height': 900})
+    one.add_init_script("localStorage.setItem('sm-layout', 'right')")
+    opg = one.new_page()
+    opg.goto((tmp / 'small.html').as_uri())
+    opg.wait_for_selector(node_sel('.', 'mmR'))
+    opg.wait_for_timeout(SETTLE)
+    stored = opg.evaluate(js_bar)[0][2:]
+    one.close()
+    check('B21 the bottom bar is a group of five icon buttons, layout, zoom in, zoom out, Fit and '
+          'theme, each named and tipped; the layout button\'s pressed state, tip and icon follow '
+          'the switch to one side and back and a page stored one-sided, and no test button is in '
+          'the page',
+          pg.evaluate('document.getElementById("bar").getAttribute("role")') == 'group'
+          and stored == ['One-sided', 'false', 'one']
+          and [b[0] for b in first] == ['bLayout', 'bIn', 'bOut', 'bFit', 'bDark']
+          and all(b[1] and b[2] for b in first)
+          and all(b[4] == 'icon' for b in first[1:])
+          and layout == [['Two-sided', 'true', 'two'], ['One-sided', 'false', 'one'],
+                         ['Two-sided', 'true', 'two']]
+          and not pg.evaluate('!!document.querySelector("#bPortal, #bArrow")'),
+          f'{states} {stored}')
+    themed = {'motion': theme_presses(pg)}
+    themed['motion, fast'] = fast_presses(pg)
     ctx.close()
 
     ctx = browser.new_context(viewport={'width': 1400, 'height': 900}, reduced_motion='reduce')
+    ctx.add_init_script(JS_COUNT_TRANSITIONS)
     pg  = ctx.new_page()
+    pg.errors = []
+    pg.on('pageerror', lambda e: pg.errors.append(str(e)))
     pg.goto((tmp / 'small.html').as_uri())
     pg.wait_for_selector(node_sel('.', 'mmR'))
     pg.wait_for_timeout(SETTLE)
@@ -1091,7 +1243,18 @@ def link_cases(browser, tmp: Path) -> None:
     two = links_now(pg).get('tests/t.py/test_a')
     check('B20 under reduced motion a lit link goes full but its triangles do not move',
           one is not None and one[0] == 1 and one == two, f'{one} {two}')
+    themed['reduced motion'] = theme_presses(pg)
+    themed['reduced motion, fast'] = fast_presses(pg)
     ctx.close()
+    fast = [['light', False], ['dark', False], []]
+    check('B29 the theme button switches to dark and back to light, through one view transition '
+          'a press and none under reduced motion; two presses in one task end where they '
+          'started and three end switched; it leaves no .theming class behind and '
+          'raises no page error',
+          themed == {'motion': [['dark', False, 1], ['light', False, 2], []],
+                     'motion, fast': fast,
+                     'reduced motion': [['dark', False, 0], ['light', False, 0], []],
+                     'reduced motion, fast': fast}, str(themed))
 
 
 PORT = node('.', 'root', name='port', children=[

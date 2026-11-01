@@ -40,13 +40,16 @@ of a branch is a tip.
 - **Go back.** The breadcrumb at the top lists the maps from the top one down to yours. Click a
   name to go back up, or use the browser's Back button. Each map keeps the boxes you had open.
 
-The bar at the bottom has the other controls. The page remembers your layout and theme.
+The bar at the bottom has the other controls as round icon buttons. On a computer, hold the
+pointer over a button or move to it with the Tab key, and its name shows above it. The page
+remembers your layout and theme.
 
-- **Two-sided** spreads the branches on both sides of the centre box, and **One-sided** puts them
-  all on the right.
-- **+** and **−** zoom. You can also scroll or pinch to zoom, and drag to move the map.
-- **Fit** fits the map to the window.
-- **Theme** switches between light and dark.
+- **Two-sided** spreads the branches on both sides of the centre box. Click it to switch to
+  **One-sided**, which puts them all on the right. The button's icon shows the layout in use.
+- **Zoom in** is a plus and **Zoom out** is a minus. You can also scroll or pinch to zoom, and drag
+  to move the map.
+- **Fit** shows four corners and fits the map to the window.
+- **Light or dark** is a half-filled circle and switches between the light and dark themes.
 
 ## Learn from the map
 
