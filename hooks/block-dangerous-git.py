@@ -5,7 +5,7 @@ git push, git reset --hard, git clean -f and -fd, git branch -D, and git checkou
 git restore . (mattpocock-skills, `skills/misc/git-guardrails-claude-code/scripts/block-dangerous-git.sh`,
 ll. 6–16). A refused call exits 2 with upstream's message on stderr, which Claude Code shows the
 model in place of running the command (l. 20). It also refuses git stash *(kstack: the stash stack
-is shared across worktrees, and an AIKYAM build writer used `git stash` in a worktree,
+is shared across worktrees, and a private project build writer used `git stash` in a worktree,
 2026-11-01)*; Matt's list has no stash. Every other call exits 0 with no output.
 
 Ported from upstream's bash script to Python *(kstack: kstack needs only git and python3, and

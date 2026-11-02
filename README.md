@@ -129,7 +129,7 @@ Build it on each Mac you use it on, because Gatekeeper blocks a copy sent from a
 **Git guard.** A hook on every Bash call refuses the git commands that destroy work: `git push`,
 `git reset --hard`, `git clean -f`, `git branch -D`, and `git checkout .` or `git restore .`
 (mattpocock-skills, `skills/misc/git-guardrails-claude-code/scripts/block-dangerous-git.sh`,
-ll. 6–16), and `git stash` *(kstack: the stash stack is shared across worktrees, and an AIKYAM build
+ll. 6–16), and `git stash` *(kstack: the stash stack is shared across worktrees, and a private project build
 writer used `git stash` in a worktree, 2026-11-01)*; Claude sets work aside with a temporary commit
 instead. It refuses them behind a wrapper such as `env` or `timeout`, inside shell syntax, after
 `git -C <dir>`, and in the other spellings git accepts, such as `--har` or `-df`. Like upstream's

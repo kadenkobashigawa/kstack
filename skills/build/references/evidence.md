@@ -128,7 +128,7 @@ after the run it names.
     Giving each lane its own detached checkout of the exact commit stopped that.
   - **A later main move does not force a rebase.** Each rebase forced by main moving cost a
     regression drive and an app boot, about 100k to 150k tokens.
-- **Three AIKYAM /build reports, 2026-11-01.** Peer reports written by the sessions that ran the
+- **Three /build reports from a private project, 2026-11-01.** Peer reports written by the sessions that ran the
   builds. Their numbers are reported, not measured here, and nobody has checked them against the
   raw ledgers they name.
   - **Each agent costs about 75k tokens before it works.** Two reports put the floor at about 70k
@@ -136,16 +136,16 @@ after the run it names.
   - **The gate is one size.** A one-line fix cost about 511k tokens over 6 agents and 1 round,
     because every lane ran for every change.
   - **Later rounds went to stale prose.** In two features, every finding in rounds 2 and 3 was
-    stale or false prose, such as a runbook line or a test docstring naming a deleted route, and
+    stale or false prose, such as a doc line or a test docstring naming deleted code, and
     no code defect. Each of those rounds still ran every lane.
-  - **Research came late.** In the co-editing build, six findings over four rounds shared one
+  - **Research came late.** In one build, six findings over four rounds shared one
     premise. A researcher run of about 64k tokens after round 6 found the standard method that
     would have prevented them.
-  - **Live checks grew from findings.** In the same build, a caret-jump defect present from early
+  - **Live checks grew from findings.** In the same build, a defect present from early
     rounds was first driven in round 7, because the live list grew from findings rather than from
     user flows written up front.
   - **Design interrogation paid best.** About 345k tokens of review on a sketch found 4 critical
-    defects before code, each shown in Docker.
+    defects before code, each shown by a run.
 - **The upstream-sync gate, 2026-11-01.** The session that built upstream-sync reported its gate as
   six rounds and about 3.2M agent tokens, not measured here. Finding R1-2 failed three times, and
   the loop ended only when the prediction it concerned was deleted.
