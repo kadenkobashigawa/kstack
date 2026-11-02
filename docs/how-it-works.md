@@ -16,8 +16,9 @@ everything you need is in its final reply.
   caches that mark themselves as caches, `__pycache__` folders, identical iCloud " 2" copies and
   finished worktrees. Everything else stays. Bin batches older than 30 days are deleted.
 - **stack-check** reviews your skills, agents, hooks, instruction files and memory against the last
-  7 days of sessions that worked in this repository, from any workspace, and suggests edits in its
-  reply. It applies nothing.
+  7 days of sessions that worked in this repository, from any workspace, traces each finding to its
+  root cause, and suggests edits in its reply. It applies nothing. Outside robovac it also runs when
+  you ask, over the sessions you name or over a project and a span you choose.
 - **build** checks the code against the rules in `skills/build/references/rules.md` and takes one
   task per pass: the worst rule break it can prove. It builds the fix in a fresh worktree, sends it
   through the review below, and on a clean verdict merges it into the project's local `main`
@@ -138,8 +139,9 @@ you can type, and which turns the mistake into a hook, lint rule or test.
 - `clorox`: pstack's worktree-cleanup and build-the-lever, the CACHEDIR.TAG spec, PEP 3147 and
   Claude Code's trash rule.
 - `stack-check`: pstack's reflect, its templates kept verbatim with Claude Code's names, plus two
-  lines of kstack's own, and its tooling lens run on Sonnet. The 7-day window is pstack's recall
-  default.
+  lines of kstack's own, and its tooling lens run on Sonnet. Its root-cause step groups the
+  findings into classes as kstack's correct does and traces each with pstack's
+  principle-fix-root-causes. The 7-day window is pstack's recall default.
 - `correct`: pstack's correct and encode-lessons.
 - `polish`: Ours.
 - `unslop`: pstack's unslop, copied verbatim.

@@ -13,7 +13,14 @@ Commands
                                   the last N days (7) of this workspace's sessions, and of the
                                   lines other workspaces' sessions ran inside this repository:
                                   typed turns, slash commands, skills invoked, SKILL.md reads,
-                                  commands run from a skills folder, and agents spawned
+                                  commands run from a skills folder, and agents spawned; a
+                                  header names the transcript's absolute path for this
+                                  workspace's sessions only
+    digest --session ID [--session ID ...] [--days N] [--out F]
+                                  the same lines from the named sessions only, each from any
+                                  workspace and kept whole (every line, at any age unless --days
+                                  is given); each header names the transcript's absolute path. An
+                                  ID is a session id or a prefix of one that names one log
 
 Methods
 -------
@@ -43,8 +50,16 @@ Methods
         the text of a message's content.
     rows :
         the kept entries of one session log.
+    entry_line :
+        one kept entry as one digest line.
+    flag_values :
+        every value given after one flag.
+    named_logs :
+        the log of each named session.
     cmd_digest :
         the digest command.
+    digest_named :
+        the digest command over named sessions.
     main :
         dispatch on the command named first.
 '''
@@ -373,8 +388,8 @@ def rows(path: Path, since: str, seen: set[str], where=None):
     since : str
         the ISO time before which entries are dropped.
     seen : set of str
-        entry ids already kept from any log; each kept id is added, so a replayed entry is kept
-        once.
+        entry ids already kept from the logs that share this set; each kept id is added, so an
+        entry replayed into a second of them is kept once.
     where : callable, optional
         given an entry, whether to keep it; every entry is kept without one.
 
@@ -433,6 +448,81 @@ def rows(path: Path, since: str, seen: set[str], where=None):
                             yield n, ts, 'BASH', first[0]
 
 
+BREAKS = {'\\': '\\\\', '\n': '\\n', '\r': '\\r', '\t': '\\t'}
+
+
+def entry_line(path: Path, n: int, ts: str, kind: str, text: str) -> str:
+    '''
+    one kept entry as one digest line.
+
+    Parameters
+    ----------
+    path : Path
+        the entry's session log.
+    n : int
+        the entry's line in that log.
+    ts : str
+        the entry's timestamp.
+    kind : str
+        the entry's kind, as `rows` yields it.
+    text : str
+        the entry's text.
+
+    Returns
+    -------
+    str
+        `[time] id L<n> KIND: text`, with each backslash, newline, carriage return and tab written
+        as `\\\\`, `\\n`, `\\r` and `\\t`, and every other control or line-separator character as
+        its `\\x` or `\\u` escape.
+
+    Notes
+    -----
+    a typed turn can hold a line that begins `######## SESSION`, and a reader takes such a line for
+    a header naming a log to read; on one line, a `SESSION` header can come only from the script.
+    '''
+    line = f'[{ts[:16]}] {path.stem[:8]} L{n} {kind}: {text}'
+    return re.sub(r'[\\\x00-\x1f\x7f-\x9f\u2028\u2029]', lambda m: BREAKS.get(m[0]) or (
+        f'\\x{ord(m[0]):02x}' if ord(m[0]) < 0x100 else f'\\u{ord(m[0]):04x}'), line)
+
+
+def flag_values(argv: list[str], flag: str) -> list[str]:
+    '''every value that follows `flag` in `argv`, in order; a flag with no value after it gives none.'''
+    return [argv[i + 1] for i, a in enumerate(argv[:-1]) if a == flag]
+
+
+def named_logs(ids: list[str]) -> tuple[list[Path], list[str]]:
+    '''
+    the log of each named session, from any workspace.
+
+    Parameters
+    ----------
+    ids : list of str
+        session ids, or prefixes of them.
+
+    Returns
+    -------
+    tuple
+        the logs in the order named, each once; and one error line per id that names no log or
+        more than one.
+
+    Notes
+    -----
+    a session's log is `~/.claude/projects/<workspace>/<id>.jsonl`; the subagent logs under
+    `<id>/subagents/` belong to the session and are not matched by it.
+    '''
+    every = sorted((HOME / 'projects').glob('*/*.jsonl'))
+    logs, errors = [], []
+    for sid in ids:
+        hits = [p for p in every if p.stem == sid] or [p for p in every if p.stem.startswith(sid)]
+        if len(hits) == 1:
+            logs += [] if hits[0] in logs else hits
+        else:
+            errors.append(f'--session {sid}: ' + ('no session log has this id' if not hits else
+                          f'{len(hits)} session logs begin with it: '
+                          + ', '.join(p.stem for p in hits)))
+    return logs, errors
+
+
 def cmd_digest(argv: list[str]) -> int:
     '''
     the digest command: the recent sessions that worked in this repository, one line per kept
@@ -442,12 +532,13 @@ def cmd_digest(argv: list[str]) -> int:
     ----------
     argv : list of str
         the arguments after `digest`; `--days N` sets how far back (7 by default), `--project P`
-        names the project root, and `--out F` writes the digest to F instead of printing it.
+        names the project root, `--session ID`, once per session, names the sessions to read in
+        place of the window, and `--out F` writes the digest to F instead of printing it.
 
     Returns
     -------
     int
-        0.
+        0, or 2 when a named session matches no log or more than one.
 
     Notes
     -----
@@ -455,8 +546,15 @@ def cmd_digest(argv: list[str]) -> int:
     it holds the work just finished. reflect says "Do not glob across ~/.cursor/projects/*/. That
     crosses workspace boundaries and reads private chats from unrelated projects"; work on this
     repository is often done from another workspace's session, so other folders are read, and of
-    them only the lines whose working folder lies in a worktree of this repository are kept.
+    them only the lines whose working folder lies in a worktree of this repository are kept. A
+    session of this workspace is kept whole, so its header adds the log's absolute path, and a
+    root-cause agent can grep the full transcript the digest indexes; another workspace's header
+    names no path, since its log holds that workspace's unrelated chats. A named session is kept
+    whole, since the operator chose it, and its header adds the path too.
     '''
+    ids = flag_values(argv, '--session')
+    if '--session' in argv:
+        return digest_named(argv, ids)
     days        = float(argv[argv.index('--days') + 1]) if '--days' in argv else 7
     project     = argv[argv.index('--project') + 1] if '--project' in argv else None
     start       = dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=days)
@@ -472,10 +570,10 @@ def cmd_digest(argv: list[str]) -> int:
     lines, seen, count = [], set(), 0
     for p, where in [(p, None) for p in logs] + [
             (p, lambda d: inside(d.get('cwd') or '', roots, memo)) for p in others]:
-        kept = [f'[{ts[:16]}] {p.stem[:8]} L{n} {kind}: {text}'
-                for n, ts, kind, text in rows(p, since, seen, where)]
+        kept = [entry_line(p, *r) for r in rows(p, since, seen, where)]
         if kept or where is None:
-            lines += [f'######## SESSION {p.stem}'] + kept
+            head  = f'######## SESSION {p.stem}' + (f' {p.resolve()}' if where is None else '')
+            lines += [head] + kept
             count += 1
     body = '\n'.join(lines) + '\n'
     if '--out' in argv:
@@ -483,6 +581,51 @@ def cmd_digest(argv: list[str]) -> int:
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(body)
         print(f'{count} session(s), {len(logs)} from {folder}, into {out}')
+    else:
+        sys.stdout.write(body)
+    return 0
+
+
+def digest_named(argv: list[str], ids: list[str]) -> int:
+    '''
+    the digest command over named sessions: each one's kept entries, under a header naming its log.
+
+    Parameters
+    ----------
+    argv : list of str
+        the arguments after `digest`; `--days N` drops entries older than N days, and `--out F`
+        writes the digest to F.
+    ids : list of str
+        the session ids named, or prefixes of them.
+
+    Returns
+    -------
+    int
+        0, or 2, with one line per bad id, when an id names no log or more than one.
+
+    Notes
+    -----
+    each log gets its own set of seen ids, so a named fork keeps the lines it replays from a named
+    parent, and each named session is read whole.
+    '''
+    logs, errors = named_logs(ids)
+    if errors or not ids:
+        print('\n'.join(errors) or 'usage: stack.py digest --session ID [--session ID ...]')
+        return 2
+    since = ''
+    if '--days' in argv:
+        start = dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=float(flag_values(argv, '--days')[0]))
+        since = start.strftime('%Y-%m-%dT%H:%M:%S')
+    lines = []
+    for p in logs:
+        lines += [f'######## SESSION {p.stem} {p.resolve()}'] + [
+            entry_line(p, *r) for r in rows(p, since, set())]
+    body = '\n'.join(lines) + '\n'
+    if '--out' in argv:
+        out = Path(flag_values(argv, '--out')[0]).expanduser()
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(body)
+        print(f'{len(logs)} named session(s) into {out}')
     else:
         sys.stdout.write(body)
     return 0
