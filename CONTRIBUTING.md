@@ -12,9 +12,10 @@ into `~/.claude`, so an edit is live in every session at once.
 2. Run it once on a real case. A skill that has never run is a draft.
 3. Run its tests, if it has any, and commit.
 
-Keep each description short and specific, because an automatic skill's description is loaded into
-every session. A new skill that only you start gets `disable-model-invocation: true` in its front
-matter. A skill a `/loop` runs stays without it, as robovac's rules explain.
+Write the skill, its description and its invocation choice as the writing-for-agents guide says
+(`upstream/mattpocock-skills/skills/productivity/writing-for-agents/SKILL.md` and
+`SKILL-MECHANICS.md`, "Invocation"). kstack's one exception: a skill a `/loop` runs stays
+model-invoked, as robovac's rules explain.
 When a skill adapts something from `upstream/`, name the source in the skill's own files.
 
 ## Citations

@@ -43,7 +43,8 @@ has none.
   important or hard", naming "this is the tricky part" among them, and then "Just say it." (pstack,
   `skills/teach/SKILL.md`, l. 16)
 - **Say what happens, not what doesn't.** "Derive one level at a time", not "don't derive the whole
-  tree" *(kstack: judgment)*.
+  tree". "Prompt the **positive**: state the target behaviour" (mattpocock-skills,
+  `skills/productivity/writing-for-agents/SKILL.md`, l. 74).
 - **The actor is the subject, the action is the verb.** *Version resolution retires the chunk*, not
   *the retirement of a chunk happens when* *(kstack: judgment)*.
 - **What they know opens the sentence, and the new thing lands at the end** *(kstack: judgment)*.

@@ -11,7 +11,7 @@ These folders are imported unmodified, each with its own MIT license:
   calls, grill-me (a one-line wrapper around grilling), their docs pages, the two out-of-scope notes
   on how grilling asks its questions, the retro skill, the research, implement-spec, implement and code-review skills,
   the research, implement-spec and code-review docs pages, the software-factory skill, the
-  git-guardrails-claude-code skill, and the repository's README and LICENSE.
+  git-guardrails-claude-code skill, the writing-for-agents skill and its docs page, and the repository's README and LICENSE.
 
 `sources.json` holds each folder's repository and pinned commit, and `/upstream-sync` checks them
 against each repository's newest commit.
