@@ -19,7 +19,7 @@ one first)*. Why each check exists is in `references/evidence.md`.
   `skills/poteto-mode/playbooks/bug-fix.md`, l. 3)
 - **Every change that merges passes the gate** (`references/gate.md`), whatever its playbook. The
   root runs the gate's checks, and fresh agents that did not write the change run its other lanes,
-  where the review lanes hold it to the code rules in `references/rules.md`. Give each
+  where two review lanes on two models try to break it. Give each
   self-contained change its own branch, in its own linked worktree, gated and merged alone. A
   change waits only for one it overlaps (`references/gate.md`, The unit of work).
 - **Read the project's specifics from the repo on each run**: its test commands, where findings
@@ -29,33 +29,33 @@ one first)*. Why each check exists is in `references/evidence.md`.
 ## Triggers
 
 - **Code crossing a function boundary → `references/design.md`**, the sketch step, before any
-  code. poteto-mode sends it to its architect skill (pstack, `skills/poteto-mode/SKILL.md`, l. 22).
+  code. poteto-mode sends it to its architect skill (pstack, `skills/poteto-mode/SKILL.md`, l. 23).
 - **A nontrivial multi-step task → the throughput checkpoint**, per `references/feature.md` step 3
-  (pstack, `skills/poteto-mode/SKILL.md`, l. 25).
+  (pstack, `skills/poteto-mode/SKILL.md`, l. 26).
 - **Prose in the diff (docs, comments, commit messages) → kstack's `technical-writing` and
-  `unslop` skills, before the code-ready commit** (pstack, `skills/poteto-mode/SKILL.md`, l. 27).
+  `unslop` skills, before the code-ready commit** (pstack, `skills/poteto-mode/SKILL.md`, l. 28).
   Both are verbatim copies of pstack's, and only the operator can invoke them, so read each file:
   `$(cd "${CLAUDE_SKILL_DIR}" && pwd -P)/../technical-writing/SKILL.md` and `../unslop/SKILL.md`
   beside it. Make each count true at its commit, with the command that regenerates it (pstack,
   `skills/technical-writing/SKILL.md`, l. 96). *(kstack: one pass over finished prose for the gate,
   where poteto-mode writes clean as it goes and gives comments their own rule.)*
 - **A claimed number (speedup, regression, latency, score) → `references/measure.md`** before you
-  report or act on it (pstack, `skills/poteto-mode/SKILL.md`, l. 31). A process number, such as
+  report or act on it (pstack, `skills/poteto-mode/SKILL.md`, l. 32). A process number, such as
   gate rounds, tokens or agents per item, is a claimed number, and each sample names the kstack
   commit the gate ran on (`references/measure.md`, A process number).
 - **A broken skill found mid-task → fix it on its own branch, through build.** Don't block on it,
-  and don't work around it (pstack, `skills/poteto-mode/SKILL.md`, l. 35). *(kstack: a branch where
+  and don't work around it (pstack, `skills/poteto-mode/SKILL.md`, l. 36). *(kstack: a branch where
   pstack opens a PR, since build merges locally, `references/gate.md`, Merge preparation.)*
 - **Long or unattended work (`/loop`, or the user away) → `references/long-run.md`** around the
   routed playbook, with its decision trail per pstack's show-me-your-work skill (pstack,
   `skills/poteto-mode/playbooks/autonomous-run.md`, l. 9; pstack, `skills/poteto-mode/SKILL.md`,
-  ll. 36, 139).
+  ll. 37, 142).
 
 ## Playbooks
 
 **Route every change to exactly one playbook.** Match the change to a row, open the file, and copy
 its steps verbatim into the task list before any task-specific item. A step you skip stays in the
-list as `skip: <reason>` (pstack, `skills/poteto-mode/SKILL.md`, l. 121).
+list as `skip: <reason>` (pstack, `skills/poteto-mode/SKILL.md`, l. 124).
 
 | The change | Playbook |
 |---|---|
@@ -76,7 +76,7 @@ fallback.)*
 
 The checks are poteto-mode's Principles (pstack, `skills/poteto-mode/SKILL.md`, l. 15), and each
 playbook step names the one it carries out. Read a check's file in full before you apply it, because
-it says when the check is satisfied (pstack, `skills/poteto-mode/SKILL.md`, l. 40). Checks 1 to 3
+it says when the check is satisfied (pstack, `skills/poteto-mode/SKILL.md`, l. 41). Checks 1 to 3
 counter the failures Karpathy names (Karpathy, 2026).
 
 - **1. Understand** (`references/understand.md`). Counters unchecked assumptions. Before the first
@@ -104,23 +104,23 @@ counter the failures Karpathy names (Karpathy, 2026).
 
 **Decide reversible work alone, and pause for the operator on irreversible work**: force-pushes
 to shared branches, deploys, data deletion, customer messages (pstack,
-`skills/poteto-mode/SKILL.md`, ll. 83, 85), and pushes to a shared remote *(kstack: build merges
+`skills/poteto-mode/SKILL.md`, ll. 84, 86), and pushes to a shared remote *(kstack: build merges
 to local main only)*.
 
 **Use any MCP tool for reversible work, without asking** (pstack, `skills/poteto-mode/SKILL.md`,
-l. 83). *(kstack: pstack also lets external actions such as team chat and ticket updates proceed
+l. 84). *(kstack: pstack also lets external actions such as team chat and ticket updates proceed
 unasked. Here a message or any other outward action still pauses, as the list above says.)*
 
 **Run it instead of asking.** When a fact a run could show answers a choice, run it. Ask only for
 a product or preference call no experiment can settle. Under a full-autonomy grant, decide and
 report a call the grant covers, and apply a default for a call only the operator can make (pstack,
-`skills/poteto-mode/SKILL.md`, l. 20).
+`skills/poteto-mode/SKILL.md`, l. 21).
 
 **"Don't stop", "going to bed", "run until done" and "be fully autonomous" mean keep going**
-(pstack, `skills/poteto-mode/SKILL.md`, l. 87).
+(pstack, `skills/poteto-mode/SKILL.md`, l. 88).
 
 **A merge needs the operator's grant and a clean verdict** (pstack,
-`skills/poteto-mode/playbooks/autopilot-full.md`, l. 9). The grant to merge into local main is
+`skills/poteto-mode/playbooks/autopilot-full.md`, ll. 7, 17). The grant to merge into local main is
 standing, so a clean verdict merges, and pushing stays the operator's *(kstack: a local merge can be
 undone until the push, and the operator pushes)*. A change the operator names, or one they ask to
 see first, stops at merge-ready, a clean verdict on a branch (`references/gate.md`, Merge
@@ -128,28 +128,35 @@ preparation).
 
 **No is an acceptable answer.** When the operator asks whether to do something, invites more
 scope, or shows you an approach, give your real judgment. Decline or push back when that is the
-true answer, and choose candor over agreement (pstack, `skills/poteto-mode/SKILL.md`, l. 89).
+true answer, and choose candor over agreement (pstack, `skills/poteto-mode/SKILL.md`, l. 90).
 
 ## Subagents
 
 **Give each investigation, piece of writing and fix to a fresh subagent**, fix rounds, follow-ups,
 retries and the next queue item included. Hand it the original brief, every later directive, and
 the prior agent's report and branch. Reuse an agent only when the work needs its checkout, its
-uncommitted changes, or a process it still runs (pstack, `skills/poteto-mode/SKILL.md`, l. 99).
+uncommitted changes, or a process it still runs (pstack, `skills/poteto-mode/SKILL.md`, l. 102).
 
 **The root owns the result.** Review each diff and write your own summary. A second opinion is
-the same prompt against a different model, which is how the gate runs its two review lanes
-(pstack, `skills/poteto-mode/SKILL.md`, l. 97).
+the same prompt against a different model (pstack, `skills/poteto-mode/SKILL.md`, l. 100). So the
+gate runs its two review lanes, one on Opus and one on Sonnet, with one shared brief
+(`references/gate.md`, A round, lane 3).
 
-**Opus writes any fix or change that alters behaviour and runs the correctness review lane. Sonnet
-runs the structure review lane and the mechanical work.** poteto-mode sends the hardest changes to
-its strongest model and trivial edits to its fast one (pstack, `skills/poteto-mode/SKILL.md`,
-l. 95). *(kstack: Claude Code runs only Claude models, so Opus is the strongest and Sonnet the fast
-one.)*
+**Opus writes any fix or change that alters behaviour. Sonnet runs the mechanical work, and the
+live lane and the checker.** poteto-mode sends the hardest changes to its strongest model and
+trivial edits to its fast one (pstack, `skills/poteto-mode/SKILL.md`, l. 96), and verification
+stays on the swarm workers' model (pstack, `skills/poteto-mode/SKILL.md`, l. 98). *(kstack: Claude
+Code runs only Claude models, so Opus is the strongest and Sonnet the fast one.)*
 
 **Run every subagent in the background**, so the root keeps working while it runs (pstack,
-`skills/poteto-mode/SKILL.md`, l. 95). Set a subagent's effort only when the user or a skill asks
-*(kstack: poteto-mode picks a model per role instead)*.
+`skills/poteto-mode/SKILL.md`, l. 96).
+
+**Pass `effort: "medium"` on every Agent call**, for writers, fixers, gate lanes, the researcher
+and every other subagent. The Agent tool takes an `effort` parameter for each call, and it
+overrides the agent's own `effort` field and the session's level (Claude Code docs,
+`sub-agents`, https://code.claude.com/docs/en/sub-agents). pstack picks the level per job (pstack,
+`skills/poteto-mode/SKILL.md`, l. 98). *(kstack: the operator set one level for every subagent,
+since Opus 5.5 does the work at medium.)*
 
 **Only the root spawns agents.** A subagent owns its diff directly, with the same review separation
 (pstack, `skills/poteto-mode/playbooks/feature.md`, l. 12). *(kstack: pstack's single owner fans
@@ -158,10 +165,13 @@ work.)*
 
 ### The brief
 
-**Every brief build writes, for a writer, a fixer or a gate lane, has these fields.** "A field you
-cannot fill is a unit you have not scoped yet." (pstack,
-`skills/poteto-mode/playbooks/orchestrate.md`, l. 36) The fields are pstack's (pstack,
-`skills/poteto-mode/playbooks/orchestrate.md`, ll. 38–49):
+**Every brief build writes, for a writer, a fixer or a gate lane, has these fields.** Each kickoff
+names the goal, the paths the worker may and may not write, the actions it must not take, and the
+evidence that proves the work is done. "If you can't name the evidence, the unit isn't scoped yet."
+(pstack, `skills/poteto-mode/playbooks/orchestrate.md`, l. 18) Every brief stands alone and
+includes "the goal, scope, exact slice or race arm, how to verify, and what to report" (pstack,
+`skills/swarm/SKILL.md`, l. 31). kstack writes those parts as these fields *(kstack: one template
+for every brief, so a missing part shows as an empty field)*:
 
 ```
 GOAL         one sentence, the outcome, executable by a stranger with no chat access
@@ -170,9 +180,8 @@ SCOPE        paths this unit may write; paths it may not; its own linked worktre
              named data shape and its organizing structure
 CONTEXT      file pointers, not inlined context; reports this unit depends on pasted in full,
              because workers cannot see siblings
-ACCEPTANCE   checkable criteria, one per line
+ACCEPTANCE   the evidence that proves the work is done, one checkable criterion per line
 VERIFY       exact commands the project's rules name for the touched paths, plus known gotchas
-TIMEBOX      rough cap on runtime; on expiry, return partial findings and stop rather than run on
 FORBIDDEN    no merge, no push, no rebase, no force-push, no fixes outside scope, plus
              unit-specific bans
 REPORT       status, branch, head SHA, verdict, what you actually ran, deviations,
@@ -182,29 +191,26 @@ REPORT       status, branch, head SHA, verdict, what you actually ran, deviation
 - **SCOPE** names the data shape because pstack's feature step delegates "with a specific scope
   (file paths, named data shape and its organizing structure ...)" (pstack,
   `skills/poteto-mode/playbooks/feature.md`, l. 12).
-- **CONTEXT** gives pointers, not pasted files (pstack, `skills/poteto-mode/SKILL.md`, l. 95), so
-  commits and paths go as pointers and the agent reads them itself. A report is a reply, not a
-  file, so it is the one thing pasted.
+- **CONTEXT** gives pointers, not pasted files (pstack, `skills/poteto-mode/SKILL.md`, l. 96), so
+  commits and paths go as pointers and the agent reads them itself. A report the unit depends on
+  is pasted in full, because "Workers can't see their siblings." (pstack,
+  `skills/poteto-mode/playbooks/orchestrate.md`, l. 10)
 - **VERIFY** carries the commands because the author runs them on the committed head before a
   round (`references/gate.md`, A round).
-- **An empty field refuses the spawn.** "Missing fields are a refuse-to-spawn condition." (pstack,
-  `skills/poteto-mode/playbooks/orchestrate.md`, l. 56) The root does not spawn a writer, fixer or
-  lane whose brief has an empty field.
-- **A run of many items samples its briefs.** "Audit one sampled worker brief per sub-coordinator
-  per wave, concurrently with the wave it samples, never as a gate in front of it." (pstack,
-  `skills/poteto-mode/playbooks/orchestrate.md`, l. 56) *(kstack, the translation: the root writes
+- **REPORT** uses `PASS`, `ISSUES` or `BLOCKED` with evidence for a lane (pstack,
+  `skills/swarm/SKILL.md`, l. 31).
+- **A brief that cannot name its evidence is not spawned**, since that unit is not scoped yet
+  (pstack, `skills/poteto-mode/playbooks/orchestrate.md`, l. 18).
+- **A run of many items samples its briefs.** "Read a sample of each sub-coordinator's kickoffs
+  while its workers run, and fix its instructions when one fails." (pstack,
+  `skills/poteto-mode/playbooks/orchestrate.md`, l. 19) *(kstack, the translation: the root writes
   every brief, so it reads one sampled brief per wave alongside the run, and a failing brief fixes
   the template it came from, not only that brief.)*
 - **A fix brief for a doc finding carries the deletion** and proposes no new prose, per the rule
   on a false or unsupported claim (`references/gate.md`, The verdict).
 - *(kstack, the translation: pstack's PRs become the local branch and its head commit, and the
-  ban on `gt` becomes a ban on merging and pushing, which the root alone does. pstack's STANDING
-  field is dropped, because Claude Code loads the project's `CLAUDE.md` files into every subagent,
-  which carries the standing orders.)*
-
-"Size the brief to the unit. A one-command unit gets the template collapsed to a paragraph that
-still names goal, scope, the verify command, and the report shape." (pstack,
-`skills/poteto-mode/playbooks/orchestrate.md`, l. 52)
+  ban on `gt` becomes a ban on merging and pushing, which the root alone does. Claude Code loads
+  the project's `CLAUDE.md` files into every subagent, which carries the standing orders.)*
 
 ## Every rule names its source or says it is reasoning
 

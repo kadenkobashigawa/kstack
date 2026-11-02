@@ -40,6 +40,7 @@ Each other test is a script you run directly:
 ```bash
 python3 tests/test_install_sh.py
 python3 hooks/tests/test_install.py
+python3 hooks/tests/test_git_guard.py
 python3 skills/clorox/tests/test_clorox.py
 ```
 

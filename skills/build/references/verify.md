@@ -21,8 +21,8 @@ Verification is these steps:
   verifies it, and the gate checks it again (Sadowski et al., 2018).
 - **The gate is the independent check,** and every playbook ends on it (`references/gate.md`).
   The root re-runs the checks at the exact commit, and fresh agents that wrote none of the change
-  drive the real app. They review the diff against `references/rules.md` in two or more lanes, and
-  run the same scenario on main to compare.
+  drive the real app and try to break the change, each finding proven by a run (pstack,
+  `skills/interrogate/SKILL.md`, l. 19).
 
 The root runs the change: it boots the app, drives it and reads the logs, or reads the captured
 evidence of a subagent that did. **Declaring it done is the gate's job, not the root's or the
@@ -81,34 +81,37 @@ test, ask whether it asserts the **requirement** or replays the **implementation
 whose expected value was computed by the code under test. Delete any test whose intent you can't
 state in one sentence.
 
-**A test that would still pass if every function it calls returned `None` can't fail for a defect.**
-Five shapes do that. They are practice rather than measurement, from pstack's
-test-behavior-not-implementation (pstack,
-`skills/principle-test-behavior-not-implementation/SKILL.md`, ll. 15–21):
+**A test that still passes when the behavior breaks proves nothing.** Judge each test against
+pstack's two imagined edits (pstack, `skills/principle-test-behavior-not-implementation/SKILL.md`,
+ll. 11–14). Break the behavior, by returning a wrong value, skipping an effect or doing it twice:
+a test that still passes proves nothing. Change the internals and keep every observable result: a
+test that now fails is pinned to the implementation. This is practice rather than measurement.
+pstack names the usual causes of the first failure (pstack,
+`skills/principle-test-behavior-not-implementation/SKILL.md`, l. 13):
 
-- **Weak or no assertion.** It checks only "is not None", "is truthy", "doesn't raise" or
-  "length > 0".
-- **Mock or absence only.** It checks only "was called", "wasn't called" or "is empty".
-- **Self-referential.** The expected value comes from the code under test.
-- **Constant pin.** The assertion restates a hand-kept constant, default or prompt string.
-- **Fixture asserts fixture.** The subject never runs inside the test body.
+- an assertion looser than the contract, such as only "is not None", "is truthy", "doesn't raise"
+  or "length > 0"
+- an expected value computed by the code under test
+- a restated constant or prompt string that never runs the code that reads it
+- an assertion on data the test built itself
 
-Judge each test this way (pstack, `skills/principle-test-behavior-not-implementation/SKILL.md`,
-ll. 11–23):
+"Keep a test that catches the first edit and survives the second. Rewrite or delete the rest."
+(pstack, `skills/principle-test-behavior-not-implementation/SKILL.md`, l. 16)
 
-- **A new test** calls the code the way its users do and asserts a literal expected value or an
-  observable effect.
-- **An existing test with shape 1, 2, 3 or 5** is broken when a mutant of the line it guards
-  survives it *(kstack: pstack needs no mutant, since such a test "cannot fail for a defect". The
-  mutant is build's own check, check 4 and rule 13)*.
-- **A constant pin** is broken by its shape alone. It restates a value the code holds, so it
-  observes no behavior, and it blocks a legitimate edit to that value (l. 11, l. 13).
-- **Fix a broken test** by asserting the presence on the other input (for an absence), or by
-  testing the mechanism that reads the constant (for a pin). When no such assertion exists, delete
-  the test (l. 23).
-- **A passing test of another shape that catches its mutants stays.** Swapping it for a "stronger"
-  one is not a fix *(kstack: the person refused that swap, and until 2026-10-10 this line read
-  "replacing a passing test is the user's call")*.
+- **A new test** drives the code through its users' interface with a concrete input, and derives
+  the expected value from the requirement, not from a run of the code (pstack,
+  `skills/principle-test-behavior-not-implementation/SKILL.md`, l. 16).
+- **An absence check** ("was not called", "is empty") is behavior only when the contract promises
+  the absence. Pair it with a case where the effect happens, so the test shows it can see it
+  (pstack, `skills/principle-test-behavior-not-implementation/SKILL.md`, l. 18).
+- **An existing test** is broken when a mutant of the line it guards survives it *(kstack: the
+  mutant is build's own way to make the first edit, check 4 and rule 13)*.
+- **A restated constant** is broken by its shape alone, since it never runs the code that reads
+  it. Fix it by testing the mechanism that reads the constant, or delete it (pstack,
+  `skills/principle-test-behavior-not-implementation/SKILL.md`, ll. 13, 16).
+- **A passing test that catches its mutants stays.** Swapping it for a "stronger" one is not a fix
+  *(kstack: the person refused that swap, and until 2026-10-10 this line read "replacing a passing
+  test is the user's call")*.
 
 ### Don't write these
 
@@ -151,6 +154,7 @@ blast-radius (pstack, `skills/blast-radius/SKILL.md`, ll. 21–27):
 
 The writer is a subagent and the root verifies, so the verifier is never the author, and the gate
 adds reviewers that saw neither. Brief every reviewer the same way: fresh context, the
-interpretation from check 1, and a scope of requirement gaps and contract violations. A reviewer
-told to find problems always will, so bound what it's looking for (pstack,
-`skills/interrogate/references/lead-judgment.md`, l. 20).
+interpretation from check 1, and a scope of requirement gaps and contract violations. Review passes
+"always find new stuff every time", so treat a pass as a list of leads (mattpocock-skills,
+`docs/engineering/code-review.md`, l. 77), and tell the reviewer that "No findings is a valid
+result." (pstack, `skills/interrogate/SKILL.md`, l. 19)

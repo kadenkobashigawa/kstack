@@ -57,9 +57,15 @@ for the files it touched. Then, for each change, the session you talk to re-runs
 checks at the exact commit, and fresh agents that did not write the change, each in its own
 checkout of that commit:
 
-1. prove the main behavior live on the smallest real surface that could disprove it,
-2. review the diff in two lanes on two models (Opus for correctness, Sonnet for structure), and
-3. compare the result with `main`.
+1. prove the main behavior live on the smallest real surface that could disprove it, and
+2. try to break the change in two review lanes, one on Opus and one on Sonnet, with the same
+   brief: report only what a run proves, plus each doc line the change made wrong.
+
+The session you talk to reruns each finding's command. A finding blocks the merge only when it shows
+a failing run at the head or a doc line the change made wrong. The rest go to follow-ups or are
+dropped. That first round always runs in full. A later round is sized by its fix: a full round for
+new behavior, a redesign or a large new diff, one checker agent for a minor fix or a rebase, and
+none for a wording-only change. The tests and checks re-run at every new commit.
 
 `skills/build/scripts/gate.py` records each lane's result in the branch's ledger. A clean verdict
 merges the change into local `main` under a standing grant, as in pstack's autopilot-full.
@@ -71,8 +77,8 @@ first, stops at merge-ready. Pushing stays yours, and build never deploys.
 ## What happens to findings
 
 The session you work in owns what a robovac pass replies with. Fix a finding through `/build`, or
-dismiss it with the reason it's wrong. A `consider` finding is a call only you can make: build it,
-or decide against it. For a kind of mistake seen twice, the session proposes `/correct`, which only
+drop it with the reason it's wrong. A follow-up that names options is a call only you can make:
+build it, or decide against it. For a kind of mistake seen twice, the session proposes `/correct`, which only
 you can type, and which turns the mistake into a hook, lint rule or test.
 
 ## How the repository is wired

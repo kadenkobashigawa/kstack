@@ -53,9 +53,9 @@ has neither skill, and takes from how only the placement question, which check 1
 in `references/understand.md` asks.)* Each pass, take the split that rules out the most, get runtime
 evidence (logs, a probe, a debugger, a query), and eliminate. When state is unclear, add
 instrumentation and read it as the code runs. Confirm the surviving mechanism with evidence before
-planning the fix. For a bug that appears after a restart, suspect stale persistent state (caches,
-lock files, serialized rows) before code (pstack, `skills/principle-fix-root-causes/SKILL.md`,
-l. 23). A long or stubborn hunt runs under `/loop`, with `references/long-run.md`.
+planning the fix. For a bug that appears only after a restart, suspect persisted state first (config
+files, caches, lock files, serialized state) (pstack, `skills/principle-fix-root-causes/SKILL.md`,
+l. 18). A long or stubborn hunt runs under `/loop`, with `references/long-run.md`.
 
 ## 4. Write the failing test, and run it before the fix
 
@@ -84,7 +84,7 @@ that silences the symptom (a null check, a retry, a broad except) is not a fix. 
 same pattern appears, in the same change. The fix brief carries the command that lists those places,
 such as a `git grep`, in VERIFY and its output in CONTEXT. The fixer reruns it after the fix
 (`references/gate.md`, The verdict). An instance that belongs to another owner is a queue finding
-instead, reported in the Reply (`references/judgment.md`, The five buckets). pstack's playbook says
+instead, reported in the Reply (`references/judgment.md`). pstack's playbook says
 "If it crosses a function boundary, `architect` first" (pstack,
 `skills/poteto-mode/playbooks/bug-fix.md`, l. 9). Here `references/design.md`, the sketch step, runs
 first *(kstack: `references/design.md`, Design it twice, says why it runs on Opus and Sonnet)*.

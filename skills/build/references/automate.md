@@ -17,11 +17,11 @@ has written yet never holds a change back from the gate *(kstack: judgment)*.
   change, so a script for it pays back soonest)*.
 - **Invariants become mechanical checks.** An invariant is a rule that must always hold. One
   written in prose can go false without anyone noticing. A check fails where everyone can see
-  it. pstack's encode-lessons-in-structure: "Encode recurring fixes in mechanisms (tools, code,
-  metadata, automation) instead of textual instructions." (pstack,
-  `skills/principle-encode-lessons-in-structure/SKILL.md`, l. 9)
+  it. pstack's encode-lessons-in-structure: "Encode the rule as a lint, metadata flag, runtime
+  check, or script instead of more text." (pstack,
+  `skills/principle-encode-lessons-in-structure/SKILL.md`, l. 3)
 - **A check you can rerun beats one you did by eye.** A reviewer can run the script that proves
-  a change again, so keep it where they can find it. pstack's build-the-lever: "the tool is one
+  a change again, so keep it where they can find it. pstack's build-the-lever: "The tool is one
   artifact a reviewer can read and rerun to check the work." (pstack,
   `skills/principle-build-the-lever/SKILL.md`, l. 10)
 - **A correction made twice goes to `/correct`.** Only the operator can type `/correct`, so propose

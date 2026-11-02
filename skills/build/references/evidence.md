@@ -39,7 +39,7 @@ made proportional by the impact set's size.
 
 Check for reuse before writing, and make the smallest change that solves the problem. Both come
 from pstack's laziness protocol, "Consolidate decisions" and "Minimize the diff" (pstack,
-`skills/principle-laziness-protocol/SKILL.md`, ll. 13–14).
+`skills/principle-laziness-protocol/SKILL.md`, ll. 9–10).
 
 ## Check 3 (contain): restructuring is its own diff
 
@@ -75,7 +75,7 @@ get their code reviewed before committing (Sadowski et al., 2018).
 
 The playbooks (`feature.md`, `bugfix.md`, `refactor.md`, `perf.md`), the sketch step
 (`design.md`), the modifiers (`measure.md`, `long-run.md`), the placement line, the data-shape
-rule, the fork rule, the five can't-fail test shapes, the proof ladder and the premise rule after
+rule, the fork rule, the two imagined test edits, the proof ladder and the premise rule after
 two failed fixes are adapted from Lauren Tan's pstack and Cursor's cursor-team-kit. Both are MIT,
 imported untouched under `upstream/` in the repo that holds this skill. They are an experienced
 practitioner's working rules, not measured findings. The routing into one playbook per change and
@@ -91,8 +91,9 @@ take the rule from there.
 ## Run evidence behind the gate
 
 Project history from kstack's own runs, not published measurement. Each entry backs a
-*(kstack: ...)* tag in `references/gate.md`, `references/judgment.md`, `references/design.md` or
-`references/when-a-fix-fails.md`, or a pstack rule the gate took up after the run it names.
+*(kstack: ...)* tag in `references/gate.md`, `references/judgment.md`, `references/design.md`,
+`references/understand.md` or `references/when-a-fix-fails.md`, or a pstack rule the gate took up
+after the run it names.
 
 - **The root sorts, with no lead agent.** In the 2026-10-17 converge run, four lead agents used 17%
   of the run's 8.7M agent tokens, to sort reports the root had already read.
@@ -127,6 +128,27 @@ Project history from kstack's own runs, not published measurement. Each entry ba
     Giving each lane its own detached checkout of the exact commit stopped that.
   - **A later main move does not force a rebase.** Each rebase forced by main moving cost a
     regression drive and an app boot, about 100k to 150k tokens.
+- **Three AIKYAM /build reports, 2026-11-01.** Peer reports written by the sessions that ran the
+  builds. Their numbers are reported, not measured here, and nobody has checked them against the
+  raw ledgers they name.
+  - **Each agent costs about 75k tokens before it works.** Two reports put the floor at about 70k
+    to 80k whatever the task, so the number of agents drives the cost.
+  - **The gate is one size.** A one-line fix cost about 511k tokens over 6 agents and 1 round,
+    because every lane ran for every change.
+  - **Later rounds went to stale prose.** In two features, every finding in rounds 2 and 3 was
+    stale or false prose, such as a runbook line or a test docstring naming a deleted route, and
+    no code defect. Each of those rounds still ran every lane.
+  - **Research came late.** In the co-editing build, six findings over four rounds shared one
+    premise. A researcher run of about 64k tokens after round 6 found the standard method that
+    would have prevented them.
+  - **Live checks grew from findings.** In the same build, a caret-jump defect present from early
+    rounds was first driven in round 7, because the live list grew from findings rather than from
+    user flows written up front.
+  - **Design interrogation paid best.** About 345k tokens of review on a sketch found 4 critical
+    defects before code, each shown in Docker.
+- **The upstream-sync gate, 2026-11-01.** The session that built upstream-sync reported its gate as
+  six rounds and about 3.2M agent tokens, not measured here. Finding R1-2 failed three times, and
+  the loop ended only when the prediction it concerned was deleted.
 
 ## Where this skill came from
 
@@ -188,10 +210,31 @@ can point at a result, but it has not been checked by anyone outside its authors
   Dockerfiles used in building and releasing your project, pin dependencies by hash."
   Token-Permissions: "Set top-level permissions as `read-all` or `contents: read`". The project's
   own documentation of its checks, a living document read in October 2026.
+- **OWASP (2025).** A01 Broken Access Control. OWASP Top 10:2025.
+  https://top10.owasp.org/2025/A01_2025-Broken_Access_Control/. "An accessible API with missing
+  access controls for POST, PUT, and DELETE." and "Except for public resources, deny by default."
 - **OWASP (2025).** A03 Software Supply Chain Failures. OWASP Top 10:2025.
   https://top10.owasp.org/2025/A03_2025-Software_Supply_Chain_Failures/. "Reduce attack surface by
   removing unused dependencies, unnecessary features, components, files, and documentation." The
   standard industry list of web application risks.
+- **OWASP (2025).** A04 Cryptographic Failures. OWASP Top 10:2025.
+  https://top10.owasp.org/2025/A04_2025-Cryptographic_Failures/. "Are crypto keys checked into
+  source code repositories?"
+- **OWASP (2025).** A05 Injection. OWASP Top 10:2025.
+  https://top10.owasp.org/2025/A05_2025-Injection/. "An injection vulnerability is an application
+  flaw that allows untrusted user input to be sent to an interpreter (e.g. a browser, database, the
+  command line) and causes the interpreter to execute parts of that input as commands." Its mapped
+  weaknesses include "CWE-95 Improper Neutralization of Directives in Dynamically Evaluated Code
+  ('Eval Injection')".
+- **OWASP (2025).** A09 Security Logging and Alerting Failures. OWASP Top 10:2025.
+  https://top10.owasp.org/2025/A09_2025-Security_Logging_and_Alerting_Failures/. "You are
+  vulnerable to sensitive information leakage by making logging and alerting events visible to a
+  user or an attacker (see A01:2025-Broken Access Control), or by logging sensitive information
+  that should not be logged (such as PII or PHI)."
+- **OWASP (2025).** A10 Mishandling of Exceptional Conditions. OWASP Top 10:2025.
+  https://top10.owasp.org/2025/A10_2025-Mishandling_of_Exceptional_Conditions/. "Notable CWEs
+  included in this category: CWE-209 Generation of Error Message Containing Sensitive
+  Information".
 - **Sadowski, C., Söderberg, E., Church, L., Sipko, M., and Bacchelli, A. (2018).** Modern Code
   Review: A Case Study at Google. ICSE-SEIP 2018, 181–190.
   https://doi.org/10.1145/3183519.3183525. "even directory owners are expected to have their code

@@ -21,22 +21,64 @@ back (Karpathy, 2026).
 - **Name the data shape before writing the logic.** The data shape is the structure that organizes
   the data (a table, a state machine, a typed model). A new branch on an existing if-chain, or a
   second boolean kept in sync with the first, is the sign that the code lacks one (pstack,
-  `skills/poteto-mode/SKILL.md`, l. 21; `skills/principle-model-the-domain/SKILL.md`, l. 9).
+  `skills/poteto-mode/SKILL.md`, l. 22; `skills/principle-model-the-domain/SKILL.md`, l. 9).
 - **Say what you think the request means, and raise what's unclear.** Raise tradeoffs. Push
   back if the request is wrong. When the change touches state, the interpretation names
   **exactly one writer** for each piece of it. A second writer doesn't show in a diff, because
   each writer's code looks correct on its own.
 - **If running something can settle a question, run it instead of asking**, as SKILL.md,
   Autonomy, says.
+- **Research before any design** when the change reaches the sketch step (`references/design.md`),
+  or when the next step is "finding something out from outside the working directory"
+  (mattpocock-skills, `docs/engineering/research.md`, l. 11). The `researcher` agent answers one
+  narrow question in a note it writes itself (`references/prior-art.md`, The research note). Matt's
+  implement-spec has its exploration subagent save notes so that implementers "focus on
+  implementation rather than exploration" (mattpocock-skills,
+  `skills/engineering/implement-spec/SKILL.md`, l. 25). Every later brief names the note's path,
+  because "Nothing loads a past research file automatically." (mattpocock-skills,
+  `docs/engineering/research.md`, l. 49) *(kstack: per `references/evidence.md`, Run evidence
+  behind the gate, where research that came after round 6 found what six findings had missed.)*
+- **Write the live checks before the code.** For a change someone can reach by running it, write
+  each live check now, as one user flow with a concrete scenario and its pass condition. pstack's
+  multi-phase-plan writes each live lane up front as "one box with a concrete scenario, the
+  screenshot it saves, and its pass predicate" (pstack,
+  `skills/poteto-mode/playbooks/multi-phase-plan.md`, l. 13). The gate's live lane drives this list
+  (`references/gate.md`). *(kstack: per `references/evidence.md`, Run evidence behind the gate,
+  where a defect present from early rounds was first driven in round 7.)*
+
+### Where the research note goes, and how long it lasts
+
+Matt's research skill saves the note "where the repo already keeps such notes; match the existing
+convention, and if there is none, put it somewhere sensible and say where." (mattpocock-skills,
+`skills/engineering/research/SKILL.md`, l. 12) The root reads that convention from the project on
+each run, and kstack names no project's folder. Where the project has none, the root asks the person
+once, and the answer goes into the project's `CLAUDE.md` *(kstack: the operator's call, so the next
+run reads the place instead of asking again)*.
+
+Before any brief points at the note, the root follows two or three of its links. Matt's docs call
+the citations "Your only protection", and a link that lands "on a summary of the thing rather than
+the thing" means the run failed (mattpocock-skills, `docs/engineering/research.md`, l. 45).
+
+A note holds short-lived facts, true "as of this week" (mattpocock-skills,
+`docs/engineering/research.md`, l. 21). Once the change merges, a decision that should outlast it
+moves into a tracked file the project already uses, such as its design doc or a rules file, and the
+note is archived: "ADRs yes. Everything else archive or delete after done." (mattpocock-skills,
+`docs/engineering/research.md`, l. 41) A later change starts a new note rather than trusting an old
+one.
+
+### What the check leaves behind
 
 This check produces two things, and every playbook writes both at its first step. The **risk
 list** is the references plus their tests. Check 4 (verify) and the gate run it, so treat it as an
 input, not a note. The **written interpretation** carries the placement line. Check 3 (contain) and
-the gate judge the diff against it, so it has to exist as text.
+the gate judge the diff against it, so it has to exist as text. When they apply, it also leaves the
+research note's path, which later briefs name, and the live checks, which the gate's live lane
+drives.
 
 **Satisfied when** the placement line is written, every reference is named or you can say why
 the search was exhaustive, you have raised every ambiguity you noticed, and the interpretation
-is written down.
+is written down. When the change needs them, the research note exists and its links were followed,
+and the live checks are written.
 
 ## Build the impact set before you write
 

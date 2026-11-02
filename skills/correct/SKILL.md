@@ -8,7 +8,7 @@ argument-hint: "[a mistake class to start from]"
 # correct
 
 A correction in chat fixes one run. A rule in a memory or a CLAUDE.md fixes nothing when an agent
-skips it (pstack, `skills/principle-encode-lessons-in-structure/SKILL.md`, l. 11). This skill
+skips it (pstack, `skills/correct/SKILL.md`, l. 22). This skill
 changes the project so the next agent can't make the mistake. Assume every contributor sees only the
 files it opened, copies the nearest example, and takes the shortest path that works. "Design the
 repo so a change that looks right from one file is right for the whole repo." (pstack,
@@ -25,7 +25,7 @@ project:
 
 - recent commits in `git log`, and the reverts and fix-up commits among them,
 - the gate's findings and a robovac pass's reports that the work session fixed, and the ones it
-  dismissed with a disproof (a noisy lens is a class too, but a `consider` finding the person
+  dismissed with a disproof (a noisy lens is a class too, but a follow-up finding the person
   decided against is not noise, so leave it out), in place of review comments *(kstack, the
   translation: the projects here merge locally, so there is no PR to comment on)*,
 - the agent instruction files: the CLAUDE.md files and the project's skills,
@@ -53,18 +53,19 @@ Group them into classes. **A class counts once it has happened twice** (pstack,
 4. **A test** that fails when the mistake is made, written the way build's `references/verify.md`
    requires: break the guarded line on purpose and the test fails *(kstack, the translation: pstack
    asks to "Test the behavior" (pstack, `skills/correct/SKILL.md`, l. 21), and build's mutation
-   check is how kstack proves a test checks behavior)*. "Fix or delete any test that would still
-   pass if every function it calls returned nothing." (pstack, `skills/correct/SKILL.md`, l. 21)
+   check is how kstack proves a test checks behavior)*. "Fix or delete any test that still passes
+   when the behavior it checks breaks, or that fails when only the internals change." (pstack,
+   `skills/correct/SKILL.md`, l. 21)
 5. **A memory or a doc, last, and only for judgment calls** no check can express. Nothing fails when
    an agent skips it, so a rule that could be a check never stays prose (pstack,
    `skills/correct/SKILL.md`, l. 22). For a judgment call, "make the instruction more prominent and
    add an example of the failure mode" (pstack,
-   `skills/principle-encode-lessons-in-structure/SKILL.md`, l. 17).
+   `skills/principle-encode-lessons-in-structure/SKILL.md`, l. 9).
 
 When a rule is already written down and the mistake happened again, that is a repeat. Fix it at a
 higher level in the same change (pstack, `skills/correct/SKILL.md`, l. 30), and delete the prose
 copy so the rule lives in one place (pstack,
-`skills/principle-encode-lessons-in-structure/SKILL.md`, l. 16).
+`skills/principle-encode-lessons-in-structure/SKILL.md`, l. 11).
 
 ## 3. Prove and land it
 

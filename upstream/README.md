@@ -4,16 +4,14 @@ These folders are imported unmodified, each with its own MIT license:
 
 - `pstack` by Lauren Tan, and `cursor-team-kit`, `continual-learning`, `ralph-loop` and
   `orchestrate` by Cursor, from [cursor/plugins](https://github.com/cursor/plugins) at commit
-  `ccb5507` (2026-10-07).
+  `ae5650f` (2026-10-31).
 - `mattpocock-skills` by Matt Pocock, from [mattpocock/skills](https://github.com/mattpocock/skills)
-  at commit `5beb35b` (2026-10-19). Only part of that repository is here, at its original paths: the
+  at commit `4ae2317` (2026-10-31). Only part of that repository is here, at its original paths: the
   improve-codebase-architecture skill, the codebase-design, grilling and domain-modeling skills it
   calls, grill-me (a one-line wrapper around grilling), their docs pages, the two out-of-scope notes
-  on how grilling asks its questions, the retro skill, the code-review docs page, and the
-  repository's README and LICENSE.
-- `pstack/skills/maintain-formal-verification-skill` by Lauren Tan, from cursor/plugins at commit
-  `ae5650f` (2026-10-31), later than the rest of `pstack` because upstream-sync ports it and the
-  `ccb5507` copy predates it.
+  on how grilling asks its questions, the retro skill, the research, implement-spec, implement and code-review skills,
+  the research, implement-spec and code-review docs pages, the software-factory skill, the
+  git-guardrails-claude-code skill, and the repository's README and LICENSE.
 
 `sources.json` holds each folder's repository and pinned commit, and `/upstream-sync` checks them
 against each repository's newest commit.

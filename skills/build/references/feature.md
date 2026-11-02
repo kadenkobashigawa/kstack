@@ -25,7 +25,7 @@ carries out and who does it.
    candidates. A change inside one function skips the sketch and says so. *(kstack: pstack's feature
    playbook runs architect at this step every time. Here it runs on poteto-mode's own trigger, the
    condition `references/bugfix.md` and `references/refactor.md` use.)* That trigger is "Code
-   crossing a function boundary" (pstack, `skills/poteto-mode/SKILL.md`, l. 22).
+   crossing a function boundary" (pstack, `skills/poteto-mode/SKILL.md`, l. 23).
 3. **Write the throughput checkpoint.** pstack: "Write the throughput checkpoint as four todo items.
    A dimension that genuinely does not apply (single file, no fan-out) keeps its item with `n/a:
    <reason>` rather than being dropped" (pstack, `skills/poteto-mode/playbooks/feature.md`, l. 7).
@@ -54,7 +54,7 @@ carries out and who does it.
    - **The model.** A change that alters behaviour goes to Opus, and a trivial mechanical edit to
      Sonnet. pstack's default feature model is `grok-4.7-xhigh-fast`, and poteto-mode sends
      "Trivial mechanical edits" to the fast code model (pstack, `skills/poteto-mode/SKILL.md`,
-     l. 95). *(kstack: Claude Code runs only Claude models, and SKILL.md, Subagents, gives any
+     l. 96). *(kstack: Claude Code runs only Claude models, and SKILL.md, Subagents, gives any
      change that alters behaviour to Opus.)*
    - **More than one valid shape.** pstack: "When the implementation admits multiple valid shapes
      (error handling, abstraction layer, test structure), delegate via the **arena** skill instead"
@@ -73,7 +73,7 @@ carries out and who does it.
      `skills/poteto-mode/playbooks/feature.md`, l. 12)
    - **The root reviews the diff.** poteto-mode: "You own every subagent's work. Review the diff and
      write your own summary, don't pass through what it said." (pstack,
-     `skills/poteto-mode/SKILL.md`, l. 97)
+     `skills/poteto-mode/SKILL.md`, l. 100)
 5. **Verify on the matching surface.** pstack: "Verify on the matching surface. "Inconclusive" or
    wrong-surface is not a pass. Flag it." (pstack, `skills/poteto-mode/playbooks/feature.md`, l. 13)
    Carries out check 4 (verify): run the risk list, mutate the changed lines, drive the whole path
@@ -85,18 +85,20 @@ carries out and who does it.
    unit before the next." (pstack, `skills/poteto-mode/playbooks/feature.md`, ll. 14–15) The root
    orders the commits, one concern per commit. A follow-up is its own branch off main, and one that
    overlaps this change waits for it to merge *(kstack, the translation: in place of stacking)*.
-   `references/gate.md` takes this from autopilot-full, "Run owners in true parallel and never
-   stack" (pstack, `skills/poteto-mode/playbooks/autopilot-full.md`, l. 7).
+   `references/gate.md` takes this from autopilot-full, "Run owners in parallel off trunk, never
+   stacked" (pstack, `skills/poteto-mode/playbooks/autopilot-full.md`, l. 13).
 7. **Interrogate a contested design.** pstack: "If the design is contested, `interrogate` before
    shipping." (pstack, `skills/poteto-mode/playbooks/feature.md`, l. 16) Run it only when step 2 did
    not already interrogate the sketch, so a design is interrogated once. pstack interrogates the
    built change here, and architect's interrogation of the sketch is optional (pstack,
-   `skills/architect/SKILL.md`, l. 49), so pstack can run both. *(kstack: a second pass repeats what
+   `skills/architect/SKILL.md`, l. 47), so pstack can run both. *(kstack: a second pass repeats what
    the sketch's reviewers already sorted, and the gate still reviews the built change.)* Carries out
    check 4 (verify), whose reviewers never wrote the change. It runs over the built change the way
-   `references/design.md`, Interrogate the sketch, runs over a sketch. Two read-only reviewers, one
-   Opus and one Sonnet, get `references/rules.md` as the rubric, and the root sorts their findings
-   into the gate's buckets (`references/judgment.md`).
+   `references/design.md`, Interrogate the sketch, runs over a sketch. Two reviewers, one Opus and
+   one Sonnet, get the intent, the diff and interrogate's break-it brief, quoted there (pstack,
+   `skills/interrogate/SKILL.md`, l. 19). The root reruns each finding's command, keeps the ones
+   whose output shows the failure (pstack, `skills/interrogate/SKILL.md`, l. 23), and sorts them as
+   the gate does (`references/judgment.md`).
 8. **Run the gate (`references/gate.md`).** pstack: "Run **Opening a PR**." (pstack,
    `skills/poteto-mode/playbooks/feature.md`, l. 17) The gate is the independent check that check 4
    (verify) ends on, run on the feature's own local branch. The root starts it and runs its checks,

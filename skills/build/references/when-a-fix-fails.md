@@ -13,7 +13,7 @@ premise have failed the same gate, suspect the premise, not the fixes." (pstack,
 the same issue, which inside the gate is the same finding ID. pstack counts fixes that share a
 premise and failed the same gate. A script can count an ID. The premise is written down only
 after the stop, in the next section, so it can't be what triggers the stop.)* The principle's
-reason: "Each failure under a shared premise is evidence about the premise." (pstack,
+reason: "Each failed fix is evidence against the belief it assumed." (pstack,
 `skills/principle-attack-the-premise/SKILL.md`, l. 11)
 
 Revert to the last good state. pstack's bug-fix playbook: "When evidence refutes a hypothesis,
@@ -21,30 +21,27 @@ revert what it motivated." (pstack, `skills/poteto-mode/playbooks/bug-fix.md`, l
 what was wrong, not what you tried *(kstack: judgment)*. Give the next attempt to a fresh subagent
 with that note in its brief. poteto-mode's fresh-subagent default covers the hand-off: "This holds
 for a fix round, a follow-up, a retry, and the next queue item." (pstack,
-`skills/poteto-mode/SKILL.md`, l. 99)
+`skills/poteto-mode/SKILL.md`, l. 102)
 
-## Write the premise and take the census before the third fix
+## Write the premise and test it before the third fix
 
-pstack: "Do not start the next fix before the premise is written down and the census exists."
-(pstack, `skills/principle-attack-the-premise/SKILL.md`, l. 20)
+pstack: "Do not start the next fix before the premise is written down and tested." (pstack,
+`skills/principle-attack-the-premise/SKILL.md`, l. 19)
 
 1. **Write the premise down.** pstack: "The premise is the one sentence that every failed fix
    assumed." (pstack, `skills/principle-attack-the-premise/SKILL.md`, l. 14)
-2. **Take the census.** Count the problem per actor. An actor is each thing the failing check runs
-   over, such as a caller, a worker, a file or a row *(kstack: pstack leaves "actor" undefined)*.
-   pstack: "The census shows which actors hold the imbalance, not how large it is. Write the census
-   as a rerunnable script" (pstack, `skills/principle-attack-the-premise/SKILL.md`, l. 15).
-3. **Read the skew.** When the same few actors hold most of the problem on every run, something
-   assigns them that role. Find what assigns it, and treat that as the next root cause (pstack,
+2. **Test the premise.** pstack: "Find an observation that would come out differently if the
+   premise were false, and make it. Look at how the failures are distributed, not only at how large
+   they are." (pstack, `skills/principle-attack-the-premise/SKILL.md`, l. 15) Make the check a
+   script you can rerun (pstack, `skills/principle-attack-the-premise/SKILL.md`, l. 15).
+3. **Follow the evidence.** When it contradicts the premise, the cause is elsewhere, so look for
+   what the failures share that the premise did not predict. When it confirms the premise, ask the
+   next "why", since the earlier fixes may have treated a consequence (pstack,
    `skills/principle-attack-the-premise/SKILL.md`, l. 16).
-4. **Remove the asymmetry instead of compensating for it.** Move, rotate or randomize the role so
-   that no actor holds it on every run. A return path, a shared pool or a periodic rebalance leaves
-   the assignment in place and adds work on every run (pstack,
-   `skills/principle-attack-the-premise/SKILL.md`, l. 17).
-
-An even census clears the premise. pstack: "If the census is even across actors, the premise is not
-the cause. Look for the cause elsewhere and keep the census as evidence." (pstack,
-`skills/principle-attack-the-premise/SKILL.md`, l. 21)
+4. **Remove the condition instead of compensating for it.** When one part always lands on the
+   losing side, change what puts it there. A mechanism that cleans up after it leaves the cause in
+   place and adds work on every run (pstack, `skills/principle-attack-the-premise/SKILL.md`,
+   l. 17).
 
 ## A fix that creates new bugs points at the design
 
@@ -57,15 +54,15 @@ every fix spawned new bugs because the user and the agent held different archite
 
 When each fix extends a source scan to catch the reviewer's next case, the premise both fixes
 shared is that a scan can guard the property. A scan fits only a fixed syntactic pattern. Replace
-it with the strongest structural mechanism the situation allows, in the order
-`references/design.md` quotes under Screen for red flags (pstack,
-`skills/principle-encode-lessons-in-structure/SKILL.md`, l. 19). *(kstack: per
+it with a structural mechanism, as `references/design.md` says under Screen for red flags. "If the
+fix is structural, only use the structural fix." (pstack,
+`skills/principle-encode-lessons-in-structure/SKILL.md`, l. 11) *(kstack: per
 `references/evidence.md`, Run evidence behind the gate.)*
 
 ## How the count is kept
 
 The count belongs to the issue, not to the agent, so a fresh subagent inherits it through the
-prior agent's report in its brief. Inside the gate, each act-on finding has an ID in the round's
+prior agent's report in its brief. Inside the gate, each blocking finding has an ID in the round's
 record, and a finding that comes back is a failed correction against that ID
 (`references/gate.md`, The verdict). Outside the gate, a fix that fails the test it was written to
 pass also counts *(kstack: pstack counts failures at "the same gate", and a fix's own test is the

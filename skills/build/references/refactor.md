@@ -55,7 +55,7 @@ code does is a redesign. Name it, and run it through `references/feature.md`.
    every rename against the files themselves, because a rename misses uses in strings, docs and
    back-references (pstack, `skills/poteto-mode/playbooks/refactoring.md`, l. 11). The same-change
    rule holds when no external user depends on the old API (pstack,
-   `skills/principle-migrate-callers-then-delete-legacy-apis/SKILL.md`, l. 18). Carries out check 3
+   `skills/principle-migrate-callers-then-delete-legacy-apis/SKILL.md`, l. 12). Carries out check 3
    (contain): the diff moves structure and nothing else. A fresh subagent writes the edits from a
    brief with the fields in SKILL.md, The brief, whose SCOPE names the file paths and the names
    being moved and whose ACCEPTANCE names the behaviour to hold, and the root reviews the diff.
@@ -73,7 +73,7 @@ code does is a redesign. Name it, and run it through `references/feature.md`.
 7. **Keep it only if it's easier to read.** The measure is reader load (pstack,
    `skills/poteto-mode/playbooks/refactoring.md`, l. 13): layers between a question and its answer,
    and hidden state a reader must hold. Can a new reader answer "where does X come from" and "what
-   can change X" quickly (pstack, `skills/principle-minimize-reader-load/SKILL.md`, l. 23)? If the
+   can change X" quickly (pstack, `skills/principle-minimize-reader-load/SKILL.md`, l. 18)? If the
    diff doesn't lower that somewhere, revert it. Carries out check 2 (simplify). The root judges.
 8. **Order the commits.** "Rebase into small ordered commits. A subtraction commit, then the
    reshape, then any follow-on cleanup." (pstack, `skills/poteto-mode/playbooks/refactoring.md`,

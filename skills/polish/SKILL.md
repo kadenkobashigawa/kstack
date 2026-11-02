@@ -143,7 +143,7 @@ While polishing you'll notice behavioral issues. Do **not** fix them here. Colle
 "beyond polish" list (bug, duplicated logic, dead export, unused import, broad except, rot,
 build-session divergence where dedup would change behavior) and report it in Phase 4. The report
 carries these findings, and nothing else does: polish writes them to no file, the same rule as
-build's queue bucket in `skills/build/references/judgment.md`. Build-session pollution — the
+build's follow-up bucket in `skills/build/references/judgment.md`. Build-session pollution — the
 same value or recipe expressed two ways because two sessions each added their own — is a flag, not
 an auto-fix. Normalize it only when it's provably cosmetic, such as a duplicated *comment*.
 

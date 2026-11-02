@@ -16,7 +16,9 @@ anywhere else in the checkout, such as upstream/, is the person's own and stays.
 
 hooks.json is written for the plugin install, where Claude Code fills in ${CLAUDE_PLUGIN_ROOT}. A
 settings file has no plugin root, so each command's ${CLAUDE_PLUGIN_ROOT}/skills/ becomes
-$HOME/.claude/skills/, where install.sh links the same skills.
+$HOME/.claude/skills/, where install.sh links the same skills, and ${CLAUDE_PLUGIN_ROOT}/hooks/
+becomes the checkout's own hooks/, which install.sh links nowhere. A hook that runs a script from
+the checkout's hooks/ is kstack's too, so one hooks.json no longer names is taken out.
 
 Usage
 -----
@@ -34,7 +36,7 @@ Methods
     checkout :
         the Checkout for a skills folder, with names read from the checkout and the links.
     owned :
-        whether a hook command runs a kstack skill's script.
+        whether a hook command runs a kstack skill's script or a script in the checkout's hooks/.
     merge :
         the settings with kstack's hooks brought up to date, and what changed.
     write :
@@ -57,9 +59,10 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
-#a hook command's plugin path, and where install.sh links the same skills...
+#a hook command's plugin paths, and where install.sh links the same skills...
 PLUGIN = '${CLAUDE_PLUGIN_ROOT}/skills/'
 LINKED = '$HOME/.claude/skills/'
+HOOKS  = '${CLAUDE_PLUGIN_ROOT}/hooks/'
 
 
 @dataclass(frozen=True)
@@ -108,12 +111,13 @@ def checkout(skills: Path, linked: Path) -> Checkout:
     return Checkout(skills.parent, root, frozenset(names))
 
 
-def owned(command: str, skills: set[str]) -> bool:
-    '''whether a hook command runs a script under one of kstack's skill folders.'''
-    return any(re.search(rf'(\$HOME|~)/\.claude/skills/{re.escape(s)}/', command) for s in skills)
+def owned(command: str, skills: set[str], hooks: str = '') -> bool:
+    '''whether a hook command runs a script under one of kstack's skill folders, or under `hooks`.'''
+    return (bool(hooks) and hooks in command
+            or any(re.search(rf'(\$HOME|~)/\.claude/skills/{re.escape(s)}/', command) for s in skills))
 
 
-def merge(settings: dict, want: dict, skills: set[str]) -> tuple[dict, list[str]]:
+def merge(settings: dict, want: dict, skills: set[str], folder: str = '') -> tuple[dict, list[str]]:
     '''
     the settings with kstack's hooks brought up to date, and what changed.
 
@@ -125,6 +129,8 @@ def merge(settings: dict, want: dict, skills: set[str]) -> tuple[dict, list[str]
         hooks.json's `hooks`: event name to a list of {matcher, hooks}.
     skills : set of str
         the names of kstack's skill folders, which decide what counts as kstack's.
+    folder : str
+        the checkout's hooks/ path as the settings file names it, which is kstack's too.
 
     Returns
     -------
@@ -140,7 +146,7 @@ def merge(settings: dict, want: dict, skills: set[str]) -> tuple[dict, list[str]
             kept = []
             for h in entry.get('hooks', []):
                 key = (ev, entry.get('matcher', ''), h.get('command', ''))
-                if owned(key[2], skills) and key not in wanted:
+                if owned(key[2], skills, folder) and key not in wanted:
                     changes.append(f'removed {ev} hook: {key[2]}')
                 else:
                     kept.append(h)
@@ -256,9 +262,11 @@ def main(argv: list[str]) -> int:
     target   = Path(argv[1]).expanduser()
     claude   = target.parent
     ks       = checkout(Path(argv[2]), claude / 'skills')
-    want     = json.loads(Path(argv[0]).read_text().replace(PLUGIN, LINKED))['hooks']
+    hooks    = f'{ks.path}/hooks/'
+    want     = json.loads(Path(argv[0]).read_text().replace(PLUGIN, LINKED)
+                          .replace(HOOKS, hooks))['hooks']
     settings = json.loads(target.read_text()) if target.exists() else {}
-    write(target, *merge(settings, want, set(ks.names)))
+    write(target, *merge(settings, want, set(ks.names), hooks))
     for kind in ('skills', 'agents'):
         prune(claude / kind, ks.root + kind + '/')
     print(f'done: {live(claude / "skills", ks.root + "skills/")} skill link(s), '

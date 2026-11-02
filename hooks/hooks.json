@@ -20,6 +20,16 @@
             "timeout": 5
           }
         ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/hooks/block-dangerous-git.py\"",
+            "timeout": 5
+          }
+        ]
       }
     ],
     "PostToolUse": [

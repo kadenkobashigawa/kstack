@@ -48,14 +48,15 @@ edit (V2) and leaves a held nested row out of its parent's copy (V3); a failed r
 changed citation with no verdict each hold their row (V4); for a partial row a suggestion fails
 the recheck unless reimport.md copies its file (V5), and so does one under another label (V6); a
 wrapped line list rewritten in a new shape keeps its line break (V7); and the module docstring
-puts the baseline and the remaps on the ledger (V8); remap.patch edits only citations in rows
-that move (V9). W1 to W4 hold round 5: a script move into a partial row's file
+names only Ledger fields, the baseline and the remaps among them (V8); remap.patch edits only
+citations in rows that move (V9). W1 to W4 hold round 5: a script move into a partial row's file
 that reimport.md does not copy holds its row with no remap.patch edit (W1); when rows sharing one
 short commit split, reimport.md's NOTICE and upstream/README.md instructions, followed, leave the
 pin check clean (W2); a wrapped line list that opens a line still parses once rewritten (W3); and
 an updated verdict with no suggested citation fails the recheck (W4). Y1 and Y2 hold round 6: a
 citation whose edit is left out because a held row owns its new path holds the row that owns it as
-written (Y1), and a partial row's file that upstream renamed is copied at its new path (Y2). R1 refuses a run folder inside the repository, R2 finds the
+written (Y1), and a partial row's file that upstream renamed is copied at its new path (Y2),
+while scan's SKILL.md count takes in a renamed SKILL.md (Y3). R1 refuses a run folder inside the repository, R2 finds the
 repository clean after scan and settle, R3 refuses to scan a tree whose tracked files differ from
 HEAD, R4 has settle refuse a run with no ledger and a verdict line with missing keys, in one line
 and creating nothing, R5 to R7 a verdict whose id is a list, whose citation is a number, or any
@@ -275,8 +276,8 @@ def main() -> int:
               'matters.' and spans(p6[0]) == [(5, 5)], str(p6))
         p7 = at('P7')
         check('P7 a kstack tag after the citation marks it kept, and only that one',
-              len(p7) == 1 and p7[0].deviation == '*(kstack: kstack keeps it)*'
-              and not any(c.deviation for c in cites if c is not p7[0]), str(p7))
+              len(p7) == 1 and p7[0].kept_hint == '*(kstack: kstack keeps it)*'
+              and not any(c.kept_hint for c in cites if c is not p7[0]), str(p7))
         check('P8 no unparsed parenthesis, and the tracked Python fixture is never read',
               not unparsed and all(c.kfile.endswith('.md') for c in cites), str(unparsed))
         check('P9 each pair has its own id, two parentheses on one line included',
@@ -297,16 +298,16 @@ def main() -> int:
                        'C (toolkit, `c.md`, l. 1) and D (toolkit, `d.md`, l. 1) *(kstack: d)*.\n')
         check('P12 the kept hint is the nearest kstack tag after a citation in its paragraph, '
               'after another sentence too, and a tag after the next citation is not its hint',
-              [c.deviation for c in got] == ['*(kstack: mine)*', None, '*(kstack: d)*'],
-              str([(c.id, c.deviation) for c in got]))
+              [c.kept_hint for c in got] == ['*(kstack: mine)*', None, '*(kstack: d)*'],
+              str([(c.id, c.kept_hint) for c in got]))
         got, _ = parse(''.join(f'A (toolkit, `a.md`, l. 1), {w} more *(kstack: kept)*.\n\n'
                                for w in ('e.g. on a retry', 'i.e. once', 'etc. and', 'vs. the '
                                          'rest', 'cf. the other', 'see l. 4 and', 'at ll. 2–3 and',
                                          'E.g. here')))
         check('P13 no punctuation between a citation and the next tag, an abbreviation or a line '
               'label included, hides the kept hint',
-              len(got) == 8 and all(c.deviation == '*(kstack: kept)*' for c in got),
-              str([(c.id, c.deviation) for c in got]))
+              len(got) == 8 and all(c.kept_hint == '*(kstack: kept)*' for c in got),
+              str([(c.id, c.kept_hint) for c in got]))
 
         out = sync('check', '--repo', str(repo))
         check('C1 the clean repository: check exits 0 with no finding',
@@ -732,11 +733,11 @@ def main() -> int:
               and len(got.splitlines()) == len(listed.splitlines())
               and [spans(c) for c in new] == [[(7, 7)]], done.stderr + patch14 + got)
         docs = sync_mod.__doc__
-        check('V8 the module docstring puts each citation\'s baseline Check and head Remap where '
-              'the ledger keeps them', 'holds its baseline `Check` and its head `Remap`' not in docs
-              and '`Ledger.baseline`' in docs and '`Ledger.remaps`' in docs
-              and {'baseline', 'remaps'} <= {f.name for f in
-                                              sync_mod.dataclasses.fields(sync_mod.Ledger)}, docs)
+        named = set(re.findall(r'`Ledger\.(\w+)`', docs))
+        check('V8 each `Ledger.<field>` the module docstring names is a field of the Ledger, the '
+              'baseline and the remaps among them',
+              {'baseline', 'remaps'} <= named
+              <= {f.name for f in sync_mod.dataclasses.fields(sync_mod.Ledger)}, docs)
         up_w, kw, runw = tmp / 'up-w', tmp / 'kw', tmp / 'runw'
         git(tmp, 'init', '-q', '-b', 'main', str(up_w))
         pin_w = commit(up_w, {'LICENSE': 'MIT\n', 'skills/x/SKILL.md': doc('# x', 'Solo rule.'),
@@ -878,7 +879,7 @@ def main() -> int:
                     'upstream/README.md': f'Pin {pin_z[:7]}.\n', 'NOTICE': f'Pin {pin_z[:7]}.\n',
                     'docs/d.md': doc('# d', '"Solo rule." (solo, `skills/x/SKILL.md`, l. 3).')},
                'kstack')
-        sync('scan', str(runz), '--repo', str(kz))
+        scan_z = sync('scan', str(runz), '--repo', str(kz))
         led_z = sync_mod.load(runz, 'ledger.json')
         out, patchz = settle(runz, [], kz)
         plan_z = (runz / 'reimport.md').read_text()
@@ -890,6 +891,10 @@ def main() -> int:
               and all(names(f'{d}/{f}') for d in 'xz' for f in ('SKILL.md', 'notes.md'))
               and commits_of(runz) == {'solo': head_z}
               and '`skills/z/SKILL.md`, l. 3)' in patchz, f'{out.stdout} {patchz} {plan_z}')
+        added_z = [x for x in scan_z.stdout.splitlines() if x.startswith('added: ')]
+        check('Y3 scan\'s SKILL.md count takes in a SKILL.md upstream renamed, as reimport.md '
+              'lists it among the additions', added_z == ['added: 2 (1 SKILL.md), removed: 2'],
+              scan_z.stdout)
         nowhere = tmp / 'nowhere'
         out = sync('settle', str(nowhere), '--repo', str(repo))
         run9 = tmp / 'run9'

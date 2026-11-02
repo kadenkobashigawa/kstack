@@ -35,14 +35,15 @@ once are already checks rather than reminders (pstack, `docs/guide/07-overnight.
   worktree (a bin, a database, the user's settings) runs on a copy of that state, never the live one
   *(kstack: an unattended run has nobody to pause for)*. poteto-mode pauses for "irreversible
   writes: force-push to shared branches, deploys, data deletion, customer messages." (pstack,
-  `skills/poteto-mode/SKILL.md`, l. 85)
+  `skills/poteto-mode/SKILL.md`, l. 86)
 - **Allowed:** what the operator granted in the loop prompt, on top of the standing grant to merge
-  into local main (SKILL.md, Autonomy). A merge follows pstack's autopilot-full: "The operator's
-  full-autonomy grant plus the root's clean verdict is the merge authorization that babysitting
-  alone never has." (pstack, `skills/poteto-mode/playbooks/autopilot-full.md`, l. 9) The verdict is
-  the gate's (`references/gate.md`). A clean verdict merges into local main. A change the operator
-  named, or asked to see first, stops at merge-ready. Never push, deploy or message anyone, which
-  SKILL.md, Autonomy, keeps for the operator.
+  into local main (SKILL.md, Autonomy). A merge follows pstack's autopilot-full: "The owner merges
+  only what you verified, tested on the trunk it lands on." (pstack,
+  `skills/poteto-mode/playbooks/autopilot-full.md`, l. 17) The verdict is the gate's
+  (`references/gate.md`). A clean verdict merges into local main. A change the operator named, or
+  asked to see first, stops at merge-ready, as autopilot-full stops "items the operator names as
+  theirs" (pstack, `skills/poteto-mode/playbooks/autopilot-full.md`, l. 7). Never push, deploy or
+  message anyone, which SKILL.md, Autonomy, keeps for the operator.
 - **Wake:** how the run comes back after it waits. autonomous-run: "An event to watch (CI, a merge,
   a ref advancing) gets a watcher subagent that wakes you on the event, with a long time-based
   heartbeat as fallback. No event gets a fixed-interval heartbeat sized to when the result is worth
@@ -59,46 +60,47 @@ once are already checks rather than reminders (pstack, `docs/guide/07-overnight.
 
 When the task is handed over, a discovery that stands between the run and its predicate is the
 run's own: a broken skill the run uses, a related bug on the predicate's path, a flaky verifier the
-predicate runs. autonomous-run: "Mid-run discoveries are yours." (pstack,
+predicate runs. autonomous-run: "Mid-run discoveries that support the goal are yours." (pstack,
 `skills/poteto-mode/playbooks/autonomous-run.md`, l. 9) The run fixes it out of band, as a change on
 its own branch through build, and then goes back to the predicate. "Keep the predicate as the main
 drive, and return to it after each side fix." (pstack,
 `skills/poteto-mode/playbooks/autonomous-run.md`, l. 9) *(kstack, the translation: a branch of its
 own that passes the gate, in place of pstack's "their own PR")*. A discovery that does not block the
-predicate is recorded, not fixed (`references/contain.md`). *(kstack: autonomous-run makes every
-discovery the run's own, and contain.md keeps a non-blocking one out of every run, attended or not.
-Taking only the blocking ones keeps both rules true.)*
+predicate is recorded, not fixed (`references/contain.md`). *(kstack: autonomous-run makes each
+discovery that supports the goal the run's own, and contain.md keeps a non-blocking one out of
+every run, attended or not. Taking only the blocking ones keeps both rules true.)*
 
 ## When no task is handed over
 
 One task per run, and the code rules choose it. The run checks a slice against `references/rules.md`
 in the rules' order (built well, works, written true), then takes the worst broken rule and nothing
-else. orchestrate holds the same line for a large run: "Mid-run discoveries fix only what blocks the
-frontier. Everything else parks in follow-ups." (pstack,
-`skills/poteto-mode/playbooks/orchestrate.md`, l. 109) *(kstack: this is robovac's build step, which
+else. orchestrate holds the same line for a large run: "Keep only the fixes that block the program,
+and park the rest as follow-ups." (pstack, `skills/poteto-mode/playbooks/orchestrate.md`, l. 20)
+*(kstack: this is robovac's build step, which
 takes one task per run, `skills/robovac/SKILL.md`.)*
 
 1. **Where.** The run works in its own fresh worktree off current main (the contract's Where).
 2. **Review the slice.** Before the built-well rules, write the slice's accretion story from its
    history (`git log` on its files): what it was asked to do, in order, in 3 to 6 lines. Rule 5,
    "built in, not bolted on", is judged against that story *(kstack: rule 5 asks how the code would
-   look had each requirement been known from the start, which needs the order they came in)*. The
-   check runs as pstack's interrogate over the slice. Two reviewers, one Opus and one Sonnet, grade
-   it. Each gets the slice, its accretion story and `references/rules.md` as the rubric.
-   Interrogate's reason: "The adversarial signal comes from model diversity, not assigned personas."
-   (pstack, `skills/interrogate/SKILL.md`, l. 9) Interrogate's default reviewers are two model
-   families (pstack, `skills/interrogate/SKILL.md`, ll. 38–41). *(kstack, the translation: Claude
-   Code runs only Claude models, so here they are Opus and Sonnet, the same pair as the gate's
-   review lanes.)*
-3. **Sort.** The root sorts their findings into the gate's buckets (`references/judgment.md`), with
-   the slice standing in for the diff *(kstack, the translation: interrogate reviews a diff, and
-   here it reviews a slice)*. An act-on finding is a broken rule.
+   look had each requirement been known from the start, which needs the order they came in)*. Two
+   reviewers, one Opus and one Sonnet, grade it. Each gets the slice, its accretion story and
+   `references/rules.md` as the rubric. poteto-mode: "A second opinion is the same prompt against a
+   different model. Agreement is high-signal." (pstack, `skills/poteto-mode/SKILL.md`, l. 100)
+   *(kstack, the translation: Claude Code runs only Claude models, so here they are Opus and Sonnet,
+   the same pair as the gate's review lanes.)* This review is a quality review, kept apart from a
+   change's break-it round, as cursor-team-kit keeps its strict maintainability review in a skill of
+   its own (cursor-team-kit, `skills/thermo-nuclear-code-quality-review/SKILL.md`, l. 9).
+3. **Sort.** The root checks each finding against the slice's code and sorts it as the gate does
+   (`references/judgment.md`), with the slice standing in for the diff *(kstack, the translation:
+   the gate sorts findings on a diff, and here they are on a slice)*. A finding the code bears out
+   is a broken rule.
 4. **One task.** The worst proven broken rule is the run's only task. Its fix is a change, so it
    goes to its playbook (SKILL.md, Playbooks), which ends at the gate (`references/gate.md`) and the
    merge. Then the run ends. autonomous-run drives its side fixes the same way: "Address broken
    skills, related bugs, ... yourself via poteto-mode." (pstack,
-   `skills/poteto-mode/playbooks/autonomous-run.md`, l. 9) The other findings are recorded as the
-   queue bucket in `references/judgment.md` says, and left for a later run. The predicate is that
+   `skills/poteto-mode/playbooks/autonomous-run.md`, l. 9) The other findings are recorded as
+   follow-ups, as `references/judgment.md` says, and left for a later run. The predicate is that
    the rule is no longer broken at the commit that merged, or at the merge-ready branch when the
    operator asked to see the change first.
 5. **When the task's fix fails,** `references/when-a-fix-fails.md` decides what happens next. Where
@@ -107,7 +109,7 @@ takes one task per run, `skills/robovac/SKILL.md`.)*
    branch has merged, or when the task failed and the branch holds nothing worth keeping. A branch
    at merge-ready stays, since it is the work. pstack's worktree-cleanup prunes worktrees and keeps
    the branches: "Branch refs survive, so no commits are lost." (pstack,
-   `skills/poteto-mode/playbooks/worktree-cleanup.md`, l. 9) The run's trail lives in its own folder
+   `skills/poteto-mode/playbooks/worktree-cleanup.md`, l. 7) The run's trail lives in its own folder
    and goes with it.
 
 ## Each iteration
@@ -122,14 +124,15 @@ left behind (pstack, `skills/principle-make-operations-idempotent/SKILL.md`, l. 
 ## A question for the person
 
 A choice only the person can make does not hold up work that doesn't need it.
-principle-never-block-on-the-human: "*Execution* should not block." (pstack,
-`skills/principle-never-block-on-the-human/SKILL.md`, l. 20) The run puts the question, its options
+principle-never-block-on-the-human: "Execution should not block." (pstack,
+`skills/principle-never-block-on-the-human/SKILL.md`, l. 15) The run puts the question, its options
 and the default it takes in its reply, and in its trail when it keeps one. A robovac pass keeps no
 file, so the reply is the person's only way to see the question and overrule the default after.
-orchestrate parks each human gate as its "question, options, default on no answer" (pstack,
-`skills/poteto-mode/playbooks/orchestrate.md`, l. 30) and lists "gates awaiting the human (the only
-asks)" (pstack, `skills/poteto-mode/playbooks/orchestrate.md`, l. 111) in its Reply. The default is
-the option the run recommends, and it applies once the work reaches the choice with no answer yet.
+For a call only the operator can make, poteto-mode says to "apply a default, report it with a full
+explanation, and say in plain words what the operator could tell you to do instead" (pstack,
+`skills/poteto-mode/SKILL.md`, l. 21), and orchestrate's Reply lists "the decisions waiting on the
+user" (pstack, `skills/poteto-mode/playbooks/orchestrate.md`, l. 25). The default is the option the
+run recommends, and it applies once the work reaches the choice with no answer yet.
 For a destructive or outward-facing choice, the default is not to do it *(kstack: SKILL.md,
 Autonomy, pauses for irreversible work, and an unattended run has nobody to pause for)*. A run that
 has nothing left to do without the answer ends and hands back, with the question as the last thing

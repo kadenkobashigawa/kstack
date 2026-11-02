@@ -55,8 +55,8 @@ git -C ~/kstack pull && ~/kstack/install.sh
 
 **Uninstall** by deleting the links in `~/.claude/skills` and `~/.claude/agents` that point into
 `~/kstack`, and removing kstack's hooks from `~/.claude/settings.json`. Each of those hooks runs a
-script under `$HOME/.claude/skills/<name>/`, where `<name>` is one of those links. If you built
-Robovac, delete `~/Applications/Robovac.app` too.
+script under `$HOME/.claude/skills/<name>/`, where `<name>` is one of those links, or under
+`~/kstack/hooks/`. If you built Robovac, delete `~/Applications/Robovac.app` too.
 
 ## Skills
 
@@ -87,8 +87,8 @@ you run them.
 
 Two agents come with them:
 
-- `researcher`: read-only prior-art research across docs, GitHub and papers, used by `build` for
-  design work.
+- `researcher`: prior-art research across docs, GitHub and papers, used by `build` for its
+  understand and design steps. It changes no code and writes only its research note.
 - `impeccable-finish-reviewer`: a final review for UI work built with
   [impeccable](https://github.com/pbakaus/impeccable), which you install separately.
 
@@ -125,6 +125,20 @@ open ~/Applications/Robovac.app
 ```
 
 Build it on each Mac you use it on, because Gatekeeper blocks a copy sent from another Mac.
+
+**Git guard.** A hook on every Bash call refuses the git commands that destroy work: `git push`,
+`git reset --hard`, `git clean -f`, `git branch -D`, and `git checkout .` or `git restore .`
+(mattpocock-skills, `skills/misc/git-guardrails-claude-code/scripts/block-dangerous-git.sh`,
+ll. 6–16), and `git stash` *(kstack: the stash stack is shared across worktrees, and an AIKYAM build
+writer used `git stash` in a worktree, 2026-11-01)*; Claude sets work aside with a temporary commit
+instead. It refuses them behind a wrapper such as `env` or `timeout`, inside shell syntax, after
+`git -C <dir>`, and in the other spellings git accepts, such as `--har` or `-df`. Like upstream's
+grep, it also refuses a line that only mentions one, such as `echo git push`. Claude sees why, and
+the command doesn't run. Restoring one file, as in `git checkout -- <file>`, still works.
+It guards only Claude's Bash calls, so you push from your own terminal. It reads only the command
+line Claude Code passes it, so it cannot see through shell indirection such as a variable or alias
+standing for git, `git ${x}push`, or a backslash line continuation, and upstream's grep has the same
+limit.
 
 **Privacy.** kstack's hooks log robovac sessions' activity to `~/.claude/robovac/runs.jsonl`, which
 the app reads. Tool inputs are stored only as digests, and nothing leaves your Mac. The

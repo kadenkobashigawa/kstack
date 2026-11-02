@@ -53,7 +53,7 @@ has none.
   opens with the plain definition and then ties it to the case (pstack, `skills/teach/SKILL.md`,
   l. 15) *(kstack: concreteness fading puts the case first)*.
 - **Cut the tells that mark text as machine-written**, from the unslop catalogue, named by its rule
-  numbers (pstack, `skills/unslop/SKILL.md`, ll. 22–67; pstack, `skills/teach/SKILL.md`, l. 19)
+  numbers (pstack, `skills/unslop/SKILL.md`, ll. 17–62; pstack, `skills/teach/SKILL.md`, l. 19)
   *(kstack: judgment, since no study tests the catalogue)*. The rules above carry three: 23 (filler)
   is "Cut words that carry nothing", and 28 (dense sentences) and 29 (active voice) are "Active, and
   under about twenty words". The rest, quoted from unslop:
@@ -63,28 +63,30 @@ has none.
   - 7 "AI vocabulary." "Additionally, crucial, delve, enduring, enhance, fostering, garner,
     interplay, intricate, landscape (abstract), pivotal, showcase, tapestry (abstract), testament,
     underscore, vibrant. Replace with plain words."
-  - 8 "Fancy ways to say 'is'." ("serves as", "stands as", "boasts", "features"): "Just say 'is' or
+  - 8 "Fancy ways to say 'is'." ("serves as", "stands as", "boasts", "features"): "Say 'is' or
     'has'."
   - 9 "'Not just X, but Y.'" "State the point directly instead."
-  - 10 "Rule of three." "Forcing ideas into groups of three. Use the natural number."
+  - 10 "Rule of three." "Don't force ideas into groups of three. Use the natural number."
   - 11 "Synonym cycling." "Pick one, repeat it."
   - 12 "False ranges." "'from X to Y' where X and Y aren't on a meaningful scale. List topics
     directly."
-  - 14 "Colon overuse." "Colons are fine before a list or example. Not as mid-sentence connectors."
-  - 19 "Curly quotes." "Replace with straight quotes."
+  - 14 "Colon overuse." "Colons are fine before a list or example, not as mid-sentence connectors."
+  - 19 "Curly quotes." "Use straight quotes."
   - 20 "Chatbot phrases." ("I hope this helps!") "Remove." and 22 "Sycophantic tone." ("Great
     question!") "Respond directly."
   - 24 "Excessive hedging." "'could potentially possibly be argued that it might' becomes 'may'." A
     stack of hedges is not a marked edge (below).
   - 25 "Generic conclusions." "'The future looks bright.' State specific plans or facts."
-  - 26 "Abstract metaphor nouns." "Substrate, wedge, vector, locus, vantage, nexus, primitive (as
-    noun), harness (as metaphor), surface (as in 'API surface'), bedrock, scaffolding (as metaphor),
-    modality, paradigm, gold-plating, ratchet (as metaphor), evacuate (for moving code), endgame,
-    north star, flywheel." "Pick the concrete word."
+  - 26 "Abstract metaphor nouns." "Substrate (base), wedge, wedge in (add), vector (way, method),
+    locus, vantage, nexus, primitive as a noun, harness as a metaphor, surface as in 'API surface',
+    bedrock, scaffolding as a metaphor, modality, paradigm, gold-plating (more than the job needs),
+    ratchet as a metaphor (the mechanism's real name, or a limit that only tightens), evacuate for
+    moving code (move out), endgame (the last phase), north star, flywheel." "Pick the concrete
+    word."
   - 27 "Say what it does, not how it feels." "The fix names the mechanism or a number"
   - 30 "Cut adverbs, or use a stronger verb." "'runs quickly' becomes 'is fast' or the number."
-  - 31 "Prefer the plain word." "'utilize' becomes 'use', 'leverage' becomes 'use', 'facilitate'
-    becomes 'help', 'numerous' becomes 'many', 'in the event that' becomes 'if'."
+  - 31 "Prefer the plain word." "'utilize' and 'leverage' become 'use', 'facilitate' becomes
+    'help', 'numerous' becomes 'many', 'in the event that' becomes 'if'."
   - 32 "Mannered prose." "Metaphor or flourish where a literal phrase exists" "Say what you mean."
   - 33 "Over-compression." "Write whole sentences with their articles and verbs, and spell out
     arrows and abbreviations."

@@ -218,17 +218,11 @@ def g1_to_g5() -> None:
         main, feat = repo(tmp)
         old = head(feat)
         lane(feat, 'live', 'PASS', 'sonnet')
-        lane(feat, 'regression', 'PASS', 'sonnet')
-        commit(feat, 'test_a.txt', 't\n', 'a test')
-        same = gate('record', 'lane', 'regression', '--kept-from', old, '--note', 'n', cwd=feat)
         commit(main, 'b.txt', 'main\n', 'main moves')
         sh('git', 'rebase', '-q', 'main', cwd=feat)
-        moved = gate('record', 'lane', 'regression', '--kept-from', old, '--note', 'n', cwd=feat)
-        live  = gate('record', 'lane', 'live', '--kept-from', old, '--note', 'n', cwd=feat)
-        check('G2g a regression lane is kept only while the merge base with main is the one it ran '
-              'on, and a live lane is kept across a moved main',
-              same.returncode == 0 and moved.returncode == 2 and 'merge base' in moved.stderr
-              and live.returncode == 0, same.stderr + moved.stderr + live.stderr)
+        commit(feat, 'test_a.txt', 't\n', 'a test')
+        live = gate('record', 'lane', 'live', '--kept-from', old, '--note', 'n', cwd=feat)
+        check('G2g a live lane is kept across a moved main', live.returncode == 0, live.stderr)
     with tempfile.TemporaryDirectory() as tmp:
         _, feat = repo(tmp)
         lane(feat, 'gates', 'PASS', 'sonnet')
@@ -270,7 +264,7 @@ def g6_g7() -> None:
         clean_lanes(feat)
         s = gate('status', cwd=feat)
         check('G6b an act-on finding at an older patch blocks a later one, naming its patch',
-              s.returncode == 1 and 'act-on finding F1 is open' in s.stdout
+              s.returncode == 1 and 'blocking finding F1 is open' in s.stdout
               and 'recorded at patch' in s.stdout, s.stdout)
         gate('record', 'finding', 'F1', 'act-on', '--cmd', 'grep -n x', cwd=feat)
         s = gate('status', cwd=feat).stdout
@@ -366,14 +360,14 @@ def g6_g7() -> None:
         r = gate('land', msg, cwd=feat)
         check('G6j fixed at a later patch does not close the finding at its own patch: a reset '
               'back to it is not clean, and land refuses', s.returncode == 1
-              and 'act-on finding F1 is open' in s.stdout and r.returncode == 1
+              and 'blocking finding F1 is open' in s.stdout and r.returncode == 1
               and 'F1' in r.stderr, s.stdout + r.stderr)
         sh('git', 'reset', '-q', '--hard', good, cwd=feat)
         sh('git', 'revert', '--no-edit', 'HEAD', cwd=feat)
         lane(feat, 'gates', 'PASS', 'sonnet')
         s = gate('status', cwd=feat)
         check('G6k a revert back to the patch where a finding was recorded act-on is not clean',
-              s.returncode == 1 and 'act-on finding F1 is open' in s.stdout, s.stdout)
+              s.returncode == 1 and 'blocking finding F1 is open' in s.stdout, s.stdout)
     with tempfile.TemporaryDirectory() as tmp:
         _, feat = repo(tmp)
         gate('record', 'finding', 'F1', 'act-on', '--cmd', 'grep -n x', cwd=feat)
@@ -401,7 +395,7 @@ def g6_g7() -> None:
         r = gate('land', msg, cwd=feat)
         check('G6m an older closing row at this patch does not hide a newer act-on row at a later '
               'one: a reset back to it is not clean, and land refuses', s.returncode == 1
-              and 'act-on finding F1 is open' in s.stdout and r.returncode == 1
+              and 'blocking finding F1 is open' in s.stdout and r.returncode == 1
               and 'F1' in r.stderr, s.stdout + r.stderr)
     with tempfile.TemporaryDirectory() as tmp:
         _, feat = repo(tmp)
@@ -417,7 +411,7 @@ def g6_g7() -> None:
         r = gate('land', msg, cwd=feat)
         check('G6n a finding sorted dismissed and then act-on at a later patch is open when a '
               'reset brings back the dismissed patch, and land refuses', s.returncode == 1
-              and 'act-on finding F1 is open' in s.stdout and r.returncode == 1
+              and 'blocking finding F1 is open' in s.stdout and r.returncode == 1
               and 'F1' in r.stderr, s.stdout + r.stderr)
     with tempfile.TemporaryDirectory() as tmp:
         _, feat = repo(tmp)
@@ -581,9 +575,12 @@ def g10_to_g15() -> None:
         ran  = subprocess.run(' && '.join(said), shell=True, cwd=sub, capture_output=True,
                               text=True)
         left = sh('git', 'branch', '--list', 'feat', cwd=main).strip()
-        check('G10e land prints the commands that remove the whole worktree, then delete the '
-              'branch, and they run from the subfolder it landed from',
+        check('G10e land prints the command the root runs to remove the whole worktree, then the '
+              'one the operator runs to delete the branch, and they run from the subfolder it '
+              'landed from',
               len(said) == 2 and 'worktree remove' in said[0] and 'branch -D' in said[1]
+              and 'the root removes the worktree' in r.stdout
+              and 'the operator deletes the branch' in r.stdout
               and ran.returncode == 0 and not os.path.exists(feat) and not left
               and sh('git', 'rev-list', '--count', 'main', cwd=main).strip() == '2',
               r.stdout + ran.stderr)
@@ -699,7 +696,7 @@ def g16_to_g18() -> None:
         gate('record', 'finding', 'F1', 'act-on', '--cmd', 'grep -n x', cwd=feat)
         s = gate('status', cwd=feat).stdout
         check('G17a the same branch name in a new worktree starts with an empty ledger',
-              'failed correction' not in s and 'act-on finding F1' in s, s)
+              'failed correction' not in s and 'blocking finding F1' in s, s)
     with tempfile.TemporaryDirectory() as tmp:
         main, _ = repo(tmp)
         sh('git', 'switch', '-q', '-c', 'one', cwd=main)
@@ -779,12 +776,8 @@ def g19() -> None:
         lane(feat, 'review-correctness', 'PASS', 'opus')
         lane(feat, 'review-structure', 'PASS', 'sonnet')
         s = gate('status', cwd=feat)
-        check('G19 a live lane that passed needs a regression lane on main for a clean verdict',
-              s.returncode == 1 and 'no regression lane' in s.stdout, s.stdout)
-        lane(feat, 'regression', 'PASS', 'sonnet')
-        s = gate('status', cwd=feat)
-        check('G19b with the regression lane passed, the verdict is clean', s.returncode == 0,
-              s.stdout)
+        check('G19 a live lane that passed needs no regression lane for a clean verdict',
+              s.returncode == 0 and 'regression' not in s.stdout, s.stdout)
 
 
 def g20_to_g23() -> None:
@@ -819,38 +812,10 @@ def g20_to_g23() -> None:
               s.returncode == 1 and 'fewer than two review lanes' in s.stdout, s.stdout)
     with tempfile.TemporaryDirectory() as tmp:
         _, feat = repo(tmp)
-        bare  = lane(feat, 'regression', 'NO-TRUNK-FEATURE', 'sonnet')
-        other = [gate('record', 'lane', name, 'NO-TRUNK-FEATURE', '--model', 'sonnet', '--at',
-                      head(feat), '--note', 'n', cwd=feat).returncode
-                 for name in ('live', 'gates', 'review-a')]
-        lane(feat, 'gates', 'PASS', 'root')
-        lane(feat, 'live', 'PASS', 'sonnet')
-        lane(feat, 'review-a', 'PASS', 'opus')
-        lane(feat, 'review-b', 'PASS', 'sonnet')
         said = gate('record', 'lane', 'regression', 'NO-TRUNK-FEATURE', '--model', 'sonnet',
                     '--at', head(feat), '--note', 'main has no a.txt to read', cwd=feat)
-        s = gate('status', cwd=feat)
-        check('G21 NO-TRUNK-FEATURE is the regression lane\'s alone, needs --note, and passes the '
-              'regression lane', bare.returncode == 2 and other == [2, 2, 2]
-              and said.returncode == 0 and s.returncode == 0, f'{other} {said.stderr} {s.stdout}')
-    with tempfile.TemporaryDirectory() as tmp:
-        _, feat = repo(tmp)
-        clean_lanes(feat)
-        said = []
-        for result in ('ISSUES', 'NO-RUNTIME'):
-            lane(feat, 'regression', result, 'sonnet')
-            said.append(gate('status', cwd=feat))
-        lane(feat, 'live', 'PASS', 'sonnet')
-        lane(feat, 'regression', 'ISSUES', 'sonnet')
-        said.append(gate('status', cwd=feat))
-        check('G22 a regression row that is not PASS or NO-TRUNK-FEATURE is not clean, whatever '
-              'the live lane, and status names its result',
-              [r.returncode for r in said] == [1, 1, 1]
-              and 'lane regression is ISSUES' in said[0].stdout
-              and 'lane regression is NO-RUNTIME' in said[1].stdout
-              and 'lane regression is ISSUES' in said[2].stdout
-              and 'no regression lane ran' not in said[2].stdout,
-              ''.join(r.stdout for r in said))
+        check('G21 NO-TRUNK-FEATURE is no longer a lane result, since no regression lane is '
+              'required', said.returncode == 2, said.stderr)
     with tempfile.TemporaryDirectory() as tmp:
         _, feat = repo(tmp)
         gate('record', 'finding', 'F1', 'act-on', '--cmd', 'grep -n x', cwd=feat)
@@ -920,19 +885,16 @@ def g24() -> None:
             names = [line.split('\t')[4] for line in f.read().splitlines()[1:]]
         check('G24b a branch whose ledger has the old name, each / as __, keeps its open findings, '
               'and the ledger moves to the new name', s.returncode == 1
-              and 'act-on finding F1 is open' in s.stdout and not os.path.exists(old)
+              and 'blocking finding F1 is open' in s.stdout and not os.path.exists(old)
               and names == ['F1', 'F2'], f'{s.stdout} {names}')
     with tempfile.TemporaryDirectory() as tmp:
         _, feat = repo(tmp)
-        blank = gate('record', 'lane', 'regression', 'NO-TRUNK-FEATURE', '--model', 'sonnet',
-                     '--at', head(feat), '--note', ' \t ', cwd=feat)
         lane(feat, 'live', 'PASS', 'sonnet')
         first = head(feat)
         commit(feat, 'b.md', 'docs\n', 'docs')
         kept = gate('record', 'lane', 'live', '--kept-from', first, '--note', '   ', cwd=feat)
-        check('G24c a note of only whitespace is no note, for NO-TRUNK-FEATURE and a kept lane',
-              blank.returncode == 2 and kept.returncode == 2 and '--note' in blank.stderr
-              and '--note' in kept.stderr, blank.stderr + kept.stderr)
+        check('G24c a note of only whitespace is no note for a kept lane',
+              kept.returncode == 2 and '--note' in kept.stderr, kept.stderr)
     with tempfile.TemporaryDirectory() as tmp:
         main, feat = repo(tmp)
         sh('git', 'switch', '-q', '-c', 'x__y', cwd=feat)
@@ -943,13 +905,159 @@ def g24() -> None:
         s = gate('status', cwd=feat)
         check('G24d a branch a/b leaves the ledger of a live branch a__b where it is',
               'K1' not in moved.stdout and s.returncode == 1
-              and 'act-on finding K1 is open' in s.stdout
+              and 'blocking finding K1 is open' in s.stdout
               and os.path.exists(ledger(main, 'x__y', 'feat')), moved.stdout + s.stdout)
     with tempfile.TemporaryDirectory() as tmp:
         _, feat = repo(tmp)
         r = gate('record', 'finding', 'F1', 'act-on', '--cmd', ' \t ', cwd=feat)
         check('G24e a --cmd of only whitespace is no command for an act-on finding',
               r.returncode == 2 and '--cmd' in r.stderr, r.stderr)
+
+
+def full_round(feat: str) -> None:
+    """A full round at the head: gates, a live pass and two review lanes on two models."""
+    lane(feat, 'gates', 'PASS', 'root')
+    lane(feat, 'live', 'PASS', 'sonnet')
+    lane(feat, 'review-a', 'PASS', 'opus')
+    lane(feat, 'review-b', 'ISSUES', 'sonnet')
+
+
+def size(feat: str, kind: str, why: str = 'the fix renames one variable') -> subprocess.CompletedProcess:
+    return gate('record', 'round', kind, '--note', why, cwd=feat)
+
+
+def g25_to_g31() -> None:
+    with tempfile.TemporaryDirectory() as tmp:
+        _, feat = repo(tmp)
+        odd  = size(feat, 'small').returncode
+        bare = gate('record', 'round', 'minor', cwd=feat).returncode
+        blank = size(feat, 'minor', ' \t ').returncode
+        check('G25 a round row is full, minor or wording, and says why (--note)',
+              (odd, bare, blank) == (2, 2, 2), str((odd, bare, blank)))
+    with tempfile.TemporaryDirectory() as tmp:
+        main, feat = repo(tmp)
+        full_round(feat)
+        first = head(feat)
+        commit(feat, 'a.txt', 'two\n', 'minor fix')
+        lane(feat, 'gates', 'PASS', 'root')
+        unsized = gate('status', cwd=feat)
+        said = size(feat, 'minor')
+        none = gate('status', cwd=feat)
+        lane(feat, 'checker', 'PASS', 'sonnet')
+        s = gate('status', cwd=feat)
+        r = gate('land', message(tmp), cwd=feat)
+        body = sh('git', 'log', '-1', '--format=%B', 'main', cwd=main)
+        check('G26 a later patch with no round row needs a full round again',
+              unsized.returncode == 1 and 'fewer than two review lanes' in unsized.stdout,
+              unsized.stdout)
+        check('G26b a minor round needs one checker lane at its patch',
+              said.returncode == 0 and none.returncode == 1 and 'checker' in none.stdout,
+              said.stderr + none.stdout)
+        check('G26c a minor round is clean with the earlier full round\'s lanes, one checker and '
+              'gates at the head, and the verdict block names the round and the earlier lanes',
+              s.returncode == 0 and r.returncode == 0 and 'round: minor' in body
+              and f'review-a: PASS, opus, at {first[:8]}' in body and 'checker: PASS' in body,
+              s.stdout + r.stderr + body)
+    with tempfile.TemporaryDirectory() as tmp:
+        _, feat = repo(tmp)
+        full_round(feat)
+        lane(feat, 'checker', 'PASS', 'sonnet')
+        first = head(feat)
+        commit(feat, 'a.txt', 'two\n', 'minor fix')
+        size(feat, 'minor')
+        lane(feat, 'gates', 'PASS', 'root')
+        kept = gate('record', 'lane', 'checker', '--kept-from', first, '--note', 'only a test '
+                    'changed', cwd=feat)
+        s = gate('status', cwd=feat)
+        check('G26d a minor round\'s checker runs at the new patch, so --kept-from refuses it and '
+              'the round is not clean', kept.returncode == 2 and 'checker' in kept.stderr
+              and s.returncode == 1 and 'checker' in s.stdout, kept.stderr + s.stdout)
+    with tempfile.TemporaryDirectory() as tmp:
+        _, feat = repo(tmp)
+        full_round(feat)
+        commit(feat, 'a.txt', 'two\n', 'reword a message')
+        size(feat, 'wording', 'only a README sentence changed')
+        nogates = gate('status', cwd=feat)
+        lane(feat, 'gates', 'PASS', 'root')
+        s = gate('status', cwd=feat)
+        check('G27 a wording round needs no checker, but still needs gates at the head',
+              nogates.returncode == 1 and 'no gates lane' in nogates.stdout
+              and s.returncode == 0, nogates.stdout + s.stdout)
+    with tempfile.TemporaryDirectory() as tmp:
+        _, feat = repo(tmp)
+        size(feat, 'minor')
+        lane(feat, 'gates', 'PASS', 'root')
+        lane(feat, 'checker', 'PASS', 'sonnet')
+        s = gate('status', cwd=feat)
+        check('G28 a sized round with no earlier full round is not clean, since the first round '
+              'runs in full', s.returncode == 1 and 'full round' in s.stdout, s.stdout)
+    with tempfile.TemporaryDirectory() as tmp:
+        _, feat = repo(tmp)
+        lane(feat, 'gates', 'PASS', 'root')
+        lane(feat, 'live', 'PASS', 'sonnet')
+        lane(feat, 'review-a', 'PASS', 'opus')
+        lane(feat, 'review-b', 'PASS', 'opus')
+        commit(feat, 'a.txt', 'two\n', 'minor fix')
+        size(feat, 'minor')
+        lane(feat, 'gates', 'PASS', 'root')
+        lane(feat, 'checker', 'PASS', 'sonnet')
+        s = gate('status', cwd=feat)
+        check('G28b a sized round whose earlier full round had one review model is not clean',
+              s.returncode == 1 and 'fewer than two review lanes' in s.stdout, s.stdout)
+    with tempfile.TemporaryDirectory() as tmp:
+        _, feat = repo(tmp)
+        full_round(feat)
+        gate('record', 'finding', 'F1', 'blocks', '--cmd', 'grep -n one a.txt', cwd=feat)
+        commit(feat, 'a.txt', 'two\n', 'fix F1')
+        size(feat, 'minor')
+        lane(feat, 'gates', 'PASS', 'root')
+        lane(feat, 'checker', 'PASS', 'sonnet')
+        held = gate('status', cwd=feat)
+        gate('record', 'finding', 'F1', 'fixed', '--note', 'its sites came back clean', cwd=feat)
+        s = gate('status', cwd=feat)
+        check('G29 a finding that blocks stays open through a sized round until a later row '
+              'closes it', held.returncode == 1 and 'blocking finding F1 is open' in held.stdout
+              and s.returncode == 0, held.stdout + s.stdout)
+    with tempfile.TemporaryDirectory() as tmp:
+        _, feat = repo(tmp)
+        full_round(feat)
+        for n in (2, 3):
+            commit(feat, 'a.txt', f'{n}\n', f'minor fix {n}')
+            size(feat, 'minor')
+            lane(feat, 'gates', 'PASS', 'root')
+            lane(feat, 'checker', 'PASS', 'sonnet')
+        s = gate('status', cwd=feat)
+        check('G30 a second minor round still rests on the last full round', s.returncode == 0,
+              s.stdout)
+        commit(feat, 'a.txt', '4\n', 'new behaviour')
+        size(feat, 'full', 'the fix adds a new code path')
+        lane(feat, 'gates', 'PASS', 'root')
+        lane(feat, 'checker', 'PASS', 'sonnet')
+        s = gate('status', cwd=feat)
+        check('G30b a round sized full needs its own live and review lanes, not a checker',
+              s.returncode == 1 and 'fewer than two review lanes' in s.stdout, s.stdout)
+        commit(feat, 'a.txt', '5\n', 'minor fix 5')
+        size(feat, 'minor')
+        lane(feat, 'gates', 'PASS', 'root')
+        lane(feat, 'checker', 'PASS', 'sonnet')
+        s = gate('status', cwd=feat)
+        check('G30c a minor round after an unfinished full round rests on that full round, so it '
+              'is not clean', s.returncode == 1 and 'full round' in s.stdout, s.stdout)
+    with tempfile.TemporaryDirectory() as tmp:
+        main, feat = repo(tmp)
+        bare = gate('record', 'finding', 'F1', 'blocks', cwd=feat).returncode
+        new  = [gate('record', 'finding', f'N{i}', b, cwd=feat).returncode
+                for i, b in enumerate(('follow-up', 'dropped'))]
+        old  = gate('record', 'finding', 'F2', 'act-on', '--cmd', 'grep -n x', cwd=feat)
+        gate('record', 'finding', 'F3', 'queue', cwd=feat)
+        with open(ledger(main, 'feat', 'feat')) as f:
+            results = [line.split('\t')[6] for line in f.read().splitlines()[1:]]
+        s = gate('status', cwd=feat)
+        check('G31 the buckets are blocks, follow-up and dropped; blocks keeps its command, and '
+              'an old bucket name is recorded as its new one',
+              bare == 2 and new == [0, 0] and old.returncode == 0
+              and results == ['follow-up', 'dropped', 'blocks', 'follow-up']
+              and 'blocking finding F2 is open' in s.stdout, f'{results} {s.stdout}')
 
 
 if __name__ == '__main__':
@@ -961,4 +1069,5 @@ if __name__ == '__main__':
     g19()
     g20_to_g23()
     g24()
+    g25_to_g31()
     sys.exit(failures)

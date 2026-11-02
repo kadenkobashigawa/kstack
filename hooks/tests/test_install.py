@@ -9,11 +9,13 @@ H1 fills a missing file. H2 takes out a stale kstack hook and leaves the person'
 skills' hooks and other settings alone, backing the file up first. H3 and H5 hold that a second run
 changes nothing and that only stale hooks go. H6 keeps one command wanted under two matchers. H7
 holds that hooks.json runs every script from the plugin root, and that the settings file gets the
-same commands with install.sh's link folder in its place. H8 takes out the hook of a retired skill
+same commands with install.sh's link folder in its place for a skill's script, and the checkout's
+hooks/ for a script there. H8 takes out the hook of a retired skill
 whose ~/.claude/skills link, beside the settings file, is a dead link into the repo.
 H9 holds the order of a run: while the settings file can't be written, the run fails and the
 retired skill's dead link stays, so the next run, once the file is writable, still knows the name
-and takes out both the hook and the link.
+and takes out both the hook and the link. H10 takes out a hook that runs a script from the
+checkout's hooks/ that hooks.json no longer names, and leaves a hooks/ script of another folder.
 """
 
 from __future__ import annotations
@@ -35,7 +37,8 @@ def run(target, *extra):
     return subprocess.run([sys.executable, inst, str(repo / 'hooks/hooks.json'), str(target),
                            str(repo / 'skills'), *extra], capture_output=True, text=True)
 raw = (repo / 'hooks/hooks.json').read_text()
-want = json.loads(raw.replace('${CLAUDE_PLUGIN_ROOT}/skills/', '$HOME/.claude/skills/'))['hooks']
+want = json.loads(raw.replace('${CLAUDE_PLUGIN_ROOT}/skills/', '$HOME/.claude/skills/')
+                   .replace('${CLAUDE_PLUGIN_ROOT}/hooks/', f'{repo}/hooks/'))['hooks']
 
 
 def cmds(s):
@@ -100,14 +103,30 @@ with tempfile.TemporaryDirectory() as tmp:
 
     # H7: hooks.json is the plugin's, and the settings file gets install.sh's paths...
     plugin = [h['command'] for es in json.loads(raw)['hooks'].values() for e in es for h in e['hooks']]
-    check('H7 every hooks.json command runs its script from ${CLAUDE_PLUGIN_ROOT}/skills/',
-          plugin and all('${CLAUDE_PLUGIN_ROOT}/skills/' in c and '.claude/' not in c for c in plugin), plugin)
+    roots = ('${CLAUDE_PLUGIN_ROOT}/skills/', '${CLAUDE_PLUGIN_ROOT}/hooks/')
+    check('H7 every hooks.json command runs its script from ${CLAUDE_PLUGIN_ROOT}/skills/ or /hooks/',
+          plugin and all(any(r in c for r in roots) and '.claude/' not in c for c in plugin), plugin)
     seven = Path(tmp) / 'seven.json'
     run(seven)
     merged = [c[2] for c in cmds(json.loads(seven.read_text()))]
-    check('H7b the settings file gets each command with $HOME/.claude/skills/ and no plugin root',
-          len(merged) == len(plugin) and all('$HOME/.claude/skills/' in c and 'CLAUDE_PLUGIN_ROOT' not in c
-                                             for c in merged), merged)
+    check('H7b the settings file gets each command with $HOME/.claude/skills/ or the checkout\'s '
+          'hooks/, and no plugin root',
+          len(merged) == len(plugin) and all(('$HOME/.claude/skills/' in c or f'{repo}/hooks/' in c)
+                                             and 'CLAUDE_PLUGIN_ROOT' not in c for c in merged), merged)
+    check('H7c the git guard reaches the settings file as a PreToolUse hook on Bash',
+          ('PreToolUse', 'Bash', f'"{repo}/hooks/block-dangerous-git.py"')
+          in cmds(json.loads(seven.read_text())), merged)
+
+    # H10: a retired script in the checkout's hooks/ goes, another folder's hooks/ script stays...
+    ten = Path(tmp) / 'ten.json'
+    gone = {'type': 'command', 'command': f'"{repo}/hooks/retired-guard.py"'}
+    theirs = {'type': 'command', 'command': '"/elsewhere/hooks/block-dangerous-git.py"'}
+    ten.write_text(json.dumps({'hooks': {'PreToolUse': [{'matcher': 'Bash', 'hooks': [gone, theirs]}]}}))
+    run(ten)
+    flat = cmds(json.loads(ten.read_text()))
+    check('H10 a retired hooks/ script\'s hook is taken out, and another folder\'s stays',
+          all(c[2] != gone['command'] for c in flat) and ('PreToolUse', 'Bash', theirs['command']) in flat,
+          flat)
 
 with tempfile.TemporaryDirectory() as tmp:
     # H8: vet is retired, but its dead link beside the settings file still points into the repo...

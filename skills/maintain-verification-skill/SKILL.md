@@ -50,7 +50,7 @@ docs).
 
 2. **Source wave.** One read-only subagent per feature file, launched concurrently. Each is a
    `general-purpose` subagent told it may not edit, the way pstack's how spawns its readers (pstack,
-   `skills/how/SKILL.md`, ll. 26–28). Never use an `Explore` agent, whose Claude Code description
+   `skills/how/SKILL.md`, l. 11). Never use an `Explore` agent, whose Claude Code description
    says it "locates code; it doesn't review or audit it" *(kstack: pstack names no agent type here,
    and flagging drift is a review)*. Each explains "how does this user-facing feature work?" from
    source, flags likely doc drift with citations, and returns one concise live-verification recipe.

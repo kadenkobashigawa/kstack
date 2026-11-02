@@ -60,7 +60,7 @@ limiter, a side ran untuned, or questions 4 and 7 went unchecked (pstack,
 ## An eval score
 
 An eval score takes the same care, asked of its trials (pstack,
-`skills/principle-explain-the-number/SKILL.md`, l. 19):
+`skills/principle-explain-the-number/SKILL.md`, l. 14):
 
 - Did every run do the task?
 - Does the gap hold across trials and models?
@@ -73,7 +73,7 @@ the questions above. Each sample names the kstack commit the gate ran on, and a 
 samples from one commit per side. benchmark-checklist: "Run every side the way production runs
 it ... and the same versions and data." (pstack, `skills/benchmark-checklist/SKILL.md`, l. 22)
 swarm: "A measurement brief also names the method ... The worker records both in its result."
-(pstack, `skills/swarm/SKILL.md`, l. 26) The root writes `kstack <sha>` as the last line of
+(pstack, `skills/swarm/SKILL.md`, l. 23) The root writes `kstack <sha>` as the last line of
 its message file, so it sits directly above the `GATE VERDICT:` block, from
 `git -C "$(cd "${CLAUDE_SKILL_DIR}" && pwd -P)" rev-parse --short HEAD` *(kstack: `gate.py`
 records no kstack commit, so the merge commit's message is where a sample reads it)*.
