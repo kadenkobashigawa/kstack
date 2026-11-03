@@ -12,7 +12,9 @@ Verification is these steps:
   directly." (pstack, `skills/principle-prove-it-works/SKILL.md`, l. 9) When the project has a
   verify skill (`verify-<app>`), use it to drive the app the way a user would. It compares a
   baseline build with the changed build and returns VERIFIED, NOT VERIFIED or INCONCLUSIVE. Never
-  report INCONCLUSIVE as a pass.
+  report INCONCLUSIVE as a pass. A writer's or fixer's report gives this verdict too, and a
+  suspicion about its own diff that it did not drive makes it INCONCLUSIVE (`references/gate.md`,
+  A fresh agent writes the fix).
 - **Judge the result against the interpretation, not against the change's own tests.** Check 1
   wrote down what this change should mean. Passing the writer's own tests is a weaker claim than
   doing the thing that was asked. A change can be correct on its own terms and still not be the
@@ -31,7 +33,8 @@ not write it. A clean verdict merges into local main under the standing grant (S
 A change the operator named, or asked to see first, stops at merge-ready, with what ran and what
 came back. When a condition is out of reach, such as a deploy, production data volume or the real
 device, say so. The failure this check is named after is "I couldn't reach it" quietly turning into
-"it passed" *(kstack: judgment, not measurement)*.
+"it passed" *(kstack: judgment, not measurement)*. In the gate, a live check that a drive could not
+reach is recorded UNREACHED, and the live lane is BLOCKED (`references/gate.md`, lane 2).
 
 **Satisfied when** the risk list is green, every changed line has a mutant that something catches,
 the whole path ran for real, the result matches the written interpretation, and you have shown the
@@ -124,8 +127,8 @@ Over-testing is over-complication. Each of these costs upkeep and catches little
 - snapshots of anything nondeterministic
 - known-failing tests left red, which get quarantined with a deadline or deleted *(kstack:
   judgment)*
-- flaky tests treated as noise: a failing check gets one fresh run, and one that passes on it is
-  still named in the Reply (`references/gate.md`, lane 1)
+- flaky tests treated as noise: a failing check gets one fresh run of the identical full command,
+  and one that passes on it is still named in the Reply (`references/gate.md`, lane 1)
 
 ### When the change touches an LLM call
 

@@ -18,7 +18,8 @@ had already read, per `references/evidence.md`, Run evidence behind the gate)*.
 ## The three buckets
 
 Each kept finding goes to blocks or follow-up, and each dropped one to dropped. `gate.py record
-finding <id> <blocks|follow-up|dropped>` records the bucket.
+finding <id> <blocks|follow-up|dropped> --lane <lane>` records the bucket and the lane whose report
+holds the finding.
 
 - **blocks:** "Block a PR only for a problem you can show, with a failing run at the head or a doc
   line the PR made wrong." and "Only a bug a user would hit, a failed gate, or a wrong shipped doc
@@ -28,8 +29,9 @@ finding <id> <blocks|follow-up|dropped>` records the bucket.
   follows the base rule under follow-up, since it "doesn't block unless the PR copies it or newly
   reaches it" (pstack, `skills/poteto-mode/playbooks/autopilot-full.md`, l. 16). Every blocking
   finding goes to one fix-forward, with an ID per finding in the Reply, and is recorded with
-  `--cmd`, the command that finds its sites (`references/gate.md`, The verdict). How it is closed is
-  in `references/gate.md`, A finding stays open until a later row closes it.
+  `--cmd`, the command that finds its sites (`references/gate.md`, The verdict), and `--premise`,
+  the premise its fix will assume, which is what `references/when-a-fix-fails.md` counts. How it is
+  closed is in `references/gate.md`, A finding stays open until a later row closes it.
 - **follow-up:** a kept finding that does not block, since "everything else goes in a follow-up"
   (pstack, `skills/poteto-mode/playbooks/autopilot-full.md`, l. 16). That includes a broken code
   rule in `references/rules.md` that no failing run shows, and a problem the change's base
