@@ -85,8 +85,11 @@ you run them.
 | `maintain-verification-skill` | Keeps a `verify-<app>` skill accurate as the app changes. | `/maintain-verification-skill` |
 | `upstream-sync` | Compares kstack with the newest commits of the sources under `upstream/`. It checks every citation into them, finds where each cited passage sits now, and suggests edits, line remaps and new pins without applying them. | `/upstream-sync` |
 
-Two agents come with them:
+Three agents come with them:
 
+- `build-agent`: the subagent `build` spawns to write, fix, sketch, review and run gate lanes. It
+  has file and shell tools, no MCP tools and no Agent tool, so a build-agent never spawns another
+  agent. A lane that needs an MCP tool runs as `general-purpose`, and its brief forbids spawning.
 - `researcher`: prior-art research across docs, GitHub and papers, used by `build` for its
   understand and design steps. It changes no code and writes only its research note.
 - `impeccable-finish-reviewer`: a final review for UI work built with

@@ -354,7 +354,7 @@ changes.)*
 ## Staffing
 
 SKILL.md's "## Subagents" holds the general rules, such as which model writes a fix and the effort
-every subagent runs at. The gate adds which model runs each lane.
+each role runs at. The gate adds which model runs each lane.
 
 - **The two review lanes run one on Opus and one on Sonnet, with the same brief**, as lane 3 says.
   "A second opinion is the same prompt against a different model." (pstack,

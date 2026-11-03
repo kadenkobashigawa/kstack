@@ -43,9 +43,23 @@ one first)*. Why each check exists is in `references/evidence.md`.
   report or act on it (pstack, `skills/poteto-mode/SKILL.md`, l. 32). A process number, such as
   gate rounds, tokens or agents per item, is a claimed number, and each sample names the kstack
   commit the gate ran on (`references/measure.md`, A process number).
-- **A broken skill found mid-task → fix it on its own branch, through build.** Don't block on it,
-  and don't work around it (pstack, `skills/poteto-mode/SKILL.md`, l. 36). *(kstack: a branch where
-  pstack opens a PR, since build merges locally, `references/gate.md`, Merge preparation.)*
+- **A question about code or a skill → answer it, and change no code.** A question asks how X
+  works, why Y was built this way, whether X is good, whether we are sure of Z, or which of X and Y
+  to do. "Investigation requests are read-only. They produce a cited explanation or a
+  recommendation, not a code change." (pstack, `skills/poteto-mode/playbooks/investigation.md`,
+  l. 5) Give your real judgment, as Autonomy says. A change the answer recommends goes back to the
+  operator to start: "hand back to the user and re-route to Bug fix or Feature." (pstack,
+  `skills/poteto-mode/playbooks/investigation.md`, l. 12) *(kstack: a trigger, not a playbook row,
+  because every row is a change. A recommendation once ran as a change the operator never
+  approved.)*
+- **A broken skill that blocks the task → fix it on its own branch, through build.** Fix it rather
+  than stop the task or work around it (pstack, `skills/poteto-mode/SKILL.md`, l. 36). pstack's
+  autonomous-run scopes that licence to the goal: "Mid-run discoveries that support the goal are
+  yours." (pstack, `skills/poteto-mode/playbooks/autonomous-run.md`, l. 9) A broken skill that
+  does not block the task is written down, not fixed (`references/contain.md`). A skill in a repo
+  that another session or person owns goes to that owner, with the evidence, and is not edited here
+  *(kstack: upstream is silent on a repo someone else owns)*. *(kstack: a branch where pstack opens
+  a PR, since build merges locally, `references/gate.md`, Merge preparation.)*
 - **Long or unattended work (`/loop`, or the user away) → `references/long-run.md`** around the
   routed playbook, with its decision trail per pstack's show-me-your-work skill (pstack,
   `skills/poteto-mode/playbooks/autonomous-run.md`, l. 9; pstack, `skills/poteto-mode/SKILL.md`,
@@ -68,9 +82,21 @@ The rows are pstack's split (pstack, `skills/poteto-mode/playbooks/refactoring.m
 that fits two rows is two diffs through two playbooks, because check 3 never restructures and
 changes behaviour in one diff. Ship the structural change first, with a test that pins today's
 behaviour. A redesign found during a refactor is a feature: name it and route it to
-`references/feature.md` (pstack, `skills/poteto-mode/playbooks/refactoring.md`, l. 5). *(kstack:
-every code change adds, corrects, reshapes or speeds up code, so build needs no figure-it-out
-fallback.)*
+`references/feature.md` (pstack, `skills/poteto-mode/playbooks/refactoring.md`, l. 5).
+
+**A large or cross-cutting change is split into units before any row.** "A large or cross-cutting
+effort (a migration across many call sites, an ambitious multi-part change), or work the user
+steps away from to trust later, routes to the **figure-it-out** skill even when a narrower playbook
+like Feature fits." (pstack, `skills/poteto-mode/SKILL.md`, l. 126) Open `references/decompose.md`.
+It splits the change into independently landable units, and each unit then routes to its own row
+and runs that playbook and its gate. A large change always runs four sections of
+`references/long-run.md` (Done, Each iteration, The trail and Handing back), attended or not
+(`references/decompose.md`). Work the user steps away from also loads all of
+`references/long-run.md` (Triggers). *(kstack: build carries figure-it-out's Phase B and Phase A's
+scope, rigor and checkpoint, in `references/decompose.md`, because every code change still fits a
+row by kind, and `references/long-run.md` already holds the other phases. pstack's figure-it-out sets
+`disable-model-invocation: true` (pstack, `skills/figure-it-out/SKILL.md`, l. 4), so build cannot
+call it.)*
 
 ## The checks
 
@@ -96,9 +122,9 @@ counter the failures Karpathy names (Karpathy, 2026).
 - **5. Automate** (`references/automate.md`). Never blocks a merge. Once a step repeats three times,
   script it, and build the tool now when only a tool can prove the work. An invariant becomes a
   mechanical check, and a correction made twice becomes a `/correct` proposal to the operator.
-- **When a fix fails** (`references/when-a-fix-fails.md`). After the second failed fix for one
-  issue, stop, revert, write down the premise both fixes shared, and count the problem per actor
-  before a third fix.
+- **When a fix fails** (`references/when-a-fix-fails.md`). After the second failed fix that
+  shares one premise, stop, revert, write down the premise both fixes assumed, and test it before a
+  third fix. The count is per premise, not per finding ID.
 
 ## Autonomy
 
@@ -132,10 +158,30 @@ true answer, and choose candor over agreement (pstack, `skills/poteto-mode/SKILL
 
 ## Subagents
 
-**Give each investigation, piece of writing and fix to a fresh subagent**, fix rounds, follow-ups,
-retries and the next queue item included. Hand it the original brief, every later directive, and
-the prior agent's report and branch. Reuse an agent only when the work needs its checkout, its
-uncommitted changes, or a process it still runs (pstack, `skills/poteto-mode/SKILL.md`, l. 102).
+**Spawn every subagent inside a playbook step as `subagent_type: "build-agent"`**
+(`agents/build-agent.md`): writers, fixers, sketchers, reviewers and gate lanes. poteto-mode: "**Use
+`subagent_type: "poteto-agent"` for any subagent you spawn inside a playbook step** (code-writing
+delegates, ad-hoc helpers)." (pstack, `skills/poteto-mode/SKILL.md`, l. 94) Two keep their own
+type: the `researcher` agent, which needs web search (`references/prior-art.md`), and the Explore
+search in check 1 (`references/understand.md`). *(kstack: build-agent's `tools` list is Read,
+Grep, Glob, Bash, Edit, Write and Monitor. A `tools` list leaves out every MCP tool, where pstack
+keeps them, "agent mode (readonly strips MCP)" (pstack, `skills/poteto-mode/SKILL.md`, l. 96).
+Across three build sessions no subagent called an MCP tool, and each general-purpose subagent
+loaded about 40 tool schemas it never used. Live lanes drive the app through Bash. A lane that
+needs an MCP tool, such as a browser, is spawned as `general-purpose`, and its brief names the
+tool and lists spawning an agent under FORBIDDEN, since general-purpose keeps the Agent tool: "By
+default, a subagent can spawn subagents of its own" (Claude Code docs, `sub-agents`,
+https://code.claude.com/docs/en/sub-agents). The file sets no `model`, so the call's `model` picks the model per role, below.)*
+
+**Give new work to a fresh subagent.** Hand it the original brief, every later directive, and the
+prior agent's report and branch. "This holds for a fix round, a follow-up, a retry, and the next
+queue item." (pstack, `skills/poteto-mode/SKILL.md`, l. 102) One agent carries one round's writing
+through its commits: a bug fix's failing test and then its fix (`references/bugfix.md`, step 4),
+or a refactor's pin, subtraction and reshape (`references/refactor.md`, step 2) *(kstack: l. 102
+names new work after an agent returns, not each commit inside one round's writing, and
+pstack's tdd runs the test and the fix as one workflow, `skills/tdd/SKILL.md`, ll. 17–20)*. Reuse
+an agent only when the work needs its checkout, its uncommitted changes, or a process it still
+runs (pstack, `skills/poteto-mode/SKILL.md`, l. 102).
 
 **The root owns the result.** Review each diff and write your own summary. A second opinion is
 the same prompt against a different model (pstack, `skills/poteto-mode/SKILL.md`, l. 100). So the
@@ -151,17 +197,29 @@ Code runs only Claude models, so Opus is the strongest and Sonnet the fast one.)
 **Run every subagent in the background**, so the root keeps working while it runs (pstack,
 `skills/poteto-mode/SKILL.md`, l. 96).
 
-**Pass `effort: "medium"` on every Agent call**, for writers, fixers, gate lanes, the researcher
-and every other subagent. The Agent tool takes an `effort` parameter for each call, and it
-overrides the agent's own `effort` field and the session's level (Claude Code docs,
-`sub-agents`, https://code.claude.com/docs/en/sub-agents). pstack picks the level per job (pstack,
-`skills/poteto-mode/SKILL.md`, l. 98). *(kstack: the operator set one level for every subagent,
-since Opus 5.5 does the work at medium.)*
+**Set `effort` on each Agent call by the role.** Opus writers and fixers run at `high`, and so
+does the Opus subagent that folds a design's two sketches into one (`references/design.md`).
+Every other subagent runs at `medium`, such as review lanes, live lanes, checkers, the researcher
+and Sonnet's mechanical work. The Agent tool takes an `effort` parameter for each call, and it
+overrides the agent's own `effort` field and the session's level (Claude Code docs, `sub-agents`,
+https://code.claude.com/docs/en/sub-agents). pstack picks the level per job: "start from the
+role's line or default and pick the reasoning level and speed the job needs." (pstack,
+`skills/poteto-mode/SKILL.md`, l. 98) Its figure-it-out skill says "Pick each subagent's
+reasoning level and fast or standard speed for the job, per the Subagents section of the
+**poteto-mode** skill." (pstack, `skills/figure-it-out/SKILL.md`, l. 31) *(kstack: the split is
+two levels, not pstack's budget-and-steps scheme. Writers and fixers did the hardest work and
+most of the carelessness in a measured run, with numbers never rerun and promises never tested.
+Check the split with `scripts/ledger.py`, rounds per unit and spend before and after, per
+`references/measure.md`.)*
 
 **Only the root spawns agents.** A subagent owns its diff directly, with the same review separation
 (pstack, `skills/poteto-mode/playbooks/feature.md`, l. 12). *(kstack: pstack's single owner fans
 out after the blocking phase, l. 19. Here the root spawns every agent, so it sees all the
-work.)*
+work.)* build-agent has no Agent tool, so a build-agent cannot spawn. A general-purpose lane can,
+so its brief forbids it (Spawn every subagent, above). The Claude Code docs: "To keep one
+subagent from spawning while nesting is on, such as a reviewer that should stay read-only, omit
+`Agent` from its `tools` list or add it to `disallowedTools`." (Claude Code docs, `sub-agents`,
+https://code.claude.com/docs/en/sub-agents)
 
 ### The brief
 
@@ -184,8 +242,9 @@ ACCEPTANCE   the evidence that proves the work is done, one checkable criterion 
 VERIFY       exact commands the project's rules name for the touched paths, plus known gotchas
 FORBIDDEN    no merge, no push, no rebase, no force-push, no fixes outside scope, plus
              unit-specific bans
-REPORT       status, branch, head SHA, verdict, what you actually ran, deviations,
-             suggested follow-ups
+REPORT       status, branch, head SHA, verdict (a lane: PASS, ISSUES or BLOCKED; a writer or
+             fixer: VERIFIED, NOT VERIFIED or INCONCLUSIVE), what you actually ran, deviations,
+             every suspicion about your own diff and whether you drove it, suggested follow-ups
 ```
 
 - **SCOPE** names the data shape because pstack's feature step delegates "with a specific scope
@@ -198,7 +257,17 @@ REPORT       status, branch, head SHA, verdict, what you actually ran, deviation
 - **VERIFY** carries the commands because the author runs them on the committed head before a
   round (`references/gate.md`, A round).
 - **REPORT** uses `PASS`, `ISSUES` or `BLOCKED` with evidence for a lane (pstack,
-  `skills/swarm/SKILL.md`, l. 31).
+  `skills/swarm/SKILL.md`, l. 31). A writer or fixer gives its own verdict on what it ran, and the
+  root still verifies (`references/verify.md`): "A verdict is VERIFIED, NOT VERIFIED, or
+  INCONCLUSIVE. Inconclusive is not a pass. Don't hide a negative." (pstack,
+  `skills/figure-it-out/SKILL.md`, l. 42) A suspicion about code in its own diff that it did not
+  drive makes the report INCONCLUSIVE. An INCONCLUSIVE head is not code-ready, so no round starts
+  on it until a fresh fixer with that report, or a probe, drives the suspicion
+  (`references/gate.md`, A fresh agent writes the fix). Suggested
+  follow-ups hold only problems outside the diff. interrogate keeps an unrun doubt out of its
+  findings the same way: "Leave out anything you did not run." (pstack,
+  `skills/interrogate/SKILL.md`, l. 19) *(kstack: a fixer's undriven suspicions once rode along as
+  follow-ups, and a later round found them as critical findings.)*
 - **A brief that cannot name its evidence is not spawned**, since that unit is not scoped yet
   (pstack, `skills/poteto-mode/playbooks/orchestrate.md`, l. 18).
 - **A run of many items samples its briefs.** "Read a sample of each sub-coordinator's kickoffs

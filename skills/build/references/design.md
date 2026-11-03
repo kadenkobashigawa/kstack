@@ -6,7 +6,10 @@ step 4. pstack's trigger is poteto-mode's "Code crossing a function boundary →
 skill, parallel design exploration before implementing" (pstack, `skills/poteto-mode/SKILL.md`,
 l. 23), and bug-fix's "If it crosses a function boundary, `architect` first." (pstack,
 `skills/poteto-mode/playbooks/bug-fix.md`, l. 9) A change inside one function skips this step and
-says so. The root runs it. Subagents sketch the candidates and review the sketch, and the root
+says so. So does mechanical work whose target shape is already concrete, such as a pure move or a
+rename. figure-it-out: "Skip it for mechanical work whose shape is already concrete. A second arena
+over a settled design is over-engineering" (pstack, `skills/figure-it-out/SKILL.md`, l. 30). Once
+the step runs, Design it twice holds every time. The root runs it. Subagents sketch the candidates and review the sketch, and the root
 picks the design and sorts the findings. Adapted from pstack's architect skill, its
 design-red-flags reference and its exhaust-the-design-space and model-the-domain principles
 (Lauren Tan, MIT). Practice, not measurement. `/elon` still runs first, because none of this

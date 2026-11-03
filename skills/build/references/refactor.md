@@ -30,8 +30,11 @@ code does is a redesign. Name it, and run it through `references/feature.md`.
 2. **Pin the behaviour before anything moves.** A characterization test, a recorded output, or an
    equivalence script that captures what the code does today. Lint and type checks are not a pin.
    No coverage in the area means the pin gets written first. Carries out check 4 (verify), its first
-   rule: the test comes before the code it checks. A subagent writes the pin, and the root confirms
-   it passes on the code as it stands.
+   rule: the test comes before the code it checks. One writer carries steps 2, 4 and 5 from one
+   brief, as ordered commits: the pin, the subtraction, then the reshape (SKILL.md, Subagents). The
+   root names the target shape (step 3) before it writes that brief. The root checks out the pin commit detached and confirms the pin passes on the code as it stands, so
+   the brief bans editing the pin commit once later commits exist, as `references/bugfix.md`,
+   step 4, bans it for a failing test.
 3. **Name the target shape.** Name the structure the code is missing (a table, a state machine, a
    typed model). "Boring code stays when the shape is already clear and local." (pstack,
    `skills/poteto-mode/playbooks/refactoring.md`, l. 8) The reshape must delete branches or invalid
@@ -40,7 +43,8 @@ code does is a redesign. Name it, and run it through `references/feature.md`.
    `skills/poteto-mode/playbooks/refactoring.md`, l. 9). Carries out check 2 (simplify). The root
    names the shape. pstack's playbook runs architect when "the target crosses a function boundary"
    (pstack, `skills/poteto-mode/playbooks/refactoring.md`, l. 9). Here `references/design.md`, the
-   sketch step, runs first. Its subagents sketch two candidates *(kstack: `references/design.md`,
+   sketch step, runs first, unless the target shape is already concrete, as for a pure move or a
+   rename (`references/design.md`). Its subagents sketch two candidates *(kstack: `references/design.md`,
    Design it twice, says why it runs on Opus and Sonnet)*, and it checks a shape new to the codebase
    against prior art (`references/prior-art.md`). *(kstack: judgment. This step merges pstack's
    steps 2 and 3, which name the missing structure and then the target shape.)*
@@ -49,15 +53,15 @@ code does is a redesign. Name it, and run it through `references/feature.md`.
    `skills/poteto-mode/playbooks/refactoring.md`, l. 10). The smallest change that reaches the
    target shape ships, and a speculative cleanup that "might help" gets reverted (pstack,
    `skills/poteto-mode/playbooks/refactoring.md`, l. 10). Carries out check 2 (simplify), nothing
-   orphaned. A fresh subagent writes the subtraction, and the root reviews the diff.
+   orphaned. The same writer commits the subtraction, and the root reviews the diff.
 5. **Move in small steps that each keep the pin green.** For an API reshape, migrate every caller
    and delete the old API in the same change. No shim, and no parallel old and new paths. Check
    every rename against the files themselves, because a rename misses uses in strings, docs and
    back-references (pstack, `skills/poteto-mode/playbooks/refactoring.md`, l. 11). The same-change
    rule holds when no external user depends on the old API (pstack,
    `skills/principle-migrate-callers-then-delete-legacy-apis/SKILL.md`, l. 12). Carries out check 3
-   (contain): the diff moves structure and nothing else. A fresh subagent writes the edits from a
-   brief with the fields in SKILL.md, The brief, whose SCOPE names the file paths and the names
+   (contain): the diff moves structure and nothing else. The same writer commits the edits. Its brief,
+   with the fields in SKILL.md, The brief, has a SCOPE that names the file paths and the names
    being moved and whose ACCEPTANCE names the behaviour to hold, and the root reviews the diff.
 6. **Prove behaviour unchanged on the real artifact.** For a larger reshape, run an equivalence
    check: diff old output against new, replay a recorded baseline against the new code, or make a

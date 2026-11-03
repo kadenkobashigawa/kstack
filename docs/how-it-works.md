@@ -120,9 +120,10 @@ you can type, and which turns the mistake into a hook, lint rule or test.
 ## Where each skill comes from
 
 - `build`: Ours, plus pstack's poteto-mode (one playbook per change, its triggers, Autonomy and
-  Subagents) and its feature, bug-fix, refactoring, perf-issue, autonomous-run and prototype
-  playbooks. Also pstack's architect, interrogate, blast-radius, tdd, benchmark-checklist,
-  technical-writing and show-me-your-work skills, and its principles, attack-the-premise among them.
+  Subagents) and its feature, bug-fix, refactoring, perf-issue, autonomous-run, investigation and
+  prototype playbooks. Also pstack's figure-it-out, architect, interrogate, blast-radius, tdd,
+  benchmark-checklist, technical-writing and show-me-your-work skills, and its principles,
+  attack-the-premise among them.
   The gate comes from pstack's autopilot-full, shipping and swarm. The code rules come from
   interrogate's rubric, OWASP, the OpenSSF Scorecard and the Twelve-Factor App.
 - `elon`: Ours.

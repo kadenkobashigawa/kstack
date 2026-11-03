@@ -39,7 +39,9 @@ back (Karpathy, 2026).
   `docs/engineering/research.md`, l. 49) *(kstack: per `references/evidence.md`, Run evidence
   behind the gate, where research that came after round 6 found what six findings had missed.)*
 - **Write the live checks before the code.** For a change someone can reach by running it, write
-  each live check now, as one user flow with a concrete scenario and its pass condition. pstack's
+  each live check now, as one user flow with a concrete scenario and its pass condition, and declare each in the ledger
+  with `gate.py record live-check <id> --note <scenario and pass condition>` (`references/gate.md`,
+  the live lane). The gate refuses a live PASS until every declared check is VERIFIED. pstack's
   multi-phase-plan writes each live lane up front as "one box with a concrete scenario, the
   screenshot it saves, and its pass predicate" (pstack,
   `skills/poteto-mode/playbooks/multi-phase-plan.md`, l. 13). The gate's live lane drives this list

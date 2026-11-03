@@ -5,8 +5,8 @@ and the benny repro rules (Lauren Tan, MIT). Practice, not measurement.
 
 "**You own this task. Plan, review, verify.** Delegate investigation and the fix to subagents, stay
 in the lead." (pstack, `skills/poteto-mode/playbooks/bug-fix.md`, l. 3) The root plans, reviews and
-verifies. Fresh subagents investigate, write the test and write the fix (SKILL.md, Subagents). Each
-step below names the check in SKILL.md it carries out and who does it.
+verifies. Fresh subagents investigate, and one writer writes the failing test and then the fix
+(SKILL.md, Subagents). Each step below names the check in SKILL.md it carries out and who does it.
 
 Every shipped line traces to runtime evidence. A change that "might help" is a hypothesis, not a
 fix, and it does not ship. When evidence refutes a hypothesis, revert what it motivated (pstack,
@@ -59,11 +59,22 @@ l. 18). A long or stubborn hunt runs under `/loop`, with `references/long-run.md
 
 ## 4. Write the failing test, and run it before the fix
 
-Carries out check 4 (verify), its first rule: the test comes before the code it checks. A subagent
-writes the test and runs it. The root confirms that it fails, and fails for the intended reason,
-before anyone touches the code. pstack's tdd: "Write the failing test first." (pstack,
-`skills/tdd/SKILL.md`, l. 17) Then "Run the new test before fixing. Confirm it fails for the
-intended reason." (pstack, `skills/tdd/SKILL.md`, l. 18)
+Carries out check 4 (verify), its first rule: the test comes before the code it checks. One
+writer carries steps 4 and 5, from one brief with the fields in SKILL.md, The brief. Its CONTEXT
+carries the interpretation, and its VERIFY carries the risk list. pstack's bug-fix gives the code to
+one delegate: "Delegate implementation to a subagent ... with a specific scope." (pstack,
+`skills/poteto-mode/playbooks/bug-fix.md`, l. 9) pstack's tdd is one workflow, from "Write the
+failing test first." (pstack, `skills/tdd/SKILL.md`, l. 17) through "Run the new test before
+fixing. Confirm it fails for the intended reason." (pstack, `skills/tdd/SKILL.md`, l. 18) to the fix
+and the rerun (pstack, `skills/tdd/SKILL.md`, ll. 19–20).
+
+The writer commits the test alone, runs it, and records its failing output in the report. Then it
+writes the fix in a later commit. Its FORBIDDEN field bans amending, reordering or editing the test
+commit, or folding it into the fix, once the fix exists, and carries tdd's guardrail: "Do not change tests merely to match a
+wrong implementation." (pstack, `skills/tdd/SKILL.md`, l. 30) The root checks out that test commit, as it
+stands on the branch the writer reports, detached, and runs the test there. It must fail, and fail for the intended reason, or the fix is not
+taken *(kstack: the ban on editing the test commit is what lets the root check red after the fix is
+written, since the test it checks is the one the writer ran)*.
 
 The test is required when there is an obvious cheap local test path. When the only test would need
 brittle mocks, production-only state or broad fixture churn, use the closest executable check
@@ -73,22 +84,20 @@ l. 24). "Prefer no new test over a bad test." (pstack, `skills/tdd/SKILL.md`, l.
 ## 5. Fix the root, at its layer
 
 Carries out check 2 (simplify), since the fix sits in the layer where the defect lives, and check 3
-(contain), since the diff holds only what the interpretation named. The root plans the fix. A fresh
-subagent writes it from a brief with the fields in SKILL.md, The brief, whose CONTEXT carries the
-interpretation and whose VERIFY carries the risk list and the failing test. The root reviews the
-diff. pstack: "Delegate implementation to a subagent ... with a specific scope." (pstack,
-`skills/poteto-mode/playbooks/bug-fix.md`, l. 9)
+(contain), since the diff holds only what the interpretation named. The root plans the fix before it
+writes step 4's brief, so the plan, and the sketch when one runs (below), go in that brief. The
+same writer writes the fix on top of the test commit, and the root reviews the diff.
 
 The fix is the smallest change the evidence justifies, in the layer where the defect lives. A guard
 that silences the symptom (a null check, a retry, a broad except) is not a fix. Fix every place the
-same pattern appears, in the same change. The fix brief carries the command that lists those places,
-such as a `git grep`, in VERIFY and its output in CONTEXT. The fixer reruns it after the fix
+same pattern appears, in the same change. The writer's brief carries the command that lists those places,
+such as a `git grep`, in VERIFY and its output in CONTEXT. The writer reruns it after the fix
 (`references/gate.md`, The verdict). An instance that belongs to another owner is a queue finding
 instead, reported in the Reply (`references/judgment.md`). pstack's playbook says
 "If it crosses a function boundary, `architect` first" (pstack,
 `skills/poteto-mode/playbooks/bug-fix.md`, l. 9). Here `references/design.md`, the sketch step, runs
 first *(kstack: `references/design.md`, Design it twice, says why it runs on Opus and Sonnet)*.
-After two failed fixes for the same issue, stop and follow `references/when-a-fix-fails.md`.
+After two failed fixes that share one premise, stop and follow `references/when-a-fix-fails.md`.
 
 ## 6. Prove it on the same surface
 

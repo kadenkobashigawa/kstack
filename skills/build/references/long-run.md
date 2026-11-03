@@ -1,6 +1,8 @@
 # Running a change unattended
 
-Load this when a change is driven by `/loop` or left to run while the user is away. Adapted from
+Load this when a change is driven by `/loop` or left to run while the user is away. A large change
+split by `references/decompose.md` also runs its Done, Each iteration, The trail and Handing back
+sections, attended or not. Adapted from
 pstack's autonomous-run and hillclimb playbooks, its overnight guide, its show-me-your-work skill
 and its sequence-verifiable-units and make-operations-idempotent principles (Lauren Tan, MIT).
 Practice, not measurement.
@@ -68,7 +70,17 @@ drive, and return to it after each side fix." (pstack,
 own that passes the gate, in place of pstack's "their own PR")*. A discovery that does not block the
 predicate is recorded, not fixed (`references/contain.md`). *(kstack: autonomous-run makes each
 discovery that supports the goal the run's own, and contain.md keeps a non-blocking one out of
-every run, attended or not. Taking only the blocking ones keeps both rules true.)*
+every run, attended or not. Taking only the blocking ones keeps both rules true.)* A blocking skill
+in a repo that another session or person owns goes to that owner with the evidence. The run goes
+on with the work that does not need it, or ends and writes up the dead end, as the contract's
+Escape says *(kstack: upstream is silent on a repo someone else owns, and SKILL.md, Triggers, says
+the same)*.
+
+A handed-over task that is a question is an investigation. The run answers it and changes no code:
+"Investigation requests are read-only. They produce a cited explanation or a recommendation, not a
+code change." (pstack, `skills/poteto-mode/playbooks/investigation.md`, l. 5) A change the answer
+recommends goes in the reply for the operator to start: "hand back to the user and re-route to Bug
+fix or Feature." (pstack, `skills/poteto-mode/playbooks/investigation.md`, l. 12)
 
 ## When no task is handed over
 
@@ -170,7 +182,8 @@ reviewer's model on its own line, `reviewed by <model>` (pstack,
 **Reply:** the predicate, the iterations run, what landed with the gate's Reply for it
 (`references/gate.md`), what was reverted, the final predicate state, the questions parked for the
 person (each with its options and the default taken), the trail path (when the trail outlives the
-run), and the cost: wall time, and each agent's tokens as its task notification reports them.
+run), and the cost: wall time, and each agent's tokens from its usage records through
+`scripts/ledger.py`, never from its completion notice (`references/measure.md`).
 autonomous-run's Reply is "the exit condition, iterations run, what landed, what was discarded,
 final predicate state" (pstack, `skills/poteto-mode/playbooks/autonomous-run.md`, l. 13). *(kstack:
 the parked questions, the trail path and the cost are added, because the person reviews an

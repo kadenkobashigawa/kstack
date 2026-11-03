@@ -22,7 +22,8 @@ carries out and who does it.
    `references/design.md` designs it twice and writes the chosen sketch, signatures with
    not-implemented bodies, before any code. It interrogates the sketch only when the design is
    contested or hard to undo. The root runs `/elon` and picks the design, and subagents sketch the
-   candidates. A change inside one function skips the sketch and says so. *(kstack: pstack's feature
+   candidates. A change inside one function, or mechanical work whose shape is already concrete,
+   skips the sketch and says so (`references/design.md`). *(kstack: pstack's feature
    playbook runs architect at this step every time. Here it runs on poteto-mode's own trigger, the
    condition `references/bugfix.md` and `references/refactor.md` use.)* That trigger is "Code
    crossing a function boundary" (pstack, `skills/poteto-mode/SKILL.md`, l. 23).
@@ -113,7 +114,9 @@ That owner fans out internally after the blocking phase. Parent-level fan-out is
 produce independent artifacts (audits, cross-subsystem investigations, competing experiments).
 Rewrite the checkpoint at phase boundaries. Spawn a fresh owner rather than chaining interrupts."
 (pstack, `skills/poteto-mode/playbooks/feature.md`, l. 19) *(kstack: the root does every fan-out,
-so it sees all the work, as SKILL.md, Subagents, says.)*
+so it sees all the work, as SKILL.md, Subagents, says. One owner is not one branch. A large
+feature is split into units by `references/decompose.md` first, and each unit runs this playbook on
+its own branch.)*
 
 **Reply:** "what you built, what you chose and why, the throughput checkpoint, open decisions.
 Tables for design alternatives." (pstack, `skills/poteto-mode/playbooks/feature.md`, l. 21) Then
