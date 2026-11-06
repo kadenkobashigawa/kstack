@@ -28,8 +28,9 @@ when the learner asks. *(kstack: the operator's rule)*
 
 ## Teach the part the notes already hold
 
-The lecture follows that part's notes and map branch, in the same order, so what the learner hears
-matches what the learner opens. One lecture covers one part. When checking sources for the notes
+The lecture follows that part's notes and map branch, in the same order. Each paragraph starts by
+naming the map box it covers, in words, such as "Now open the box that says heat breaks a few
+bonds." So what the learner hears matches what the learner opens. One lecture covers one part. When checking sources for the notes
 turned up a fact an earlier lecture got wrong, open with a short spoken correction. *(kstack: the
 operator's rule)*
 
