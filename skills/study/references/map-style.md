@@ -53,5 +53,11 @@ branch, use a script:
    when the mouse rests for more than 80 milliseconds before release.
 3. Take a screenshot to check the result.
 
-Opening the map file again in the Browser pane opens a new tab, so close the old one. *(kstack: the
-operator's rule)*
+Opening the map file again in the Browser pane opens a new tab, so close the old one.
+
+**After every rebuild, reopen the map where the learner is.** Reloading the page closes every
+branch. So after each rebuild, open the path down to the current part: for each box from the root
+to that part, dispatch a `click` on the first `div` inside the box's `foreignObject` (search
+`#mmR` and `#mmL`, and skip copies with zero width), waiting about 800 milliseconds between clicks.
+Then click the page's Fit button (`#bFit`) and take a screenshot to check. *(kstack: the operator's
+rule)*
