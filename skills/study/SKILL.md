@@ -54,6 +54,9 @@ The scripts do this work:
 - **`page.py`** checks the Document, its links and the cards, and refuses a bad one with the
   reason. It splits a tree of over 500 nodes into nested maps behind portals, and it builds the
   page.
+- **`frames.py`** receives the video frames a browser page posts to it, and lays candidate frames
+  out on contact sheets labelled with their times. `references/video-capture.md` says how to use
+  it. It runs under uv, which installs Pillow on first run.
 
 You do this work:
 
@@ -184,6 +187,10 @@ references cite.
 | asks for cards on a map or a branch | `references/cards.md` |
 | asks for a quiz | the default quiz for the app, above |
 | asks to answer out loud | `references/verbal.md` |
+| wants to learn a subject from its foundations, lesson by lesson | `references/ground-up.md`, then `references/lesson-build.md` to build each lesson |
+| is about to hear a lesson with read aloud | `references/lecture.md` |
+| wants a lesson to draw on a YouTube video | `references/video-capture.md` |
+| studies from a map that grows with a course | `references/map-style.md` |
 
 `page.py` reads one cards file for all the maps of a set, `<W>/cards.json`, keyed by node id.
 After you save cards, build the page again and reopen it.

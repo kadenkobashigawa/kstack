@@ -58,10 +58,9 @@ reads it *(kstack: the operator's rule)*. Follow these rules:
 - Define a word the first time you need it. An analogy can give the gist, and then the real name
   takes over (`skills/teach/SKILL.md`, "Analogies land the gist, then hand off").
 
-Claude's app shows the **Read aloud** button on a message only after the turn settles, and a
-background agent that is still running can keep the button hidden. While agents run, end each part
-of the lecture and then send one short follow-up message, so that part's **Read aloud** button shows
-*(kstack: the operator's rule)*.
+Read aloud plays a whole reply and can't play a selection, so each part of the lecture is a reply
+of its own, with nothing else in it and no tool call after it. [lecture.md](lecture.md) has the
+full rules for a lecture read aloud *(kstack: the operator's rule)*.
 
 ## Bring in the supporting material
 
@@ -75,8 +74,8 @@ Supporting material is one kind of step. Open it at the point in the lecture whe
   the files on the person's computer. In Claude Code, give the file paths, which the desktop app
   opens in its panes.
 
-Put the links after the spoken paragraphs of each message, as a short list, so read aloud reaches
-them last *(kstack: a voice reads a path as a string of slashes)*.
+Put the links in a reply of their own, never in the lecture, because read aloud plays the whole
+reply *(kstack: a voice reads a path as a string of slashes)*.
 
 ## Answer questions and close the branch
 
