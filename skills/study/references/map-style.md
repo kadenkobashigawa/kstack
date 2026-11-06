@@ -55,11 +55,11 @@ branch, use a script:
 
 Opening the map file again in the Browser pane opens a new tab, so close the old one.
 
-**After every rebuild, reopen everything the learner has covered.** Reloading the page closes every
-branch. So after each rebuild, open every box of the lessons and parts taught so far, and leave
-the parts not yet taught closed. Read each box's id and fold state with `d3.select(g).datum()`,
-searching both `#mmR` and `#mmL` and skipping copies with zero width. Dispatch a `click` on the
-first `div` inside the `foreignObject` of one closed, covered box at a time, about 500
-milliseconds apart, until none is left. Then click the page's Fit button (`#bFit`) and take a
-screenshot to check. *(kstack: the operator's
+**The learner opens the branches. Touch the map only to undo a rebuild.** Never open a
+branch ahead of a lecture: the learner opens each one while listening. A rebuild reloads the page and
+closes every branch, so after a rebuild, reopen what the learner had open before it, and nothing more.
+Read each box's id and fold state with `d3.select(g).datum()`, searching both `#mmR` and `#mmL`
+and skipping copies with zero width. Dispatch a `click` on the first `div` inside the
+`foreignObject` of one closed box at a time, about 500 milliseconds apart. Then click the page's
+Fit button (`#bFit`) and take a screenshot to check. *(kstack: the operator's
 rule)*
