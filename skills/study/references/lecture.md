@@ -9,7 +9,9 @@ one part of a lesson. *(kstack: the operator's rule)*
 Read aloud plays a whole reply and can't play a selection. So a lecture reply holds nothing but the
 lecture. Status, links, admin and questions go in other replies. When a reply calls a tool after
 its text, the app groups the text with the tool calls, so no tool call follows the lecture. The
-reply ends, and the read-aloud button appears. *(kstack: the operator's rule)*
+reply ends, and the read-aloud button appears. In every reply that isn't a lecture, write the answer
+first and do any tool work after it, so the learner can read while the work runs. *(kstack: the
+operator's rule)*
 
 ## Prepare before you write
 
