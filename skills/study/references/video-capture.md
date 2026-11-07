@@ -26,11 +26,26 @@ Audio from a tab the learner can't see is a surprise.
 
 *(kstack: the operator's rule)*
 
+## Start every video muted
+
+A watch page can start playing before any script in it runs. So mute the player before the page
+loads: in your own tab, open `https://www.youtube.com/robots.txt` first, which is on the same site
+but has no player, and set
+
+```js
+sessionStorage['yt-player-volume'] = JSON.stringify({data: JSON.stringify({volume: 0, muted: true}), creation: Date.now()})
+```
+
+Then load the watch page in the same tab. Session storage belongs to that one tab, so the
+learner's tabs keep their own sound. The embed page with `mute=1` doesn't help, because its player
+loads no video. *(kstack: the operator's rule)*
+
 ## Get past ads
 
 YouTube often plays an ad before the video, and the page marks it with the class `ad-showing`.
 While that class is present, set the ad video's current time to its length minus a tenth of a
-second, then click the skip button if one shows. Check again every two seconds until the class is
+second and play it, still muted, because a paused ad never ends. Then click the skip button if one
+shows. Check again every two seconds until the class is
 gone. *(kstack: the operator's rule)*
 
 ## Read the transcript and the description
