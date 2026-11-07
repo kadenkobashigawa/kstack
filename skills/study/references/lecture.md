@@ -24,15 +24,16 @@ operator's rule)*
 
 ## Open by saying where to look
 
-Start with the map box to click and the video's tab and timestamp, said in words: "The video is in
+Start with the part's box on the map and the video's tab and timestamp, said in words: "The video is in
 the other tab, paused at three minutes six seconds." The learner drives the map. Move the map only
 when the learner asks. *(kstack: the operator's rule)*
 
 ## Teach the part the notes already hold
 
 The lecture follows that part's notes and map branch, in the same order. Each paragraph starts by
-naming the map box it covers, in words, such as "Now open the box that says heat breaks a few
-bonds." So what the learner hears matches what the learner opens. One lecture covers one part. When checking sources for the notes
+naming the map box it covers by what the box says, such as "The next box says heat breaks a few
+bonds." Never tell the learner to open a box: some boxes have nothing under them, and the learner
+opens branches when the learner wants. So what the learner hears matches what the learner reads. One lecture covers one part. When checking sources for the notes
 turned up a fact an earlier lecture got wrong, open with a short spoken correction. *(kstack: the
 operator's rule)*
 
