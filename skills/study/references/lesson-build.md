@@ -31,8 +31,9 @@ works, and its pictures. They never hold the builder's working notes. That means
 has or hasn't been taught, no explanation of how a number was worked out, and no note on which
 source left something out or where a video's narration and screen disagree. They also hold no
 *Inferred* labels and no remarks about the course's own choices. Put all of that in chat. In the
-notes, state the correct fact and leave the bookkeeping out. The full source list goes at the top
-of the notes, and each lesson ends with one short Sources line that names what it drew on.
+notes, state the correct fact and leave the bookkeeping out. The unit's front page holds, in order,
+a summary, the lesson list, links to any reference pages, and the full source list at the bottom.
+Each lesson ends with one short Sources line that names what it drew on.
 *(kstack: the operator's rule)*
 
 ## Let background agents do the heavy work
