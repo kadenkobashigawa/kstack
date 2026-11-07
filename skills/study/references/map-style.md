@@ -60,6 +60,8 @@ branch ahead of a lecture: the learner opens each one while listening. A rebuild
 closes every branch, so after a rebuild, reopen what the learner had open before it, and nothing more.
 Read each box's id and fold state with `d3.select(g).datum()`, searching both `#mmR` and `#mmL`
 and skipping copies with zero width. Dispatch a `click` on the first `div` inside the
-`foreignObject` of one closed box at a time, about 500 milliseconds apart. Then click the page's
-Fit button (`#bFit`) and take a screenshot to check. *(kstack: the operator's
+`foreignObject` of one closed box at a time, about 500 milliseconds apart. Then zoom to the part
+the learner is on, not the whole map: measure that part's boxes and centre them with the slow drag
+above, zooming in with the page's zoom button (`+`) until they fill most of the view. Take a
+screenshot to check. *(kstack: the operator's
 rule)*
