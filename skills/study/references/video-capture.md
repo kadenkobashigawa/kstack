@@ -49,6 +49,13 @@ gone. *(kstack: the operator's rule)*
 
 *(kstack: the operator's rule)*
 
+## Keep only diagrams
+
+A frame earns a place in the notes only when it is a diagram or an animation of the thing itself: a
+part, a circuit, a flow of charge, a labelled cutaway. Lecture slides, title cards and frames that
+show people, such as a presenter or a host, never go in the notes. When no video has a diagram for a
+part, leave the part without a picture. *(kstack: the operator's rule)*
+
 ## Pick the moments
 
 Use the transcript and the chapter list to choose the moments that show each part of the lesson.
