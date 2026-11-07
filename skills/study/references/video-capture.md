@@ -12,7 +12,7 @@ a tab you didn't open.
 
 1. List the tabs first, so you know which ones are the learner's.
 2. Open a tab of your own in the background, without bringing it to the front.
-3. Do all the work in that tab, and close it when you finish.
+3. Do all the work in that tab.
 
 A tab in the background slows its timers. Keep each script short, and split long loops across
 several calls. *(kstack: the operator's rule)*
@@ -23,8 +23,6 @@ Audio from a tab the learner can't see is a surprise.
 
 - Set the video to muted right after every page load and after every ad, before any seek or play.
 - Keep it paused. Seek to a time instead of playing to it.
-- When the learner should watch a moment, show the Browser pane first, then open the video at that
-  moment, paused, and tell the learner it's there.
 
 *(kstack: the operator's rule)*
 
@@ -57,9 +55,9 @@ Use the transcript and the chapter list to choose the moments that show each par
 For each moment, capture small candidate frames, 640 pixels wide, at that second and three seconds
 later. Name each one `c` and its second, such as `c0186` for 3:06. Then run
 `uv run $S/frames.py sheet <candidate folder> <sheet folder>` to lay them out on contact sheets
-labelled with their times, and look at each sheet. Keep the frames
-that show the thing clearly, and drop any frame with an ad, a blur or a half-finished transition.
-*(kstack: the operator's rule)*
+labelled with their times, and look at each sheet. Keep the frames that show the thing clearly,
+and drop any frame with an ad, a blur or a half-finished transition. *(kstack: the operator's
+rule)*
 
 ## Capture a frame
 
@@ -91,6 +89,5 @@ that show the thing clearly, and drop any frame with an ad, a blur or a half-fin
 
 ## Clean up
 
-Stop the receiver, close your tab, and leave the learner's tabs as you found them. Candidate frames
-and contact sheets stay in the scratch folder. Only the frames you keep go into the repository. *(kstack: the
-operator's rule)*
+Stop the receiver and close your tab. Candidate frames and contact sheets stay in the scratch
+folder. *(kstack: the operator's rule)*

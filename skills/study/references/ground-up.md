@@ -28,16 +28,10 @@ unlearn later. The real mechanism is usually short enough to say directly. This 
 teach's "Analogies land the gist, then hand off" for ground-up teaching. *(kstack: the operator's
 rule)*
 
-## Each lesson unlocks one working idea, and the next lesson builds on it
-
-A lesson ends with one working idea the learner can use, such as "a wire is either on or off". The
-next lesson starts from that idea and uses it to build something new. In a computer course, the
-first lesson unlocks current. The transistor's parts then use current to build the gate, and then
-each kind of transistor. *(kstack: the operator's rule)*
-
 ## Break a lesson down until every piece rests on something taught
 
-1. Name, in one sentence, the working idea the lesson unlocks.
+1. Name, in one sentence, the working idea the lesson unlocks, such as "a wire is either on or
+   off". The next lesson starts from that idea and builds with it.
 2. List the pieces that the thing is physically made of, and what each piece does.
 3. Check each piece, and each word it needs, against the lessons already taught.
 4. Any piece or word not yet covered becomes a part of this lesson, placed before the part that
@@ -49,8 +43,3 @@ each kind of transistor. *(kstack: the operator's rule)*
 For example, a transistor needs silicon that conducts only when the gate has a voltage on it. That
 silicon is doped, and doping hadn't been taught yet. So doping became its own part, placed before
 the two kinds of transistor. *(kstack: the operator's rule)*
-
-## Teach one part per lecture
-
-Covering a whole branch in one reply skims it. The learner remembers the names but not how the
-parts work. *(kstack: the operator's rule)*

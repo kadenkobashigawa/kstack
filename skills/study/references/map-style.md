@@ -8,8 +8,8 @@ learner asks. *(kstack: the operator's rule)*
 
 The map holds the lessons taught so far and the current lesson in full. The current lesson's boxes
 are all built before its first lecture ([lesson-build.md](lesson-build.md)), and the learner opens
-them branch by branch as the lectures go. Nothing from a later lesson goes on the map. *(kstack:
-the operator's rule)*
+them branch by branch as the lectures go. Nothing from a later lesson goes on the map. The map
+holds text only. Pictures live in the notes. *(kstack: the operator's rule)*
 
 ## Word every box as a name or a sentence
 
@@ -39,8 +39,7 @@ finished notes, never the other way round. *(kstack: the operator's rule)*
 ## Keep ids fixed
 
 Start each id with the unit, such as `u01/transistor/gate`, and never change an id, so saved cards
-carry over as the map grows. The map holds text only. Pictures live in the notes. *(kstack: the
-operator's rule)*
+carry over as the map grows. *(kstack: the operator's rule)*
 
 ## Move the map only when asked, without dragging
 
@@ -53,15 +52,21 @@ branch, use a script:
    when the mouse rests for more than 80 milliseconds before release.
 3. Take a screenshot to check the result.
 
-Opening the map file again in the Browser pane opens a new tab, so close the old one.
+Opening the map file again in the Browser pane opens a new tab, so close the old one. *(kstack: the
+operator's rule)*
 
-**The learner opens the branches. Touch the map only to undo a rebuild.** Never open a
-branch ahead of a lecture: the learner opens each one while listening. A rebuild reloads the page and
-closes every branch, so after a rebuild, reopen what the learner had open before it, and nothing more.
-Read each box's id and fold state with `d3.select(g).datum()`, searching both `#mmR` and `#mmL`
-and skipping copies with zero width. Dispatch a `click` on the first `div` inside the
-`foreignObject` of one closed box at a time, about 500 milliseconds apart. Then zoom to the part
-the learner is on, not the whole map: measure that part's boxes and centre them with the slow drag
-above, zooming in with the page's zoom button (`+`) until they fill most of the view. Take a
-screenshot to check. *(kstack: the operator's
-rule)*
+## Leave the branches to the learner
+
+The learner opens each branch while listening, so open a branch only to undo a rebuild, never
+ahead of a lecture. A rebuild reloads the page and closes every branch. After a rebuild, reopen
+what the learner had open before it, and nothing more:
+
+1. Read each box's id and fold state with `d3.select(g).datum()`, searching both `#mmR` and `#mmL`
+   and skipping copies with zero width.
+2. Dispatch a `click` on the first `div` inside the `foreignObject` of one closed box at a time,
+   about 500 milliseconds apart.
+3. Zoom to the part the learner is on, not the whole map. Centre that part's boxes with the slow
+   drag above, and zoom in with the page's zoom button (`+`) until they fill most of the view.
+4. Take a screenshot to check.
+
+*(kstack: the operator's rule)*
