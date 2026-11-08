@@ -3,7 +3,8 @@
 study helps you learn one idea that has many parts, such as a codebase, a skill or a folder of
 notes. It turns that idea into an interactive mind map on one HTML page and opens the page beside
 the chat. Claude then walks you through the map one part at a time, writes short cards that
-explain its parts, and quizzes you on them.
+explain its parts, and quizzes you on them. It can also teach a subject from its foundations,
+lesson by lesson, with notes, a map that grows with the course, and lectures written for read aloud.
 
 ## Run it
 
@@ -84,6 +85,30 @@ asks for a guess when you are unsure, because studies of word pairs found that a
 when the cue points toward the answer. Applying that to quiz questions is a judgment call
 ([`references/evidence.md`](references/evidence.md)). Claude never saves the questions or your
 results, so you can't learn saved questions by heart.
+
+## Learn a subject from the ground up
+
+Ask to learn a subject from its foundations, such as how a computer works starting from
+electricity, and study teaches it as a course of lessons.
+
+- **Order.** Each lesson covers the lowest thing the goal depends on that you haven't learned yet.
+  Every word is either everyday English or a term an earlier lesson explained, and Claude describes
+  the real thing instead of using analogies
+  ([`references/ground-up.md`](references/ground-up.md)).
+- **Built before it's taught.** Before a lesson's first lecture, Claude plans its parts, checks
+  every claim against a source it opens, writes the notes, and adds the lesson to the map.
+  Background agents do much of this work, and the lesson's new terms go into a glossary
+  ([`references/lesson-build.md`](references/lesson-build.md)).
+- **Videos.** When a lesson draws on a YouTube video, Claude reads its transcript and captures
+  still frames of its diagrams for the notes, with each frame credited. It works in a tab of its
+  own and keeps every video muted and paused
+  ([`references/video-capture.md`](references/video-capture.md)).
+- **A map that grows.** The map holds the lessons taught so far and the current lesson, and
+  nothing later. Each box holds one idea, worded as a full sentence
+  ([`references/map-style.md`](references/map-style.md)).
+- **Lectures.** Each lecture covers one part of a lesson and comes as a reply of its own, so the
+  app's **Read aloud** button plays only the lecture. Claude cues the video at that part first,
+  paused ([`references/lecture.md`](references/lecture.md)).
 
 ## How study builds a map
 
