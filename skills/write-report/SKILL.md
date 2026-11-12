@@ -39,9 +39,9 @@ Set `R=$(cd "${CLAUDE_SKILL_DIR}" && pwd -P)` first. The renderer is
 5. **Prose pass.** Read `$R/../technical-writing/SKILL.md` and `$R/../unslop/SKILL.md` by path and
    apply both to every file of the report. *(kstack: both are typed-only skills, so this step
    reads them rather than invoking them.)* Headings stay in sentence case in the source, as
-   technical-writing says (technical-writing, `SKILL.md`, l. 61); the renderer title-cases them
-   *(kstack: the fixed look sets title case, and casing at render time keeps the source under
-   technical-writing's rule and the output under the look's)*.
+   technical-writing says (technical-writing, `SKILL.md`, l. 61), and so do table and figure
+   captions; the renderer title-cases both *(kstack: the fixed look sets title case, and casing at
+   render time keeps the source under technical-writing's rule and the output under the look's)*.
 6. **Wordmark, if the project has a logo.** This is the only per-project input, and the default is
    none. Run `python3 "$R/scripts/wordmark.py" <logo.svg> <beside-the-report>/wordmark.svg`, then
    add `wordmark: wordmark.svg` to the front matter. It merges the logo's shapes into one path so

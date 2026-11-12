@@ -72,10 +72,10 @@ Times stands in for TeX Gyre Termes, the Times clone Sphinx's LaTeX output uses 
 stylesheet falls back to TeX Gyre Termes, then Liberation Serif, then any serif, and to DejaVu
 Sans Mono for code. Page breaks can then fall differently.
 
-The renderer sets headings in title case. The source is written in sentence case. Bold marks
-only headings, labels and glossary terms, and running text stays regular weight. An unnumbered
-heading is set at the body size, 10pt bold, which is the next step down from 12pt and about 20%
-smaller, as the other steps are.
+The renderer sets headings and captions in title case. The source is written in sentence case.
+Bold marks only headings, labels, captions and glossary terms, and running text stays regular
+weight. An unnumbered heading is set at the body size, 10pt bold, which is the next step down from
+12pt and about 20% smaller, as the other steps are.
 
 ## The wordmark
 
@@ -103,8 +103,9 @@ open.
 ## Components
 
 - **Note / Example / Warning:** a box with a 1pt black border and a bold label.
-- **Table:** caption above ("Table 1. Title", 10pt bold), bold header row, horizontal rules only.
-- **Figure:** caption below, centered ("Figure 1. Title", 10pt bold).
+- **Table:** caption above ("Table 1. Title Case", 10pt bold), bold header row, horizontal rules
+  only.
+- **Figure:** caption below, centered ("Figure 1. Title Case", 10pt bold).
 - **Code:** light grey fill, thin border, Menlo.
 - **Lists:** an item may carry one nested list.
 - **References:** a numbered list. **Glossary:** a definition list, term in bold.

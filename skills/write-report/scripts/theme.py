@@ -183,6 +183,29 @@ def _inline(s: str) -> str:
     return s.replace('\\\n', '<br>')
 
 
+def _caption(s: str) -> str:
+    '''
+    a table or figure caption: title-cased, then rendered inline like running text.
+
+    Notes
+    -----
+    a link's target and a bare address are set aside before the casing, so neither changes.
+    each sits in as one private-use character, which has no letter, digit or capital for
+    title_case to act on. *(kstack: captions follow headings into title case, 2026-11-12.)*
+    '''
+    held = []
+
+    def hold(m):
+        if m[1]:
+            return m[1]
+        held.append(m[0])
+        return chr(0xE000 + len(held) - 1)
+
+    s = re.sub(r'(`[^`]*`)|\]\([^)\s]+\)|https?://[^\s<>()\[\]`]+', hold, s)
+    s = title_case(s)
+    return _inline(re.sub('[-]', lambda m: held[ord(m[0]) - 0xE000], s))
+
+
 def _title(s: str) -> str:
     '''a heading's text: title-cased, escaped, code spans set in code.'''
     return re.sub(r'`([^`]+)`', r'<code>\1</code>', _esc(title_case(s)))
@@ -221,12 +244,12 @@ def _blocks(blocks: list, counts: dict, level: int, refs: bool = False) -> list[
             head = ''.join(f'<th>{_inline(h)}</th>' for h in b[2])
             rows = ''.join('<tr>' + ''.join(f'<td>{_inline(c)}</td>' for c in r) + '</tr>'
                            for r in b[3])
-            title = f'. {_inline(b[1])}' if b[1] else ''
+            title = f'. {_caption(b[1])}' if b[1] else ''
             out.append(f'<table><caption>Table {counts["table"]}{title}</caption>'
                        f'<thead><tr>{head}</tr></thead><tbody>{rows}</tbody></table>')
         elif kind == 'figure':
             counts['figure'] += 1
-            title = f'. {_inline(b[1])}' if b[1] else ''
+            title = f'. {_caption(b[1])}' if b[1] else ''
             out.append(f'<figure>{b[2]}<figcaption>Figure {counts["figure"]}{title}'
                        '</figcaption></figure>')
         elif kind == 'code':

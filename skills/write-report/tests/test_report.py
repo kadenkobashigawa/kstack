@@ -378,6 +378,11 @@ def test_theme(tmp: Path) -> None:
     check('T6 headings are title-cased in the html', 'How a Record Works</h2>' in page
           and 'The <code>kg_search</code> Tool</h3>' in page)
 
+    cap = theme._caption('see [the numbering appendix](#appendix-a) at https://example.com/a-b')
+    check('T6 captions are title-cased and keep link targets and addresses',
+          cap.startswith('See <a href="#appendix-a">The Numbering Appendix</a> at ')
+          and 'href="https://example.com/a-b">https://example.com/a-b</a>' in cap, cap)
+
     err = io.StringIO()
     with redirect_stderr(err):
         code = report.main([str(write(tmp, 'broken.md', FRONT + '# One\n\n[x](#nope)\n'))])
@@ -402,7 +407,7 @@ def test_theme(tmp: Path) -> None:
           page[-900:])
     check('T8 html in a paragraph is shown as text', '&lt;b&gt;bold&lt;/b&gt;' in page)
     check('T8 a caption and the wordmark label are escaped',
-          'a &quot;q&quot; &lt;i&gt;cap&lt;/i&gt;' in page
+          'A &quot;Q&quot; &lt;I&gt;cap&lt;/I&gt;' in page
           and 'aria-label="Q &quot;x&quot; &#39;y&#39; &lt;/style&gt;' in page)
 
     fake = write(tmp, 'fakechrome', '#!/bin/sh\necho "$@" > "$(dirname "$0")/args"\n'

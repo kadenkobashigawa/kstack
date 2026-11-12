@@ -75,8 +75,9 @@ Paragraphs before the first `##` are the chapter's introduction.
 - **PPR** — personalized PageRank.
 ```
 
-Write headings in sentence case. The renderer title-cases them in the PDF, the HTML and the
-contents, so the source follows technical-writing's rule and the output follows the layout's.
+Write headings and table and figure captions in sentence case. The renderer title-cases them
+wherever they print, so the source follows technical-writing's rule and the output follows the
+layout's. A caption's link targets and addresses stay as written.
 A word in backticks, or one holding a digit, an underscore or a capital, stays as written.
 
 ## Page breaks
