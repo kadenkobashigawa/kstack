@@ -38,8 +38,8 @@ Table: Type
 |---|---|
 | body | Times 10pt, line height 1.2 |
 | headings | bold, 20 / 14.4 / 12pt; unnumbered headings 10pt |
-| table captions | bold 10pt |
-| figure captions, running header and footer | 9pt |
+| captions | bold 10pt |
+| running header and footer | 9pt |
 | code | Menlo 8.5pt |
 | screen body | 16px on a 24px line; headings 200 / 144 / 120% |
 
@@ -104,7 +104,7 @@ open.
 
 - **Note / Example / Warning:** a box with a 1pt black border and a bold label.
 - **Table:** caption above ("Table 1. Title", 10pt bold), bold header row, horizontal rules only.
-- **Figure:** caption below, centered ("Figure 1. Title").
+- **Figure:** caption below, centered ("Figure 1. Title", 10pt bold).
 - **Code:** light grey fill, thin border, Menlo.
 - **Lists:** an item may carry one nested list.
 - **References:** a numbered list. **Glossary:** a definition list, term in bold.

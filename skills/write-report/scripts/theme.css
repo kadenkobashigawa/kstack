@@ -101,7 +101,7 @@ th { font-weight: bold; }
 
 figure { margin: 1.4em 0 1.4em; break-inside: avoid; }
 figure > svg, figure > img { display: block; max-width: 100%; height: auto; margin: 0 auto; }
-figcaption { font: 9pt Times, "Times New Roman", "TeX Gyre Termes", "Liberation Serif", serif; text-align: center; margin-top: 4pt; }
+figcaption { font: bold 10pt Times, "Times New Roman", "TeX Gyre Termes", "Liberation Serif", serif; text-align: center; margin-top: 6pt; }
 
 code, pre { font-family: Menlo, "Courier New", "DejaVu Sans Mono", monospace; }
 
@@ -141,7 +141,7 @@ dl.glossary dd { margin: 0 0 0.4em 1.5em; }
 
   /* stands in for the page break between parts... */
   main > h2, main > .newpage { margin-top: 3em; }
-  caption { font-size: 14px; }
+  caption, figcaption { font-size: 14px; }
   pre { font-size: 14px; }
 
   /* the Read the Docs theme's link, hover and visited colors... */
