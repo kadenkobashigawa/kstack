@@ -94,12 +94,12 @@ li > ul, li > ol { margin: 0.2em 0 0.2em; }
 .note-k { font: bold 10pt Times, "Times New Roman", "TeX Gyre Termes", "Liberation Serif", serif; margin-bottom: 3pt; }
 .note p { margin: 0; }
 
-table { border-collapse: collapse; width: 100%; margin: 0.4em 0 1em; break-inside: avoid; hyphens: manual; }
-caption { caption-side: top; text-align: left; font: 9pt Times, "Times New Roman", "TeX Gyre Termes", "Liberation Serif", serif; margin-bottom: 4pt; }
-th, td { border-top: 0.5pt solid #000000; border-bottom: 0.5pt solid #000000; padding: 3pt 6pt 3pt 0; text-align: left; vertical-align: top; }
+table { border-collapse: collapse; width: 100%; margin: 1.4em 0 1.4em; break-inside: avoid; hyphens: manual; }
+caption { caption-side: top; text-align: left; font: bold 10pt Times, "Times New Roman", "TeX Gyre Termes", "Liberation Serif", serif; margin-bottom: 6pt; }
+th, td { border-top: 0.5pt solid #000000; border-bottom: 0.5pt solid #000000; padding: 5pt 10pt 5pt 0; text-align: left; vertical-align: top; }
 th { font-weight: bold; }
 
-figure { margin: 1em 0; break-inside: avoid; }
+figure { margin: 1.4em 0 1.4em; break-inside: avoid; }
 figure > svg, figure > img { display: block; max-width: 100%; height: auto; margin: 0 auto; }
 figcaption { font: 9pt Times, "Times New Roman", "TeX Gyre Termes", "Liberation Serif", serif; text-align: center; margin-top: 4pt; }
 

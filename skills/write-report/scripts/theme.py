@@ -221,12 +221,12 @@ def _blocks(blocks: list, counts: dict, level: int, refs: bool = False) -> list[
             head = ''.join(f'<th>{_inline(h)}</th>' for h in b[2])
             rows = ''.join('<tr>' + ''.join(f'<td>{_inline(c)}</td>' for c in r) + '</tr>'
                            for r in b[3])
-            title = f' – {_inline(b[1])}' if b[1] else ''
+            title = f'. {_inline(b[1])}' if b[1] else ''
             out.append(f'<table><caption>Table {counts["table"]}{title}</caption>'
                        f'<thead><tr>{head}</tr></thead><tbody>{rows}</tbody></table>')
         elif kind == 'figure':
             counts['figure'] += 1
-            title = f' – {_inline(b[1])}' if b[1] else ''
+            title = f'. {_inline(b[1])}' if b[1] else ''
             out.append(f'<figure>{b[2]}<figcaption>Figure {counts["figure"]}{title}'
                        '</figcaption></figure>')
         elif kind == 'code':
