@@ -60,9 +60,9 @@ script under `$HOME/.claude/skills/<name>/`, where `<name>` is one of those link
 
 ## Skills
 
-Every skill except the eight you type yourself loads a one-line description into every session, so
+Every skill except the nine you type yourself loads a one-line description into every session, so
 Claude can use it when it fits. `robovac`, `clorox` and `stack-check` stay visible this way so
-that a loop or a robovac pass can call them. `correct`, `polish`, `unslop`, `technical-writing`,
+that a loop or a robovac pass can call them. `correct`, `polish`, `unslop`, `technical-writing`, `grill-me`,
 `improve-codebase-architecture`, `upstream-sync` and the two verification skills cost nothing until
 you run them.
 
@@ -80,6 +80,7 @@ you run them.
 | `polish` | Tidies comments and docstrings, and proves Python behavior didn't change. | `/polish` |
 | `unslop` | Cuts the tells that mark writing as machine-written. A verbatim copy of pstack's skill. | `/unslop` |
 | `technical-writing` | Shapes a document so a tired engineer understands it on first read: one kind of document per page, plain sentences, conditions first. A verbatim copy of pstack's skill. | `/technical-writing` |
+| `grill-me` | Interviews you about a plan or design in rounds, each question with a recommended answer, until every branch of the decision tree is settled. A verbatim copy of Matt Pocock's grill-me, with the grilling skill it calls folded in. | `/grill-me` |
 | `improve-codebase-architecture` | Finds shallow modules worth deepening, draws them as a before-and-after HTML report, then interviews you about the one you pick. Never changes code. | `/improve-codebase-architecture` |
 | `create-verification-skill` | Generates a `verify-<app>` skill that launches, drives and checks your real app. | `/create-verification-skill` |
 | `maintain-verification-skill` | Keeps a `verify-<app>` skill accurate as the app changes. | `/maintain-verification-skill` |
@@ -179,7 +180,7 @@ skill and run the tests.
   [Ralph Wiggum technique](https://ghuntley.com/ralph/).
 - [Matt Pocock's skills](https://github.com/mattpocock/skills) are the source of
   `improve-codebase-architecture`, with the codebase-design, grilling and domain-modeling skills it
-  reads.
+  reads, and of `grill-me`, copied verbatim.
 - [impeccable](https://github.com/pbakaus/impeccable) by Paul Bakaus shaped Robovac's design.
 - [markmap](https://github.com/markmap/markmap) by Gerald and [d3](https://d3js.org) by Mike
   Bostock draw study's maps, vendored under `skills/study/vendor/` (see `NOTICE`).

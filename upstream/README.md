@@ -31,7 +31,6 @@ later is ported from the source rather than rewritten from memory.
 | benny | bug reports start arriving from outside (Slack, users) |
 | visual-parity | a styling-system migration needs pixel-exact equivalence |
 | control-cli | an interactive command-line tool needs driving |
-| grilling, grill-me | an interview is wanted outside an architecture review |
 
 ## Left out
 
@@ -40,5 +39,6 @@ later is ported from the source rather than rewritten from memory.
   and merge rule live on in build's `references/gate.md`.
 - The comment strippers, which delete required docstrings.
 - pstack's teach workflow, whose writing rules `teach` carries. pstack's `unslop` and
-  `technical-writing` are carried verbatim as skills of their own.
+  `technical-writing` are carried verbatim as skills of their own, and so is Matt Pocock's
+  `grill-me`, with `grilling`'s body inlined in place of its one-line call.
 - The TypeScript and Grok Bot pieces, and the principles kstack's skills already state.
