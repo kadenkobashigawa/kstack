@@ -60,6 +60,8 @@ entry's page holds that heading, the html has no marker and no file://, and no t
 left behind. S2 renders a report over 100 pages whose late contents rows sit near the width where a
 third digit wraps them, and holds every contents entry on its page. S3 renders a report whose text
 holds @@x@@ and @@VERSION@@, the shape of a page marker, and holds both in the pdf's text.
+S4, on macOS, holds that S1's pdf carries no com.apple.quarantine attribute, the flag Chrome
+stamps on the pdf it prints, which stops the Claude desktop app's file pane from opening it.
 """
 
 from __future__ import annotations
@@ -594,6 +596,11 @@ def test_render(tmp: Path) -> None:
     check('S1 the html has no marker and no file://', '@@' not in html and 'file://' not in html)
     left = set(Path(tempfile.gettempdir()).glob('write-report-*')) - before
     check('S1 no temp folder is left', not left, str(left))
+    if sys.platform != 'darwin':
+        skip('S4 the pdf carries no quarantine flag', 'not macOS')
+        return
+    names = subprocess.run(['xattr', str(pdf)], capture_output=True, text=True).stdout
+    check('S4 the pdf carries no quarantine flag', 'com.apple.quarantine' not in names, names)
 
 
 def _long_report(folder: Path) -> Path:

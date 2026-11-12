@@ -29,11 +29,14 @@ Methods
 
 from __future__ import annotations
 
+import ctypes
+import errno
 import os
 import re
 import secrets
 import shutil
 import subprocess
+import sys
 import tempfile
 from pathlib import Path
 
@@ -365,6 +368,29 @@ def _render(chrome: Path, page: str, pdf: Path, tmp: Path) -> None:
     if r.returncode or not pdf.is_file():
         tail = (r.stderr.strip().splitlines() or ['no output'])[-1]
         raise RenderError(f'chrome failed printing {pdf.name} (exit {r.returncode}): {tail}')
+
+    #macos chrome stamps its pdf with the quarantine flag, which stops the desktop app's file
+    #pane from opening it, so the flag comes off. the .md, .html and .svg carry none...
+    if sys.platform == 'darwin':
+        _unquarantine(pdf)
+
+
+def _unquarantine(path: Path) -> None:
+    '''
+    remove com.apple.quarantine from a file on macOS, and do nothing when it carries none.
+
+    Notes
+    -----
+    python's os.removexattr exists only on linux, so this calls libc's removexattr, whose mac
+    signature takes a third options argument.
+    '''
+    libc = ctypes.CDLL(None, use_errno=True)
+    if libc.removexattr(os.fsencode(path), b'com.apple.quarantine', 0) == 0:
+        return
+    err = ctypes.get_errno()
+    if err != errno.ENOATTR:
+        raise RenderError(f'could not clear the quarantine flag on {path.name}: '
+                          f'{os.strerror(err)}')
 
 
 def _text(pdf: Path) -> str:
